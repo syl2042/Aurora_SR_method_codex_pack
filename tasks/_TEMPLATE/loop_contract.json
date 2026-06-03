@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "task_id": "template",
+  "task_type": "documentation",
+  "status_decision": "not_applicable",
+  "evidence_gate": {
+    "done": true,
+    "sources_read": [
+      "AGENTS.md"
+    ]
+  },
+  "fact_gate": {
+    "status": "not_applicable",
+    "classification": "opinion/methode",
+    "facts_verified": [],
+    "sources_checked": [],
+    "unverified_hypotheses": []
+  },
+  "implementation": {
+    "app_code_changed": false,
+    "changed_files": []
+  },
+  "verification": {
+    "commands_run": [
+      "not_applicable_template"
+    ],
+    "commands_failed": [],
+    "not_run_reason": null
+  },
+  "e2e_user_tests": {
+    "required": false,
+    "items": []
+  },
+  "memory_updates": {
+    "sr_lots_updated": true,
+    "current_state_updated": false,
+    "task_memory_updated": true,
+    "gate_report_updated": true
+  },
+  "context_budget": {
+    "checked": true,
+    "status": "green",
+    "next_session_prompt": "not_required"
+  },
+  "conversation_transition": {
+    "decision": "continue_current",
+    "reason": "Template context is green and no real task has been executed.",
+    "next_session_prompt_path": null,
+    "user_message_required": false
+  },
+  "resume_protocol": {
+    "required": false,
+    "mode": "not_required",
+    "next_user_prompt": null,
+    "default_on_plain_resume": "strict_resume",
+    "must_not_code_before_user_validation": false
+  }
+}

@@ -1,0 +1,24 @@
+project:
+  name: "{{PROJECT_NAME}}"
+  domain: "{{DOMAIN}}"
+  risk_level: "medium"
+
+suggested_codex_domain_skills:
+  - name: "codex-{{PROJECT_SLUG}}-core"
+    purpose: "developper les fonctionnalites metier coeur"
+    description: >-
+      utiliser quand Codex modifie le coeur metier de {{PROJECT_NAME}}: objets principaux, workflows, regles de gestion, donnees sensibles, validations humaines, controles ou comportements qui peuvent changer le sens fonctionnel de l'application. Charger cette skill avant tout code metier pour verifier les sources de verite, les invariants, les risques et les questions a faire valider.
+    triggers: ["{{TRIGGER_1}}", "{{TRIGGER_2}}"]
+    non_negotiable_rules: ["{{RULE_1}}"]
+    references: ["docs/domain/{{DOMAIN}}.md"]
+  - name: "codex-{{PROJECT_SLUG}}-agent-runtime"
+    purpose: "concevoir les agents IA applicatifs et distinguer les skills runtime des skills Codex"
+    description: >-
+      utiliser quand Codex cree ou modifie un agent IA applicatif, un prompt, un output schema, un binding SQL/Nexus/RAG, une skill runtime, une trace ou une validation humaine liee aux agents. Cette skill impose le contrat SR agent runtime: prompts controles, pas de SQL libre execute par LLM, schema JSON, cas de test, risques explicites et aucun agent actif sans validation.
+    triggers: ["agent_ia", "prompt", "output_schema", "skill_runtime", "rag", "nexus"]
+    non_negotiable_rules:
+      - "aucun agent actif sans validation humaine"
+      - "output schema et cas de test obligatoires"
+      - "pas de SQL libre genere puis execute par LLM"
+    references:
+      - "docs/codex/AI_AGENT_RUNTIME_METHOD.md"

@@ -1,0 +1,100 @@
+# SR_LOTS.yaml - backlog vivant SR-Harness
+
+version: "0.2"
+project: "{{PROJECT_NAME}}"
+project_key: "{{PROJECT_KEY}}"
+updated_at: null
+
+lot_naming:
+  pattern: "{{PROJECT_KEY}}-<AREA>-<SEQ>"
+  sequence_digits: 3
+  examples:
+    - "{{PROJECT_KEY}}-DESIGN-001"
+    - "{{PROJECT_KEY}}-API-001"
+
+autonomy_policy:
+  default_level: 1
+  max_lots_per_session: 3
+  max_repair_attempts_per_lot: 2
+  stop_on_gate_failure: true
+  require_human_validation_for:
+    - migration
+    - external_write
+    - dependency_change
+    - security_sensitive_change
+    - legal_fiscal_hr_or_medical_conclusion
+    - production_data_mutation
+
+autonomy_run:
+  enabled: false
+  approved_by_user_at: null
+  max_lots: 3
+  executable_statuses:
+    - reopened
+    - validated
+  stop_on:
+    - gate_failure
+    - human_validation_required
+    - migration
+    - dependency_change
+    - context_budget_risk
+
+status_values:
+  - proposed
+  - planned
+  - validated
+  - in_progress
+  - done
+  - user_testing
+  - reopened
+  - blocked
+  - deferred
+  - superseded
+
+lots:
+  - lot_id: "{{PROJECT_KEY}}-DOCS-001"
+    legacy_lot_id: "EXAMPLE-01"
+    title: "Corriger la liste documents : tri, dates et perimetre source_app"
+    status: "proposed"
+    priority: "medium" # low | medium | high | critical
+    origin:
+      - "inbox-example-documents-sort"
+    created_at: null
+    updated_at: null
+    depends_on: []
+    objective: "Afficher les documents autorises avec un tri par derniere mise a jour fiable et des dates valides."
+    required_sources:
+      - "docs/CURRENT_STATE.md"
+      - "docs/codex/CODEBASE_MAP.md"
+    allowed_paths:
+      - "apps/**"
+      - "frontend/**"
+      - "services/**"
+      - "backend/**"
+      - "docs/codex/tasks/**"
+    forbidden_paths:
+      - ".env"
+      - ".env.*"
+      - "node_modules/**"
+    acceptance_criteria:
+      - "Le tri par defaut est derniere mise a jour descendante."
+      - "Les dates invalides sont normalisees, ignorees ou signalees sans casser l'affichage."
+      - "Le perimetre sans filtre respecte tous les source_app autorises pour l'utilisateur."
+    verification_commands:
+      - "git diff --check"
+    gates:
+      evidence_gate: true
+      knowledge_gate: true
+      scope_gate: true
+      spec_gate: true
+      verification_gate: true
+      self_evaluation_gate: true
+      design_gate: true
+      context_budget_gate: true
+      nexus_context_gate: false
+    stop_conditions:
+      - "regle de droits source_app absente ou contradictoire"
+      - "mutation de donnees non prevue"
+      - "test ou build bloquant apres tentatives de correction"
+    human_validation_required: []
+    notes: []

@@ -1,0 +1,147 @@
+project:
+  name: "{{PROJECT_NAME}}"
+  key: "{{PROJECT_KEY}}"
+  base_stack: "cis"
+  domain: "{{DOMAIN}}"
+  risk_level: "medium"
+
+codex:
+  method_label: "SR Development Method"
+  require_planning_with_files: true
+  require_skill_selection: true
+  require_sr_bootstrap_on_resume: true
+  require_domain_skill_for_business_changes: true
+  require_agent_runtime_contract: true
+  require_sr_harness_for_multi_lot: true
+  require_repo_map: true
+  require_knowledge_gate: true
+  require_self_evaluation_gate: true
+  require_review_diff: true
+  require_current_state_update: full_regime_after_upgrade_or_significant_lot
+  max_agents_md_lines: 250
+
+knowledge:
+  mode: "core" # core | nexus_kg
+  core_sources:
+    - docs/codex/CODEBASE_MAP.md
+    - docs/codex/CODEBASE_MAP.generated.md
+  nexus_kg:
+    enabled: false
+    required_for_evidence_gate: false
+    freshness_check_required: false
+    context_pack_required: false
+    update_after_lot: false
+  doctrine: "RepoMap/KG orientent; le code reel et les tests restent la source finale."
+
+skills:
+  global_policy: "install_only_method_skills_globally"
+  project_local_path: "docs/codex/project-skills"
+  digest: "docs/codex/SKILL_DIGEST.md"
+  allow_project_skill_export_to_global: false
+  method:
+    - aurora-planning-with-files
+    - aurora-diagnose
+    - aurora-tdd
+    - aurora-review-diff
+    - aurora-to-prd
+    - aurora-architecture-check
+    - aurora-repomap-maintainer
+    - aurora-domain-skill-factory
+    - aurora-terminal-token-optimizer
+    - aurora-lot-runner
+  domain: []
+  runtime: []
+
+sr_harness:
+  enabled: true
+  public_name: "SR Development Method"
+  inbox_file: docs/codex/SR_INBOX.yaml
+  lots_file: docs/codex/SR_LOTS.yaml
+  context_pack_file: docs/codex/SR_CONTEXT_PACK.md
+  default_autonomy_level: 1
+  max_lots_per_session: 3
+  max_repair_attempts_per_lot: 2
+  require_evidence_gate: true
+  require_self_evaluation_gate: true
+  require_design_gate_for_ui: true
+  require_context_budget_gate: true
+  require_sr_contract: true
+  sr_contract_file: docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json
+  require_loop_contract: true
+  loop_contract_file: docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json
+  require_conversation_transition_decision: true
+  nexus_context_gate: optional
+  lot_naming:
+    pattern: "{{PROJECT_KEY}}-<AREA>-<SEQ>"
+    sequence_digits: 3
+    examples:
+      - "{{PROJECT_KEY}}-DESIGN-001"
+      - "{{PROJECT_KEY}}-API-001"
+  autonomy_run:
+    enabled: false
+    max_lots: 3
+    executable_statuses:
+      - reopened
+      - validated
+    stop_on:
+      - gate_failure
+      - human_validation_required
+      - migration
+      - dependency_change
+      - context_budget_risk
+
+context_budget:
+  context_window_tokens: 258400
+  mode: "hybrid"
+  check_timing: "before_each_significant_response"
+  compact_command: "python3 scripts/codex/context_budget_report.py --root . --compact"
+  hide_green_status: true
+  context_yellow_percent: 70
+  context_orange_percent: 82
+  context_red_percent: 92
+  cached_input_weight_percent: 10
+  uncached_yellow_tokens: 12000
+  uncached_orange_tokens: 24000
+  uncached_red_tokens: 48000
+  low_cache_ratio_percent: 50
+  max_user_turns_without_next_prompt: 20
+  next_session_prompt_required_after_lots: 2
+  require_next_session_prompt_on:
+    - orange
+    - red
+    - unknown
+    - stale
+    - ambiguous
+  require_transition_decision: true
+
+domain_expertise:
+  bootstrap_required: true
+  required_docs:
+    - docs/domain/DOMAIN_PROFILE.md
+    - docs/domain/GLOSSARY.md
+    - docs/domain/BUSINESS_RULES.md
+    - docs/domain/RISK_REGISTER.md
+    - docs/domain/HUMAN_VALIDATION_RULES.md
+  block_business_changes_without_domain_skill: true
+
+agent_runtime:
+  public_name: "SR Agent Method"
+  method_doc: docs/codex/AI_AGENT_RUNTIME_METHOD.md
+  max_builder_candidates_v1: 5
+  require_output_schema: true
+  require_test_cases: true
+  require_human_validation_for_critical_actions: true
+  forbid_llm_generated_sql_execution: true
+
+verification:
+  frontend_lint: "cd frontend && npm run lint"
+  frontend_build: "cd frontend && npm run build"
+  backend_tests: "cd backend && pytest"
+  docker_build: "docker compose --env-file .env.local up --build"
+  ui_smoke: "node scripts/codex/playwright_auth_smoke.mjs"
+
+token_optimization:
+  enabled: optional
+  prefer_rtk_if_available: true
+  preserve_raw_output: true
+  compact_output_max_lines: 120

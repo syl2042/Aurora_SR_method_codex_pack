@@ -1,0 +1,78 @@
+{
+  "schema_version": "3.0.0",
+  "task_id": "YYYY-MM-DD_slug",
+  "lot_id": "SR-AREA-000",
+  "task_type": "method",
+  "status": "planned",
+  "objective": "Objectif verifiable du lot.",
+  "validated_requests": [
+    {
+      "id": "REQ-001",
+      "source": "message utilisateur ou source verifiee",
+      "status": "todo",
+      "coverage": "Ce qui devra etre couvert pour considerer cette intention traitee.",
+      "files": [],
+      "verification": [],
+      "notes": []
+    }
+  ],
+  "scope": {
+    "in": [],
+    "out": [],
+    "allowed_paths": [],
+    "forbidden_paths": [
+      ".env",
+      ".env.*",
+      ".git/**"
+    ]
+  },
+  "product_truth": {
+    "required": false,
+    "items": []
+  },
+  "evidence": {
+    "sources_read": [],
+    "code_files_read": [],
+    "tests_or_logs": []
+  },
+  "skills": {
+    "method": [],
+    "domain": []
+  },
+  "plan": [],
+  "findings": [],
+  "decisions": [],
+  "implementation": {
+    "app_code_changed": false,
+    "changed_files": []
+  },
+  "verification": {
+    "commands_run": [],
+    "commands_failed": [],
+    "not_run_reason": null
+  },
+  "gates": {
+    "fact": "pending",
+    "evidence": "pending",
+    "scope": "pending",
+    "product_truth": "pending",
+    "verification": "pending",
+    "self_evaluation": "pending",
+    "context_budget": "pending"
+  },
+  "e2e": {
+    "required": false,
+    "items": []
+  },
+  "context": {
+    "status": "not_checked",
+    "report_path": null
+  },
+  "transition": {
+    "decision": "not_applicable",
+    "reason": "Template non execute.",
+    "next_session_prompt_required": false,
+    "next_session_prompt_path": null,
+    "next_user_prompt": null
+  }
+}

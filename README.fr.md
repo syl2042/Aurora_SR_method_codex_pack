@@ -22,6 +22,24 @@ SR signifie **Specification Runtime**. La methode donne a Codex un cadre local a
 Cloner le pack -> Coller un prompt Codex -> Installer la SR Method -> Verifier -> Demarrer un developpement gouverne
 ```
 
+## Pourquoi l'utiliser
+
+La SR Method s'adresse aux developpeurs qui veulent que Codex travaille comme un coequipier projet discipline, pas comme un simple generateur de code ponctuel.
+
+Elle transforme une demande large en session de developpement cadree, avec perimetre explicite, memoire de tache ecrite, decisions fondees sur des preuves, gates de validation et handoff propre.
+
+Gains principaux pour le developpeur :
+
+- **Demarrage plus rapide** : Codex lit le depot, detecte la stack et installe un cadre de travail local au projet.
+- **Moins de perte de contexte** : memoire de tache, etat courant, constats, decisions et verifications sont ecrits dans le projet.
+- **Travail autonome plus sur** : Codex avance par lots bornes, verifie les preuves avant modification et garde la validation humaine explicite.
+- **Meilleure continuite** : une autre session Codex ou un autre developpeur peut reprendre depuis l'etat ecrit.
+- **Reviews plus claires** : les changements sont relies au perimetre, aux hypotheses, aux fichiers touches, aux verifications et aux risques restants.
+- **Methode reutilisable** : le meme cadre peut etre installe sur plusieurs projets tout en s'adaptant a chaque depot.
+- **Workflow prompt-first** : le developpeur pilote Codex avec des prompts prets a copier-coller ; les scripts restent des details d'execution.
+
+En pratique, le pack reduit le cout d'utilisation de Codex sur du vrai travail projet : moins de changements flous, moins de contraintes oubliees, une validation plus claire et de meilleurs handoffs.
+
 ## Politique de langue
 
 Le coeur de la SR Method reste maintenu en anglais comme langue technique canonique.

@@ -28,9 +28,29 @@ SR means **Specification Runtime**. The method gives Codex a project-local opera
 
 The goal is simple: help a developer clone this pack, ask Codex to install it in a target project, verify the installation, then work with Codex through explicit scope, evidence, validation, and handoff rules.
 
+It is especially useful when Codex must work across several sessions, several developers, or larger codebases where uncontrolled context loss quickly becomes expensive.
+
 ```text
 Clone pack -> Paste Codex prompt -> Install SR Method -> Verify -> Start governed development
 ```
+
+## Why Developers Use It
+
+The SR Method is designed for developers who want Codex to work like a disciplined project teammate, not like a one-off code generator.
+
+It helps turn broad requests into controlled development sessions with explicit scope, written task memory, evidence-based decisions, validation gates, and clean handoffs.
+
+Key gains for developers:
+
+- **Faster project onboarding**: Codex reads the repository, detects the stack, and installs a project-local operating frame.
+- **Less context loss**: task memory, current state, findings, decisions, and verification notes are written inside the project.
+- **Safer autonomous work**: Codex works by bounded lots, checks evidence before changing code, and keeps human validation explicit.
+- **Better continuity between sessions**: another Codex session or developer can resume from the written state instead of rediscovering everything.
+- **Cleaner reviews**: changes are tied to scope, assumptions, files touched, verification commands, and remaining risks.
+- **Reusable operating discipline**: the same method can be installed across projects while adapting to each repository.
+- **Prompt-first workflow**: developers interact with Codex through copy-paste prompts; scripts remain implementation details handled by Codex when needed.
+
+In practice, the pack reduces the cost of giving Codex real project work: fewer vague changes, fewer forgotten constraints, clearer validation, and better handoff quality.
 
 ## Language Policy
 

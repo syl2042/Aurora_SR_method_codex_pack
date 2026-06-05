@@ -199,7 +199,7 @@ Prompt recommandé :
 | Démarrer une session SR | [01_start_sr_session.md](prompts/fr/01_start_sr_session.md) |
 | Mettre à jour la SR Method | [05_upgrade_codex_environment.md](prompts/fr/05_upgrade_codex_environment.md) |
 | Vérifier l'installation | [06_verify_sr_installation.md](prompts/fr/06_verify_sr_installation.md) |
-| Réaligner l'état après upgrade | [07_realign_sr_state_after_upgrade.md](prompts/fr/07_realign_sr_state_after_upgrade.md) |
+| Réaligner l'état après upgrade | [07_realign_sr_state_after_upgrade.md](prompts/07_realign_sr_state_after_upgrade.md) |
 | Définir des agents IA runtime | [15_define_runtime_agents.md](prompts/fr/15_define_runtime_agents.md) |
 
 ---

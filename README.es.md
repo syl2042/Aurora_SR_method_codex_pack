@@ -7,6 +7,7 @@
 [Espanol](README.es.md)
 
 [Dar una estrella al repositorio](https://github.com/syl2042/Aurora_SR_method_codex_pack/stargazers) |
+[Documentación](https://docs.auroramind.fr/docs/SR_Method) |
 [Instalar con Codex](INSTALLATION.es.md) |
 [Actualizar proyecto](prompts/es/05_upgrade_codex_environment.md) |
 [Verificar instalación](prompts/es/06_verify_sr_installation.md)

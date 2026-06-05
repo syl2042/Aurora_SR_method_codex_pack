@@ -7,6 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 [Star this repository](https://github.com/syl2042/Aurora_SR_method_codex_pack/stargazers) |
+[Documentation](https://docs.auroramind.fr/docs/SR_Method) |
 [Install with Codex](INSTALLATION.md) |
 [Upgrade a project](prompts/en/05_upgrade_codex_environment.md) |
 [Verify installation](prompts/en/06_verify_sr_installation.md)

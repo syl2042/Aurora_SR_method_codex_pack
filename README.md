@@ -130,6 +130,21 @@ Every important session must leave usable traces: current state, decisions, sour
 
 ---
 
+## What changed in 3.0.4
+
+Version `3.0.4` strengthens SR for structural features that emerge during development.
+
+When a new function, repair, or discovery may affect more than the current lot, Codex must now:
+
+- apply the **Backlog Mutation Gate** to decide whether `SR_INBOX.yaml` or `SR_LOTS.yaml` must be updated;
+- apply the **Global Impact Gate** before coding, reviewing impact across product flows, data, permissions, APIs/services, UI, tests, migrations, risks, and existing lots;
+- run **Lot Dependency Reconciliation** to classify affected lots as `impacted`, `blocked_by`, `reopened`, `superseded`, `split_required`, `depends_on`, or `unaffected`;
+- document `no_backlog_mutation_required` when no backlog change is needed.
+
+This keeps SR project-agnostic while preventing important cross-project implications from staying implicit.
+
+---
+
 ## The full workflow
 
 ```mermaid

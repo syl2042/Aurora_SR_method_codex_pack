@@ -25,6 +25,7 @@ demande utilisateur
 → classer : nouveau lot / lot rouvert / bug / decision / question / execution
 → mettre a jour SR_INBOX ou SR_LOTS si necessaire
 → construire un contexte court
+→ si fonction structurante : analyser l'impact global et les lots lies
 → verifier les preuves avant plan avec RepoMap/KG puis code reel
 → executer un lot borne
 → auto-evaluer le resultat
@@ -93,6 +94,15 @@ Il peut contenir du bruit temporaire.
 Backlog vivant structure.
 
 Il contient uniquement des lots cadrees ou validables, avec statut, perimetre, criteres d'acceptation, commandes de verification et stop conditions.
+
+Pour les fonctions structurantes, il peut aussi declarer les relations entre lots :
+
+- `depends_on` : lots qui doivent etre termines avant celui-ci ;
+- `blocked_by` : lots ou decisions qui bloquent l'execution ;
+- `impacts` : lots, surfaces ou contrats que ce lot modifie potentiellement ;
+- `impacted_by` : origine d'une modification ou d'une reouverture ;
+- `supersedes` / `superseded_by` : remplacement explicite d'un lot ou d'une approche ;
+- `global_impact` : trace courte de l'analyse d'impact transverse quand elle est requise.
 
 ### `SR_CONTEXT_PACK.md`
 
@@ -223,6 +233,94 @@ Regles :
 - si la verification n'est pas possible ou serait disproportionnee, la conclusion reste interdite : Codex peut seulement formuler une hypothese non verifiee avec la verification minimale ;
 - les mots de probabilite ne doivent jamais remplacer une preuve disponible.
 
+### Backlog Mutation Gate
+
+Le Backlog Mutation Gate empeche les lots oublies.
+
+Il est obligatoire quand une demande, une decouverte ou une reparation :
+
+- introduit une fonction structurante ou une capacite transversale ;
+- change durablement le comportement produit ;
+- modifie ou questionne donnees, permissions, navigation, API/services, integrations, agents runtime, tests, migration ou configuration ;
+- revele une dette ou un oubli qui depasse le lot courant ;
+- cree une dependance nouvelle entre lots ;
+- rend un lot existant incomplet, bloque, obsolete ou trop large.
+
+Sorties autorisees :
+
+- ajouter une entree dans `SR_INBOX.yaml` pour capture rapide ;
+- creer un lot `proposed` ou `planned` dans `SR_LOTS.yaml` ;
+- rouvrir un lot en `reopened` ;
+- bloquer un lot via `blocked` ou `blocked_by` ;
+- ajouter `depends_on`, `blocked_by`, `impacts`, `impacted_by`, `supersedes` ou `superseded_by` ;
+- marquer un lot `deferred` ou `superseded` ;
+- documenter `no_backlog_mutation_required` avec justification courte si aucune mutation n'est necessaire.
+
+Pour une tache non triviale, la cloture doit declarer :
+
+```text
+Backlog Mutation Gate:
+- structural_change_detected: oui/non
+- mutation_required: oui/non
+- sr_inbox_updated: oui/non
+- sr_lots_updated: oui/non
+- affected_lots: [...]
+- decision: ...
+```
+
+Un changement significatif ne doit pas etre code comme extension silencieuse du lot courant. Si le perimetre change, Codex doit enregistrer la decision dans la memoire de tache et proposer ou appliquer le delta backlog selon le niveau de risque.
+
+### Global Impact Gate
+
+Le Global Impact Gate force le recul produit et technique avant de cadrer ou coder une fonction structurante.
+
+Il est obligatoire pour toute fonction qui peut affecter plusieurs surfaces du projet, meme si l'utilisateur ne demande qu'une partie de la fonction. La methode reste agnostique : les surfaces a verifier dependent du projet reel, pas d'un domaine predefini.
+
+Surfaces minimales a evaluer quand elles existent :
+
+- objectifs produit et parcours utilisateur ;
+- roles, droits, validation humaine et politiques d'acces ;
+- modele de donnees, migrations, retention, import/export ;
+- routes, API, services, jobs, agents runtime et integrations ;
+- navigation, ecrans, composants UI et design system ;
+- tests, fixtures, donnees de demo, observabilite et logs ;
+- lots SR existants, task memories, decisions actives et stop conditions ;
+- risques de complexite, dette, compatibilite et sequence de livraison.
+
+Sortie attendue :
+
+```text
+Global Impact Gate:
+- required: oui/non
+- surfaces_reviewed: [...]
+- impacted_lots: [...]
+- new_lots_to_create: [...]
+- lots_to_reopen_or_block: [...]
+- assumptions: [...]
+- open_questions: [...]
+- sequencing_recommendation: ...
+```
+
+Si l'analyse revele un impact large, Codex doit stopper avant codage significatif et demander validation du delta backlog, sauf si une regle projet autorise explicitement l'autonomie sur ce type de mutation.
+
+### Lot Dependency Reconciliation
+
+Apres un Global Impact Gate requis, Codex doit relire les lots existants pertinents et les classer.
+
+Classes autorisees :
+
+```text
+unaffected      aucun impact identifie apres verification raisonnable
+impacted        le lot doit etre ajuste mais reste executable
+blocked_by      le lot ne doit pas etre execute avant une decision ou un autre lot
+reopened        le lot deja traite doit etre repris
+superseded      le lot ou son approche est remplace
+split_required  le lot doit etre decoupe avant execution sure
+depends_on      le lot doit declarer une dependance nouvelle
+```
+
+La reconciliation doit rester proportionnee : relire le backlog et les sources pertinentes, pas tout le repository si RepoMap/KG suffit a identifier les surfaces a risque. Les conclusions factuelles restent soumises au Fact Gate.
+
 ### Knowledge gate
 
 Le knowledge gate precise comment Codex a construit sa carte du changement.
@@ -305,6 +403,7 @@ docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json
 Ce contrat ne contient pas les logs. Il pointe seulement les preuves minimales :
 
 - sources lues pour l'evidence gate ;
+- mutation backlog et impact global si les gates sont applicables ;
 - fichiers modifies ;
 - commandes executees ou raison de non-execution ;
 - liste E2E utilisateur concrete ;
@@ -344,6 +443,8 @@ Champs structurants :
 - `validated_requests` : intentions validees, statut, couverture, fichiers et verification ;
 - `scope` : inclus, exclus, chemins autorises/interdits ;
 - `product_truth` : verites produit/metier a preserver ;
+- `backlog_mutation` : mutation du backlog requise, effectuee ou justifiee ;
+- `global_impact` : impact transverse analyse ou explicitement non requis ;
 - `evidence` : sources lues, code lu, tests/logs ;
 - `skills` : skills methode et metier ;
 - `implementation` : fichiers modifies et code applicatif touche ou non ;
@@ -357,6 +458,9 @@ Regles critiques :
 - `validated_requests` ne doit pas etre vide pour un lot non trivial ;
 - les identifiants de requetes doivent etre uniques ;
 - un lot `done` est invalide si une requete reste `todo`, `doing`, `requires_e2e` ou `blocked` ;
+- si une requete est `moved_to_new_lot`, elle doit pointer vers une entree inbox ou un lot cible dans ses notes, sa couverture ou les champs de mutation backlog ;
+- si `global_impact.required` vaut `true`, les surfaces revues et la decision de sequence doivent etre renseignees ;
+- si `backlog_mutation.mutation_required` vaut `true`, `SR_INBOX.yaml` ou `SR_LOTS.yaml` doit etre mis a jour, ou une raison de blocage/non-mutation doit etre explicite ;
 - `product_truth.items` est obligatoire si `product_truth.required` vaut `true` ;
 - `e2e.items` est obligatoire si `e2e.required` vaut `true` ;
 - contexte `orange` impose `recommend_new_conversation` ou `stop_for_new_conversation` ;

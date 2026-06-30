@@ -4,7 +4,7 @@
 Guider l'upgrade SR 3.x d'un repository cible et le premier test de reprise sans modifier le code applicatif.
 
 ## Perimetre V3
-SR 3.0.0 est la base de schema V3 ; le pack 3.0.3 distribue ces controles avec les corrections contexte, Fact Gate, CURRENT_STATE plein regime et Pydantic Output Contract pour les agents IA runtime. SR V3 ajoute notamment :
+SR 3.0.0 est la base de schema V3 ; le pack 3.0.4 distribue ces controles avec les corrections contexte, Fact Gate, CURRENT_STATE plein regime, Pydantic Output Contract pour les agents IA runtime, Backlog Mutation Gate et Global Impact Gate. SR V3 ajoute notamment :
 - `sr_contract.json` comme contrat vivant de lot ;
 - `validate_sr_contract.py` et `audit_sr_task_contracts.py` ;
 - `SKILL_DIGEST.md` comme routeur court de selection skills ;
@@ -56,7 +56,7 @@ Le `07` est obligatoire apres tout changement de version SR. Pour un upgrade min
 
 ## Test V3 minimal
 Le test minimal attendu apres upgrade :
-- `SR_PACK_VERSION.json` indique `3.0.3` ;
+- `SR_PACK_VERSION.json` indique `3.0.4` ;
 - `docs/codex/SKILL_DIGEST.md` existe et est reference par `AGENTS.md` / `SKILL_MAP.md` ;
 - le template `sr_contract.json` est present et valide ;
 - `audit_sr_task_contracts.py --root . --json` distingue les task memories legacy des contrats invalides ;
@@ -70,7 +70,7 @@ Le test minimal attendu apres upgrade :
 Utilise la methode SR.
 
 Projet cible : /path/to/project
-Objectif verifiable : mettre a jour uniquement la SR Method vers la version 3.0.3 depuis le repo officiel, verifier l'installation, puis stopper avant tout developpement applicatif.
+Objectif verifiable : mettre a jour uniquement la SR Method vers la version 3.0.4 depuis le repo officiel, verifier l'installation, puis stopper avant tout developpement applicatif.
 
 Source officielle :
 https://github.com/syl2042/Aurora_SR_method_codex_pack

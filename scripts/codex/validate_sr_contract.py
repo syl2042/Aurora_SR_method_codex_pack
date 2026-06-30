@@ -47,6 +47,64 @@ def non_empty_string(value: object) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
 
+def validate_backlog_mutation(data: dict, errors: list[str]) -> dict:
+    mutation = data.get("backlog_mutation")
+    if mutation is None:
+        return {}
+    if not isinstance(mutation, dict):
+        errors.append("backlog_mutation must be an object")
+        return {}
+    status = mutation.get("status")
+    if status not in VALID_GATE_STATUSES:
+        errors.append(f"backlog_mutation.status must be one of {sorted(VALID_GATE_STATUSES)}")
+    for key in ("structural_change_detected", "mutation_required", "sr_inbox_updated", "sr_lots_updated"):
+        if not isinstance(mutation.get(key), bool):
+            errors.append(f"backlog_mutation.{key} must be boolean")
+    for key in ("affected_lots", "created_lots", "reopened_lots", "blocked_lots", "superseded_lots"):
+        if not isinstance(mutation.get(key), list):
+            errors.append(f"backlog_mutation.{key} must be a list")
+    if not non_empty_string(mutation.get("decision")):
+        errors.append("backlog_mutation.decision must be a non-empty string")
+    if mutation.get("mutation_required") is True:
+        updated = mutation.get("sr_inbox_updated") is True or mutation.get("sr_lots_updated") is True
+        if not updated and not non_empty_string(mutation.get("not_updated_reason")):
+            errors.append("backlog_mutation.not_updated_reason is required when mutation_required is true and no backlog file was updated")
+    return mutation
+
+
+def validate_global_impact(data: dict, errors: list[str]) -> dict:
+    impact = data.get("global_impact")
+    if impact is None:
+        return {}
+    if not isinstance(impact, dict):
+        errors.append("global_impact must be an object")
+        return {}
+    required = impact.get("required")
+    if not isinstance(required, bool):
+        errors.append("global_impact.required must be boolean")
+    status = impact.get("status")
+    if status not in VALID_GATE_STATUSES:
+        errors.append(f"global_impact.status must be one of {sorted(VALID_GATE_STATUSES)}")
+    for key in (
+        "surfaces_reviewed",
+        "impacted_lots",
+        "new_lots_to_create",
+        "lots_to_reopen_or_block",
+        "assumptions",
+        "open_questions",
+    ):
+        if not isinstance(impact.get(key), list):
+            errors.append(f"global_impact.{key} must be a list")
+    if not non_empty_string(impact.get("sequencing_recommendation")):
+        errors.append("global_impact.sequencing_recommendation must be a non-empty string")
+    if required is True:
+        if status == "not_applicable":
+            errors.append("global_impact.status cannot be not_applicable when required is true")
+        if not impact.get("surfaces_reviewed"):
+            errors.append("global_impact.surfaces_reviewed must not be empty when required is true")
+    return impact
+
+
 def validate_requests(data: dict, errors: list[str]) -> list:
     requests = require_list(data, "validated_requests", errors)
     seen = set()
@@ -141,6 +199,27 @@ def validate(data: dict) -> tuple[list[str], list[str]]:
             errors.append("product_truth.items must be a list")
         if required_truth is True and not items:
             errors.append("product_truth.items must not be empty when product_truth.required is true")
+
+    backlog_mutation = validate_backlog_mutation(data, errors)
+    global_impact = validate_global_impact(data, errors)
+    if backlog_mutation and global_impact:
+        if backlog_mutation.get("structural_change_detected") is True and global_impact.get("required") is not True:
+            errors.append("structural backlog changes require global_impact.required true")
+    for request in requests:
+        if isinstance(request, dict) and request.get("status") == "moved_to_new_lot":
+            notes = request.get("notes") if isinstance(request.get("notes"), list) else []
+            notes_text = " ".join(str(item) for item in notes)
+            coverage = request.get("coverage") if isinstance(request.get("coverage"), str) else ""
+            created_lots = backlog_mutation.get("created_lots") if isinstance(backlog_mutation, dict) else []
+            has_target = (
+                bool(created_lots)
+                or "SR_INBOX" in notes_text
+                or "SR_LOTS" in notes_text
+                or "SR-" in coverage
+                or "lot cible" in coverage.lower()
+            )
+            if not has_target:
+                errors.append("moved_to_new_lot requests require a target lot, SR_INBOX/SR_LOTS note, or backlog_mutation.created_lots")
 
     evidence = require_object(data, "evidence", errors)
     if evidence:

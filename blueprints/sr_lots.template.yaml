@@ -62,6 +62,25 @@ lots:
     created_at: null
     updated_at: null
     depends_on: []
+    blocked_by: []
+    impacts: []
+    impacted_by: []
+    supersedes: []
+    superseded_by: null
+    dependency_reconciliation:
+      status: "not_required" # not_required | pending | completed | blocked
+      reviewed_lots: []
+      classifications: []
+      open_questions: []
+    global_impact:
+      required: false
+      status: "not_applicable" # pending | pass | fail | not_applicable
+      surfaces_reviewed: []
+      impacted_lots: []
+      new_lots_to_create: []
+      lots_to_reopen_or_block: []
+      sequencing_recommendation: "not_required"
+      open_questions: []
     objective: "Afficher les documents autorises avec un tri par derniere mise a jour fiable et des dates valides."
     required_sources:
       - "docs/CURRENT_STATE.md"
@@ -88,6 +107,9 @@ lots:
       scope_gate: true
       spec_gate: true
       verification_gate: true
+      backlog_mutation_gate: true
+      global_impact_gate: false
+      lot_dependency_reconciliation: false
       self_evaluation_gate: true
       design_gate: true
       context_budget_gate: true

@@ -28,6 +28,31 @@ def valid_contract() -> dict:
         ],
         "scope": {"in": ["schema"], "out": [], "allowed_paths": [], "forbidden_paths": []},
         "product_truth": {"required": True, "items": ["les fichiers legacy restent historiques"]},
+        "backlog_mutation": {
+            "status": "not_applicable",
+            "structural_change_detected": False,
+            "mutation_required": False,
+            "sr_inbox_updated": False,
+            "sr_lots_updated": False,
+            "affected_lots": [],
+            "created_lots": [],
+            "reopened_lots": [],
+            "blocked_lots": [],
+            "superseded_lots": [],
+            "not_updated_reason": "No backlog mutation required.",
+            "decision": "no_backlog_mutation_required",
+        },
+        "global_impact": {
+            "required": False,
+            "status": "not_applicable",
+            "surfaces_reviewed": [],
+            "impacted_lots": [],
+            "new_lots_to_create": [],
+            "lots_to_reopen_or_block": [],
+            "assumptions": [],
+            "open_questions": [],
+            "sequencing_recommendation": "not_required",
+        },
         "evidence": {"sources_read": ["docs/codex/SR_METHOD.md"], "code_files_read": [], "tests_or_logs": []},
         "skills": {"method": ["aurora-lot-runner"], "domain": []},
         "plan": ["Creer le schema."],
@@ -96,6 +121,21 @@ class ValidateSrContractTest(unittest.TestCase):
             data = validate_sr_contract.load_contract(path)
         errors, _warnings = validate_sr_contract.validate(data)
         self.assertEqual([], errors)
+
+    def test_structural_change_requires_global_impact(self) -> None:
+        data = valid_contract()
+        data["backlog_mutation"]["structural_change_detected"] = True
+        data["backlog_mutation"]["mutation_required"] = True
+        data["backlog_mutation"]["sr_lots_updated"] = True
+        errors, _warnings = validate_sr_contract.validate(data)
+        self.assertTrue(any("global_impact.required true" in error for error in errors), errors)
+
+    def test_moved_to_new_lot_requires_target(self) -> None:
+        data = valid_contract()
+        data["validated_requests"][0]["status"] = "moved_to_new_lot"
+        data["validated_requests"][0]["coverage"] = "Sortie du lot courant sans cible explicite."
+        errors, _warnings = validate_sr_contract.validate(data)
+        self.assertTrue(any("moved_to_new_lot requests require" in error for error in errors), errors)
 
 
 if __name__ == "__main__":

@@ -52,6 +52,16 @@ Lire uniquement les sources requises :
 
 Creer ou reprendre une task memory.
 
+Classer aussi l'evenement de backlog :
+
+- execution d'un lot existant sans mutation ;
+- precision dans le scope ;
+- nouvelle fonction structurante ;
+- dette ou bug qui depasse le lot courant ;
+- decision produit ou technique impactant d'autres lots.
+
+Si une fonction structurante ou une mutation durable est detectee, declencher `Backlog Mutation Gate` et, si plusieurs surfaces peuvent etre impactees, `Global Impact Gate` avant le plan court.
+
 ### 2b. Knowledge gate
 
 Construire la carte du changement :
@@ -96,6 +106,62 @@ Si la source est accessible mais non lue, le gate est rouge : ne pas conclure, a
 
 Si la verification est impossible ou disproportionnee, la reponse doit rester explicitement une `hypothese_non_verifiee` et fournir la verification minimale. Les formulations probabilistes ne remplacent pas une preuve.
 
+### 3c. Backlog Mutation Gate
+
+Avant le plan court et avant la cloture, determiner si la demande ou les preuves lues changent le backlog :
+
+- nouvelle fonction structurante ou capacite transversale ;
+- implication nouvelle sur un lot existant ;
+- bug/reparation qui revele une dette hors scope ;
+- changement de dependance, statut, priorite ou stop condition ;
+- besoin de creer, rouvrir, bloquer, reporter, decouper ou remplacer un lot.
+
+Si oui, mettre a jour `SR_INBOX.yaml` ou `SR_LOTS.yaml` selon le niveau de cadrage et le risque. Si le changement est significatif et non valide, creer une entree `proposed` ou `SR_INBOX` puis stopper avant codage significatif.
+
+La task memory doit indiquer :
+
+- `structural_change_detected` ;
+- `mutation_required` ;
+- fichiers backlog modifies ou raison de non-mutation ;
+- lots affectes ;
+- decision de sequence.
+
+### 3d. Global Impact Gate
+
+Si une fonction structurante est detectee, analyser l'impact global avant de figer le scope.
+
+Surfaces a verifier quand elles existent :
+
+- objectifs produit, parcours et roles ;
+- donnees, schema, migration, retention, import/export ;
+- permissions, validation humaine et securite applicative ;
+- API, services, jobs, agents runtime et integrations ;
+- navigation, UI, design system et accessibilite ;
+- tests, fixtures, observabilite, logs et donnees de demonstration ;
+- lots SR existants, decisions, task memories et stop conditions.
+
+La sortie doit lister :
+
+- surfaces revues ;
+- lots impactes ;
+- lots a creer ;
+- lots a rouvrir, bloquer, reporter, decouper ou marquer `superseded` ;
+- hypotheses restantes ;
+- questions bloquantes ;
+- recommandation de sequence.
+
+Si l'impact global n'est pas analysable avec les sources disponibles, stopper avec `blocked` ou creer une entree `SR_INBOX` au lieu de coder.
+
+### 3e. Lot Dependency Reconciliation
+
+Apres un Global Impact Gate requis, relire les lots existants pertinents et les classer :
+
+```text
+unaffected, impacted, blocked_by, reopened, superseded, split_required, depends_on
+```
+
+Mettre a jour `depends_on`, `blocked_by`, `impacts`, `impacted_by`, `supersedes`, `superseded_by` ou le statut du lot si necessaire. Les lots non verifies ne doivent pas etre declares `unaffected` sans source.
+
 ### 4. Plan court
 
 Produire un plan de lot limite :
@@ -107,6 +173,8 @@ Produire un plan de lot limite :
 - stop conditions.
 
 Ne pas elargir le lot sans enregistrer une decision.
+
+Si `Global Impact Gate` est requis, le plan doit inclure la sequence de livraison recommandee et les lots qui ne doivent pas etre executes avant reconciliation.
 
 ### 5. Implementation
 
@@ -146,6 +214,9 @@ Completer `gate_report.md` :
 
 - evidence gate ;
 - fact gate ;
+- backlog mutation gate ;
+- global impact gate si fonction structurante ;
+- lot dependency reconciliation si applicable ;
 - knowledge gate ;
 - scope gate ;
 - spec gate ;
@@ -168,6 +239,8 @@ Le contrat doit rester court et ne pas dupliquer les logs. Il doit declarer :
 - `status_decision` ;
 - `evidence_gate.sources_read` ;
 - `fact_gate.status` si le contrat local le declare ;
+- `backlog_mutation_gate` si le contrat local le declare ;
+- `global_impact_gate` si le contrat local le declare ;
 - `implementation.changed_files` ;
 - `verification.commands_run` ou `verification.not_run_reason` ;
 - `e2e_user_tests.items` si test reel requis ;
@@ -202,6 +275,8 @@ todo, doing, done, requires_e2e, blocked, moved_to_new_lot, cancelled
 
 Un lot ne peut pas etre `done` tant qu'une intention validee reste ouverte.
 
+Si une intention validee est sortie du lot courant, utiliser `moved_to_new_lot` et renseigner le lot cible, l'entree inbox ou la raison de blocage dans la couverture, les notes ou `backlog_mutation`.
+
 Valider :
 
 ```bash
@@ -229,6 +304,8 @@ python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml
 ```
 
 Cette validation est obligatoire meme si `git diff --check` est vert. `git diff --check` ne valide pas les champs obligatoires du contrat de lot et peut manquer un fichier non suivi.
+
+Si `SR_LOTS.yaml` n'a pas ete modifie apres une tache non triviale, documenter dans `gate_report.md` ou le contrat pourquoi le Backlog Mutation Gate conclut `no_backlog_mutation_required`.
 
 ### 10. Continue ou stop
 
@@ -263,6 +340,9 @@ Documenter :
 - ce qui aurait pu etre oublie ;
 - fichiers relus apres patch ;
 - decision : `done`, `user_testing`, `repair` ou `blocked`.
+- mutation backlog requise ou non ;
+- impacts globaux non traites ;
+- lots a verifier, rouvrir, bloquer ou creer.
 
 ## Design gate minimal
 

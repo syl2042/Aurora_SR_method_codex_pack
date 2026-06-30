@@ -15,6 +15,8 @@
 - SR Contract 3.0.0 : creer ou mettre a jour `docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json` quand `PROJECT_PROFILE.yaml` declare `require_sr_contract`, suivre `validated_requests`, puis verifier avec `python3 scripts/codex/validate_sr_contract.py --file <chemin>`.
 - Loop Contract obligatoire pour toute tache non triviale : creer ou mettre a jour `docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json`, declarer `conversation_transition`, puis verifier avec `python3 scripts/codex/validate_loop_contract.py --file <chemin>`.
 - Backlog Contract obligatoire : si `docs/codex/SR_LOTS.yaml` est modifie, executer `python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml` avant cloture. `git diff --check` ne remplace jamais cette validation.
+- Backlog Mutation Gate obligatoire : si une demande, une decouverte ou une reparation introduit une fonction structurante ou un impact durable, ne pas la traiter comme un simple detail du lot courant. Classer l'evenement, analyser les implications globales, puis mettre a jour `SR_INBOX.yaml` ou `SR_LOTS.yaml`, ou documenter explicitement pourquoi aucune mutation de backlog n'est requise.
+- Global Impact Gate obligatoire : avant de cadrer ou coder une fonction structurante, analyser son impact sur le produit global, les parcours, donnees, permissions, API/services, UI, tests, lots existants, dependances, migrations et risques. Cette analyse doit rester agnostique du domaine et s'appliquer a toute fonction transversale.
 - Cloture standard de lot : `Ce qui est fait`, `Resultat observe`, `Lecture expert / produit`, `Verifications executees`, `Memoire SR`, `Tests E2E utilisateur`, `Prochaine etape`.
 
 ## Mission
@@ -70,6 +72,9 @@ Politique par defaut :
 - mettre a jour `SR_LOTS.yaml` apres chaque decision de statut ;
 - valider `SR_LOTS.yaml` avec `validate_lot_contract.py` apres toute modification du backlog ;
 - passer en `user_testing` si un test reel utilisateur est necessaire.
+- quand une nouvelle fonction structurante apparait, appliquer `Global Impact Gate` puis `Lot Dependency Reconciliation` avant codage significatif ;
+- classer les lots existants pertinents comme `unaffected`, `impacted`, `blocked_by`, `reopened`, `superseded`, `split_required` ou `depends_on` ;
+- consigner le resultat dans `backlog_mutation_gate`, `global_impact_gate`, `SR_INBOX.yaml`, `SR_LOTS.yaml` ou le gate report.
 
 Evidence gate obligatoire avant recommandation :
 - suivre la chaine `RepoMap/KG -> fichiers candidats -> lecture code reel -> tests/logs` ;

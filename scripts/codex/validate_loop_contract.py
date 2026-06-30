@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 
-VALID_TASK_TYPES = {"feature", "bugfix", "upgrade", "realign", "documentation", "analysis", "maintenance"}
+VALID_TASK_TYPES = {"feature", "bugfix", "upgrade", "realign", "documentation", "analysis", "maintenance", "method"}
 VALID_STATUS_DECISIONS = {"done", "user_testing", "repair", "blocked", "not_applicable"}
 VALID_CONTEXT_STATUS = {"green", "yellow", "orange", "red", "unknown", "stale", "ambiguous", "not_checked"}
 VALID_NEXT_PROMPT = {"created", "updated", "not_required", "missing"}
@@ -25,6 +25,7 @@ VALID_PLAIN_RESUME_DEFAULTS = {
     "resume_and_continue",
     "not_applicable",
 }
+VALID_GATE_STATUSES = {"pending", "pass", "fail", "not_applicable"}
 
 
 def load_contract(path: Path) -> dict:
@@ -53,6 +54,68 @@ def require_list(data: dict, key: str, errors: list[str]) -> list:
         errors.append(f"{key} must be a list")
         return []
     return value
+
+
+def non_empty_string(value: object) -> bool:
+    return isinstance(value, str) and bool(value.strip())
+
+
+def validate_backlog_mutation_gate(data: dict, memory: dict, errors: list[str]) -> None:
+    gate = data.get("backlog_mutation_gate")
+    if gate is None:
+        return
+    if not isinstance(gate, dict):
+        errors.append("backlog_mutation_gate must be an object")
+        return
+    status = gate.get("status")
+    if status not in VALID_GATE_STATUSES:
+        errors.append(f"backlog_mutation_gate.status must be one of {sorted(VALID_GATE_STATUSES)}")
+    for key in ("structural_change_detected", "mutation_required", "sr_inbox_updated", "sr_lots_updated"):
+        if not isinstance(gate.get(key), bool):
+            errors.append(f"backlog_mutation_gate.{key} must be boolean")
+    for key in ("affected_lots", "created_lots", "reopened_lots", "blocked_lots", "superseded_lots"):
+        if not isinstance(gate.get(key), list):
+            errors.append(f"backlog_mutation_gate.{key} must be a list")
+    if not non_empty_string(gate.get("decision")):
+        errors.append("backlog_mutation_gate.decision must be a non-empty string")
+    if gate.get("mutation_required") is True:
+        updated = gate.get("sr_inbox_updated") is True or gate.get("sr_lots_updated") is True
+        if not updated and not non_empty_string(gate.get("not_updated_reason")):
+            errors.append("backlog_mutation_gate.not_updated_reason is required when mutation_required is true and no backlog file was updated")
+    if gate.get("sr_lots_updated") is True and memory.get("sr_lots_updated") is not True:
+        errors.append("backlog_mutation_gate.sr_lots_updated true requires memory_updates.sr_lots_updated true")
+
+
+def validate_global_impact_gate(data: dict, errors: list[str]) -> None:
+    gate = data.get("global_impact_gate")
+    if gate is None:
+        return
+    if not isinstance(gate, dict):
+        errors.append("global_impact_gate must be an object")
+        return
+    required = gate.get("required")
+    if not isinstance(required, bool):
+        errors.append("global_impact_gate.required must be boolean")
+    status = gate.get("status")
+    if status not in VALID_GATE_STATUSES:
+        errors.append(f"global_impact_gate.status must be one of {sorted(VALID_GATE_STATUSES)}")
+    for key in (
+        "surfaces_reviewed",
+        "impacted_lots",
+        "new_lots_to_create",
+        "lots_to_reopen_or_block",
+        "assumptions",
+        "open_questions",
+    ):
+        if not isinstance(gate.get(key), list):
+            errors.append(f"global_impact_gate.{key} must be a list")
+    if not non_empty_string(gate.get("sequencing_recommendation")):
+        errors.append("global_impact_gate.sequencing_recommendation must be a non-empty string")
+    if required is True:
+        if status == "not_applicable":
+            errors.append("global_impact_gate.status cannot be not_applicable when required is true")
+        if not gate.get("surfaces_reviewed"):
+            errors.append("global_impact_gate.surfaces_reviewed must not be empty when required is true")
 
 
 def validate(data: dict) -> tuple[list[str], list[str]]:
@@ -133,6 +196,14 @@ def validate(data: dict) -> tuple[list[str], list[str]]:
             errors.append("task_type upgrade/realign requires memory_updates.current_state_updated true")
         if memory.get("gate_report_updated") is not True and task_type not in {"analysis"}:
             warnings.append("memory_updates.gate_report_updated is false")
+
+    validate_backlog_mutation_gate(data, memory, errors)
+    validate_global_impact_gate(data, errors)
+    backlog_gate = data.get("backlog_mutation_gate")
+    impact_gate = data.get("global_impact_gate")
+    if isinstance(backlog_gate, dict) and isinstance(impact_gate, dict):
+        if backlog_gate.get("structural_change_detected") is True and impact_gate.get("required") is not True:
+            errors.append("structural backlog changes require global_impact_gate.required true")
 
     context = require_object(data, "context_budget", errors)
     context_status = None

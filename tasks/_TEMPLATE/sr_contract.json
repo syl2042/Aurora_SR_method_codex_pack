@@ -30,6 +30,31 @@
     "required": false,
     "items": []
   },
+  "backlog_mutation": {
+    "status": "not_applicable",
+    "structural_change_detected": false,
+    "mutation_required": false,
+    "sr_inbox_updated": false,
+    "sr_lots_updated": false,
+    "affected_lots": [],
+    "created_lots": [],
+    "reopened_lots": [],
+    "blocked_lots": [],
+    "superseded_lots": [],
+    "not_updated_reason": "Template non execute.",
+    "decision": "no_backlog_mutation_required"
+  },
+  "global_impact": {
+    "required": false,
+    "status": "not_applicable",
+    "surfaces_reviewed": [],
+    "impacted_lots": [],
+    "new_lots_to_create": [],
+    "lots_to_reopen_or_block": [],
+    "assumptions": [],
+    "open_questions": [],
+    "sequencing_recommendation": "not_required"
+  },
   "evidence": {
     "sources_read": [],
     "code_files_read": [],
@@ -56,6 +81,9 @@
     "evidence": "pending",
     "scope": "pending",
     "product_truth": "pending",
+    "backlog_mutation": "pending",
+    "global_impact": "pending",
+    "lot_dependency_reconciliation": "pending",
     "verification": "pending",
     "self_evaluation": "pending",
     "context_budget": "pending"

@@ -11,6 +11,31 @@ def valid_contract() -> dict:
         "task_type": "maintenance",
         "status_decision": "done",
         "evidence_gate": {"done": True, "sources_read": ["AGENTS.md"]},
+        "backlog_mutation_gate": {
+            "status": "not_applicable",
+            "structural_change_detected": False,
+            "mutation_required": False,
+            "sr_inbox_updated": False,
+            "sr_lots_updated": False,
+            "affected_lots": [],
+            "created_lots": [],
+            "reopened_lots": [],
+            "blocked_lots": [],
+            "superseded_lots": [],
+            "not_updated_reason": "No backlog mutation required.",
+            "decision": "no_backlog_mutation_required",
+        },
+        "global_impact_gate": {
+            "required": False,
+            "status": "not_applicable",
+            "surfaces_reviewed": [],
+            "impacted_lots": [],
+            "new_lots_to_create": [],
+            "lots_to_reopen_or_block": [],
+            "assumptions": [],
+            "open_questions": [],
+            "sequencing_recommendation": "not_required",
+        },
         "implementation": {"app_code_changed": False, "changed_files": []},
         "verification": {"commands_run": ["unit"], "commands_failed": [], "not_run_reason": None},
         "e2e_user_tests": {"required": False, "items": []},
@@ -42,6 +67,12 @@ class ValidateLoopContractTest(unittest.TestCase):
         errors, _warnings = validate_loop_contract.validate(valid_contract())
         self.assertEqual([], errors)
 
+    def test_method_task_type_is_valid(self) -> None:
+        data = valid_contract()
+        data["task_type"] = "method"
+        errors, _warnings = validate_loop_contract.validate(data)
+        self.assertEqual([], errors)
+
     def test_upgrade_done_requires_current_state_update(self) -> None:
         data = valid_contract()
         data["task_type"] = "upgrade"
@@ -68,6 +99,22 @@ class ValidateLoopContractTest(unittest.TestCase):
         data["status_decision"] = "repair"
         errors, _warnings = validate_loop_contract.validate(data)
         self.assertEqual([], errors)
+
+    def test_structural_change_requires_global_impact(self) -> None:
+        data = valid_contract()
+        data["backlog_mutation_gate"]["structural_change_detected"] = True
+        data["backlog_mutation_gate"]["mutation_required"] = True
+        data["backlog_mutation_gate"]["sr_lots_updated"] = True
+        data["memory_updates"]["sr_lots_updated"] = True
+        errors, _warnings = validate_loop_contract.validate(data)
+        self.assertTrue(any("global_impact_gate.required true" in error for error in errors), errors)
+
+    def test_required_global_impact_needs_surfaces(self) -> None:
+        data = valid_contract()
+        data["global_impact_gate"]["required"] = True
+        data["global_impact_gate"]["status"] = "pass"
+        errors, _warnings = validate_loop_contract.validate(data)
+        self.assertTrue(any("surfaces_reviewed must not be empty" in error for error in errors), errors)
 
 
 if __name__ == "__main__":

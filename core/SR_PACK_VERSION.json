@@ -1,7 +1,7 @@
 {
   "pack": "auroramind_codex_operating_pack",
-  "version": "3.0.3",
-  "released_at": "2026-05-31",
+  "version": "3.0.4",
+  "released_at": "2026-06-30",
   "features": [
     "sr_harness",
     "sr_inbox",
@@ -41,6 +41,9 @@
     "fact_gate",
     "context_budget_compact_readability",
     "current_state_full_regime_upgrade_gate",
-    "agent_pydantic_output_contract"
+    "agent_pydantic_output_contract",
+    "backlog_mutation_gate",
+    "global_impact_gate",
+    "lot_dependency_reconciliation"
   ]
 }

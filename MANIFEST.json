@@ -1,7 +1,7 @@
 {
   "name": "auroramind_codex_operating_pack",
-  "version": "3.0.3",
-  "generated_at": "2026-06-04T00:00:00.000000",
+  "version": "3.0.4",
+  "generated_at": "2026-06-30T00:00:00.000000",
   "public_source": true,
   "files": [
     ".gitignore",
@@ -97,6 +97,7 @@
     "scripts/codex/test_audit_sr_task_contracts.py",
     "scripts/codex/test_context_budget_report.py",
     "scripts/codex/test_validate_loop_contract.py",
+    "scripts/codex/test_validate_lot_contract.py",
     "scripts/codex/test_validate_sr_contract.py",
     "scripts/codex/validate_loop_contract.py",
     "scripts/codex/validate_lot_contract.py",

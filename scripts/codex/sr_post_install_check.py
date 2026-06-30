@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-EXPECTED_VERSION = "3.0.3"
+EXPECTED_VERSION = "3.0.4"
 VALID_KNOWLEDGE_MODES = {"core", "nexus_kg"}
 
 SKILL_AGENT_TEMPLATE = """\
@@ -134,16 +134,16 @@ def check_markers(root: Path) -> tuple[list[str], list[str]]:
     errors = []
     warnings = []
     marker_checks = {
-        "AGENTS.md": ["Context budget gate", "Self Evaluation Gate", "Fact Gate", "SR Core = RepoMap", "find_next_session_prompt.py", "Loop Contract", "SKILL_DIGEST.md", "Validation humaine stricte"],
+        "AGENTS.md": ["Context budget gate", "Self Evaluation Gate", "Fact Gate", "Backlog Mutation Gate", "Global Impact Gate", "SR Core = RepoMap", "find_next_session_prompt.py", "Loop Contract", "SKILL_DIGEST.md", "Validation humaine stricte"],
         "docs/codex/SR_METHOD.md": ["Specification Runtime", "SR Development Method", "SR Agent Method", "sr_contract.json", "Validation humaine stricte"],
         "docs/codex/SR_DEVELOPMENT_METHOD.md": ["loop_contract.json", "validate_loop_contract.py"],
         "docs/codex/SR_AGENT_METHOD.md": ["AI_AGENT_RUNTIME_METHOD.md", "output JSON schema"],
         "docs/codex/SKILL_MAP.md": ["Knowledge mode", "SKILL_DIGEST.md"],
         "docs/codex/SKILL_DIGEST.md": ["Skills methode globales", "Skills metier Codex locales", "Skills runtime applicatives"],
         "docs/codex/V3_UPGRADE_TEST_PLAN.md": ["SR 3.0.0", "Prompt initial pour projet pilote", "validate_sr_contract.py", "audit_sr_task_contracts.py"],
-        "docs/codex/tasks/_TEMPLATE/gate_report.md": ["Knowledge Gate", "Fact Gate", "Self Evaluation Gate", "Context Budget Gate", "Loop Contract"],
-        "docs/codex/tasks/_TEMPLATE/loop_contract.json": ["schema_version", "status_decision", "e2e_user_tests", "resume_protocol"],
-        "docs/codex/tasks/_TEMPLATE/sr_contract.json": ["schema_version", "validated_requests", "transition"],
+        "docs/codex/tasks/_TEMPLATE/gate_report.md": ["Knowledge Gate", "Fact Gate", "Backlog Mutation Gate", "Global Impact Gate", "Lot Dependency Reconciliation", "Self Evaluation Gate", "Context Budget Gate", "Loop Contract"],
+        "docs/codex/tasks/_TEMPLATE/loop_contract.json": ["schema_version", "status_decision", "backlog_mutation_gate", "global_impact_gate", "e2e_user_tests", "resume_protocol"],
+        "docs/codex/tasks/_TEMPLATE/sr_contract.json": ["schema_version", "validated_requests", "backlog_mutation", "global_impact", "transition"],
         "docs/codex/prompts/06_verify_sr_installation.md": ["sr_post_install_check.py", "--fix-safe", "SR Contract 3.0.0", "audit_sr_task_contracts.py"],
         "docs/codex/prompts/07_realign_sr_state_after_upgrade.md": ["audit SR de reprise", "audit_sr_task_contracts.py", "sr_contract.json"],
         "docs/codex/prompts/05_upgrade_codex_environment.md": ["https://github.com/syl2042/Aurora_SR_method_codex_pack", "commit source", "SR_PACK_SOURCE", "validate_sr_contract.py", "audit_sr_task_contracts.py"],

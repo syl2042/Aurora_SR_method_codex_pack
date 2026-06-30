@@ -3,7 +3,7 @@ import argparse
 import json
 from pathlib import Path
 
-TARGET_VERSION = "3.0.3"
+TARGET_VERSION = "3.0.4"
 
 REQUIRED = {
     "AGENTS.md": [
@@ -11,6 +11,8 @@ REQUIRED = {
         "Memoire SR",
         "aurora-lot-runner",
         "Evidence gate obligatoire",
+        "Backlog Mutation Gate",
+        "Global Impact Gate",
         "Tests E2E utilisateur",
         "Context budget gate",
         "Self Evaluation Gate",
@@ -26,8 +28,8 @@ REQUIRED = {
     "docs/codex/SR_AGENT_METHOD.md": ["AI_AGENT_RUNTIME_METHOD.md", "output JSON schema", "Pydantic Output Contract"],
     "docs/codex/prompts/01_start_sr_session.md": ["find_next_session_prompt.py", "NEXT_SESSION_PROMPT.md", "Reprise SR stricte", "SR Contract 3.0.0", "validate_sr_contract.py"],
     "docs/codex/prompts/05_upgrade_codex_environment.md": ["https://github.com/syl2042/Aurora_SR_method_codex_pack", "commit source", "SR_PACK_SOURCE", "validate_sr_contract.py", "audit_sr_task_contracts.py"],
-    "docs/codex/SR_HARNESS_METHOD.md": ["SR Development Method", "SR_INBOX.yaml", "SR_LOTS.yaml", "Fact gate", "Execution multi-lots par defaut", "Visibilite utilisateur obligatoire", "Modes de connaissance codebase", "Self evaluation gate", "Loop Contract", "SR Contract 3.0.0", "validate_lot_contract.py"],
-    "docs/codex/LOT_EXECUTION_METHOD.md": ["Boucle lot", "Evidence gate", "Self evaluation gate", "tests E2E utilisateur", "loop_contract.json", "sr_contract.json", "validate_lot_contract.py"],
+    "docs/codex/SR_HARNESS_METHOD.md": ["SR Development Method", "SR_INBOX.yaml", "SR_LOTS.yaml", "Fact gate", "Backlog Mutation Gate", "Global Impact Gate", "Lot Dependency Reconciliation", "Execution multi-lots par defaut", "Visibilite utilisateur obligatoire", "Modes de connaissance codebase", "Self evaluation gate", "Loop Contract", "SR Contract 3.0.0", "validate_lot_contract.py"],
+    "docs/codex/LOT_EXECUTION_METHOD.md": ["Boucle lot", "Evidence gate", "Backlog Mutation Gate", "Global Impact Gate", "Self evaluation gate", "tests E2E utilisateur", "loop_contract.json", "sr_contract.json", "validate_lot_contract.py"],
     "docs/codex/SR_LOTS.yaml": ["lots:"],
     "docs/codex/SR_INBOX.yaml": ["items:"],
     "docs/codex/WORKFLOW_CODEX.md": ["SR-Harness", "Agents IA runtime", "validation humaine stricte"],
@@ -38,9 +40,9 @@ REQUIRED = {
     "docs/codex/prompts/15_define_runtime_agents.md": ["Pydantic obligatoire", "politique d'echec", "tests de sortie typee"],
     "docs/codex/DOMAIN_EXPERTISE_BOOTSTRAP.md": ["DOMAIN_PROFILE"],
     "docs/codex/PROJECT_SKILLS_POLICY.md": ["docs/codex/project-skills"],
-    "docs/codex/tasks/_TEMPLATE/gate_report.md": ["Gate Report", "Tests E2E utilisateur a faire", "Context Budget Gate", "Self Evaluation Gate", "Fact Gate", "Knowledge Gate", "Loop Contract"],
-    "docs/codex/tasks/_TEMPLATE/loop_contract.json": ["schema_version", "status_decision", "e2e_user_tests", "conversation_transition", "resume_protocol"],
-    "docs/codex/tasks/_TEMPLATE/sr_contract.json": ["schema_version", "validated_requests", "transition"],
+    "docs/codex/tasks/_TEMPLATE/gate_report.md": ["Gate Report", "Tests E2E utilisateur a faire", "Backlog Mutation Gate", "Global Impact Gate", "Lot Dependency Reconciliation", "Context Budget Gate", "Self Evaluation Gate", "Fact Gate", "Knowledge Gate", "Loop Contract"],
+    "docs/codex/tasks/_TEMPLATE/loop_contract.json": ["schema_version", "status_decision", "backlog_mutation_gate", "global_impact_gate", "e2e_user_tests", "conversation_transition", "resume_protocol"],
+    "docs/codex/tasks/_TEMPLATE/sr_contract.json": ["schema_version", "validated_requests", "backlog_mutation", "global_impact", "transition"],
     "docs/codex/tasks/_TEMPLATE/context_pack.md": ["SR Context Pack"],
     "docs/codex/tasks/_TEMPLATE/NEXT_SESSION_PROMPT.md": ["NEXT_SESSION_PROMPT", "Reprise SR stricte"],
     "scripts/codex/validate_lot_contract.py": ["REQUIRED_LOT_FIELDS"],
@@ -63,9 +65,9 @@ SOURCE_REQUIRED = {
     "MANIFEST.json": ["public_source", "profiles/default/PROJECT_PROFILE.yaml"],
     "core/SR_BOOTSTRAP.md": ["Memoire de tache", "Auto-reprise obligatoire", "Validation humaine stricte"],
     "core/SR_METHOD.md": ["Specification Runtime", "SR Development Method", "SR Agent Method"],
-    "core/SR_HARNESS_METHOD.md": ["SR Development Method", "SR_INBOX.yaml", "SR_LOTS.yaml"],
-    "core/LOT_EXECUTION_METHOD.md": ["Boucle lot", "loop_contract.json", "sr_contract.json"],
-    "core/SR_PACK_VERSION.json": ["3.0.3"],
+    "core/SR_HARNESS_METHOD.md": ["SR Development Method", "SR_INBOX.yaml", "SR_LOTS.yaml", "Backlog Mutation Gate", "Global Impact Gate", "Lot Dependency Reconciliation"],
+    "core/LOT_EXECUTION_METHOD.md": ["Boucle lot", "Backlog Mutation Gate", "Global Impact Gate", "loop_contract.json", "sr_contract.json"],
+    "core/SR_PACK_VERSION.json": ["3.0.4"],
     "core/V3_UPGRADE_TEST_PLAN.md": ["SR 3.0.0", "Prompt initial pour projet pilote"],
     "prompts/05_upgrade_codex_environment.md": ["SR_PACK_SOURCE", "commit source"],
     "prompts/06_verify_sr_installation.md": ["sr_post_install_check.py"],

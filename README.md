@@ -21,6 +21,8 @@
 
 **Aurora SR Method Codex Pack** is a public pack for installing the **SR Method** into a software project so Codex works inside an explicit, verifiable, and transferable operating frame.
 
+Public source package for the Aurora SR Method Codex operating pack.
+
 **SR** means **Specification Runtime**.
 
 The central idea is simple:
@@ -150,6 +152,8 @@ flowchart LR
 ---
 
 ## Quick start with Codex
+
+Install Into A Project by opening Codex in the target repository and using the installation prompt below.
 
 ### 1. Clone this repository
 

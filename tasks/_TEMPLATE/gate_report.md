@@ -27,6 +27,46 @@
 - Verification minimale si hypothese :
 - Conclusion factuelle autorisee : oui/non
 
+## Backlog Mutation Gate
+
+- Statut : OK / KO / N/A
+- Fonction structurante detectee : oui/non
+- Mutation backlog requise : oui/non
+- `SR_INBOX.yaml` mis a jour : oui/non/N/A
+- `SR_LOTS.yaml` mis a jour : oui/non/N/A
+- Lots affectes :
+- Lots crees :
+- Lots rouverts :
+- Lots bloques :
+- Lots remplaces :
+- Raison si aucune mutation :
+- Decision de sequence :
+
+## Global Impact Gate
+
+- Statut : OK / KO / N/A
+- Requis : oui/non
+- Surfaces produit/code revues :
+- Lots impactes :
+- Nouveaux lots a creer :
+- Lots a rouvrir, bloquer, reporter, decouper ou remplacer :
+- Hypotheses restantes :
+- Questions bloquantes :
+- Recommandation de sequence :
+
+## Lot Dependency Reconciliation
+
+- Statut : OK / KO / N/A
+- Lots relus :
+- Lots `unaffected` :
+- Lots `impacted` :
+- Lots `blocked_by` :
+- Lots `reopened` :
+- Lots `superseded` :
+- Lots `split_required` :
+- Lots `depends_on` :
+- Champs backlog mis a jour :
+
 ## Knowledge Gate
 
 - Statut : OK / KO / N/A

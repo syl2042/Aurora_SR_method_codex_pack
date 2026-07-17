@@ -130,14 +130,26 @@ Cada sesión importante debe dejar rastros utilizables: estado actual, decisione
 
 ## Qué cambia en 3.2.0
 
-La versión `3.2.0` agrega SR Passes para agrupar varios lotes en pasadas con preflight, orden de dependencias y E2E agrupado, y refuerza la SR Agent Method para diseñar agentes runtime agnósticos de frameworks.
+La versión `3.2.0` incluye dos evoluciones distintas:
+
+### SR Passes: agrupar lotes en pasadas de ejecución
+
+SR Passes agrega una capa de orquestación por encima de los lotes. El lote sigue siendo la unidad atómica para alcance, criterios de aceptación, rutas autorizadas, stop conditions, estado y task memory. Una pasada agrupa varios lotes relacionados cuando comparten una base, un preflight, dependencias o una validación E2E coherente.
 
 SR 3.2.0 agrega:
 
 - `docs/codex/SR_PASSES.yaml` para ejecucion multi-lote acotada;
 - `scripts/codex/validate_pass_contract.py` para verificar referencias de lotes y orden de dependencias;
 - `prompts/08_define_sr_passes_from_lots.md` y variantes localizadas para proponer pasadas desde lotes existentes;
-- reglas de instalacion y upgrade que preservan `SR_LOTS.yaml` y agregan pasadas sin convertir task memories historicas.
+- reglas de instalacion y upgrade que preservan `SR_LOTS.yaml` y agregan pasadas sin convertir task memories historicas;
+- un Pass Planning Gate antes de cualquier ejecucion multi-lote significativa.
+
+Esta evolucion sirve cuando una roadmap, un brief grande o una fase autonoma no se representa limpiamente como un solo lote aislado. La pasada explicita el orden de ejecucion, el preflight comun, las validaciones humanas, las acciones externas, las migraciones, las condiciones de parada y los E2E agrupados antes de empezar a programar.
+
+### SR Agent Method: agentes runtime sin bloqueo de framework
+
+SR 3.2.0 tambien agrega:
+
 - un template de contrato de agente runtime basado en acción de producto acotada, representación interna estable, prompt contract, message builder, tools/actions, routing/fallback, validación y traces.
 
 Cuando una nueva función, reparación o descubrimiento puede afectar más que el lot actual, Codex ahora debe:

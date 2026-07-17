@@ -130,14 +130,26 @@ Cada sessão importante deve deixar rastros utilizáveis: estado atual, decisõe
 
 ## O que muda na 3.2.0
 
-A versão `3.2.0` adiciona SR Passes para agrupar vários lotes em passagens com preflight, ordem de dependências e E2E agrupado, e reforça a SR Agent Method para projetar agentes runtime agnósticos de frameworks.
+A versão `3.2.0` traz duas evoluções distintas:
+
+### SR Passes: agrupar lotes em passagens de execução
+
+SR Passes adiciona uma camada de orquestração acima dos lotes. O lote continua sendo a unidade atômica para escopo, critérios de aceitação, caminhos autorizados, stop conditions, status e task memory. Uma passagem agrupa vários lotes relacionados quando eles compartilham uma base, um preflight, dependências ou uma validação E2E coerente.
 
 SR 3.2.0 adiciona:
 
 - `docs/codex/SR_PASSES.yaml` para execucao multi-lote limitada;
 - `scripts/codex/validate_pass_contract.py` para verificar referencias de lotes e ordem de dependencias;
 - `prompts/08_define_sr_passes_from_lots.md` e variantes localizadas para propor passagens a partir dos lotes existentes;
-- regras de instalacao e upgrade que preservam `SR_LOTS.yaml` e adicionam passagens sem converter task memories historicas.
+- regras de instalacao e upgrade que preservam `SR_LOTS.yaml` e adicionam passagens sem converter task memories historicas;
+- um Pass Planning Gate antes de qualquer execucao multi-lote significativa.
+
+Essa evolucao e util quando uma roadmap, um brief grande ou uma fase autonoma nao se representa bem como um unico lote isolado. A passagem explicita a ordem de execucao, o preflight comum, as validacoes humanas, as acoes externas, as migracoes, as condicoes de parada e os E2E agrupados antes do codigo.
+
+### SR Agent Method: agentes runtime sem bloqueio de framework
+
+SR 3.2.0 tambem adiciona:
+
 - um template de contrato de agente runtime baseado em ação de produto delimitada, representação interna estável, prompt contract, message builder, tools/actions, routing/fallback, validação e traces.
 
 Quando uma nova função, correção ou descoberta pode afetar mais do que o lot atual, o Codex agora deve:

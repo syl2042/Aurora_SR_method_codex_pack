@@ -130,14 +130,26 @@ Jede wichtige Sitzung muss verwertbare Spuren hinterlassen: aktueller Zustand, E
 
 ## Was sich in 3.2.0 ändert
 
-Version `3.2.0` fuegt SR Passes hinzu, um mehrere Lose mit Preflight, Abhaengigkeitsreihenfolge und gruppierten E2E-Pruefungen zu buendeln, und staerkt die SR Agent Method fuer framework-agnostisches Runtime-Agent-Design.
+Version `3.2.0` enthaelt zwei getrennte Erweiterungen:
+
+### SR Passes: Lose in Ausfuehrungspasses buendeln
+
+SR Passes fuegt eine Orchestrierungsschicht oberhalb der Lose hinzu. Das Los bleibt die atomare Einheit fuer Scope, Akzeptanzkriterien, erlaubte Pfade, Stop Conditions, Status und Task Memory. Ein Pass buendelt mehrere zusammenhaengende Lose, wenn sie eine gemeinsame Grundlage, einen Preflight, Abhaengigkeiten oder eine koharente E2E-Pruefung teilen.
 
 SR 3.2.0 fuegt hinzu:
 
 - `docs/codex/SR_PASSES.yaml` fuer begrenzte Multi-Los-Ausfuehrung;
 - `scripts/codex/validate_pass_contract.py` zur Pruefung von Losreferenzen und Abhaengigkeitsreihenfolge;
 - `prompts/08_define_sr_passes_from_lots.md` und lokalisierte Varianten, um Passes aus bestehenden Losen vorzuschlagen;
-- Installations- und Upgrade-Regeln, die `SR_LOTS.yaml` erhalten und Passes hinzufuegen, ohne historische Task Memories zu konvertieren.
+- Installations- und Upgrade-Regeln, die `SR_LOTS.yaml` erhalten und Passes hinzufuegen, ohne historische Task Memories zu konvertieren;
+- ein Pass Planning Gate vor jeder wesentlichen Multi-Los-Ausfuehrung.
+
+Diese Erweiterung ist nuetzlich, wenn eine Roadmap, ein grosser Brief oder eine autonome Phase nicht sauber als einzelnes isoliertes Los beschrieben werden kann. Der Pass macht Ausfuehrungsreihenfolge, gemeinsamen Preflight, menschliche Validierungen, externe Aktionen, Migrationen, Stop Conditions und gruppierte E2E-Pruefungen vor dem Coden explizit.
+
+### SR Agent Method: Runtime Agents ohne Framework-Lock-in
+
+SR 3.2.0 fuegt ausserdem hinzu:
+
 - ein Runtime-Agent-Contract-Template fuer begrenzte Produktaktionen, stabile interne Representation, Prompt Contract, Message Builder, Tools/Actions, Routing/Fallback, Validierung und Traces.
 
 Wenn eine neue Funktion, Reparatur oder Entdeckung mehr als das aktuelle Lot betreffen kann, muss Codex jetzt:

@@ -132,14 +132,26 @@ Every important session must leave usable traces: current state, decisions, sour
 
 ## What changed in 3.2.0
 
-Version `3.2.0` adds SR Passes to group multiple lots into passes with preflight, dependency ordering, and grouped E2E checks, and strengthens the SR Agent Method for framework-agnostic runtime agent design.
+Version `3.2.0` has two distinct evolutions:
+
+### SR Passes: group lots into execution passes
+
+SR Passes introduce an orchestration layer above lots. A lot remains the atomic unit for scope, acceptance criteria, authorized paths, stop conditions, status, and task memory. A pass groups several related lots when they share a foundation, a preflight, dependencies, or one coherent E2E validation.
 
 SR 3.2.0 adds:
 
 - `docs/codex/SR_PASSES.yaml` for bounded multi-lot execution;
 - `scripts/codex/validate_pass_contract.py` to verify lot references and dependency order;
 - `prompts/08_define_sr_passes_from_lots.md` and localized variants to propose passes from existing lots;
-- installation and upgrade rules that preserve `SR_LOTS.yaml` and add passes without converting historical task memories.
+- installation and upgrade rules that preserve `SR_LOTS.yaml` and add passes without converting historical task memories;
+- a Pass Planning Gate before any significant multi-lot execution.
+
+This evolution is useful when a roadmap, a large brief, or an autonomous phase cannot be represented cleanly as one isolated lot. The pass makes the execution order, shared preflight, human validations, external actions, migrations, stop conditions, and grouped E2E checks explicit before coding starts.
+
+### SR Agent Method: runtime agents without framework lock-in
+
+SR 3.2.0 also adds:
+
 - a runtime agent contract template based on bounded product actions, stable internal representations, prompt contracts, message builders, tools/actions, routing/fallback, validation and traces.
 
 When a new function, repair, or discovery may affect more than the current lot, Codex must now:

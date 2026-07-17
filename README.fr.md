@@ -130,14 +130,26 @@ Chaque session importante doit laisser une trace exploitable : état courant, d�
 
 ## Ce qui change en 3.2.0
 
-La version `3.2.0` ajoute SR Passes pour regrouper plusieurs lots en passes avec preflight, ordre de dependances et E2E groupe, et renforce la SR Agent Method pour concevoir des agents runtime agnostiques des frameworks.
+La version `3.2.0` porte deux evolutions distinctes :
+
+### SR Passes : regrouper les lots en passes d'execution
+
+SR Passes ajoute une couche d'orchestration au-dessus des lots. Le lot reste l'unite atomique pour le perimetre, les criteres d'acceptation, les chemins autorises, les stop conditions, le statut et la task memory. Une passe regroupe plusieurs lots lies quand ils partagent un socle, un preflight, des dependances ou une validation E2E coherente.
 
 SR 3.2.0 ajoute :
 
 - `docs/codex/SR_PASSES.yaml` pour encadrer l'execution multi-lots ;
 - `scripts/codex/validate_pass_contract.py` pour verifier les references de lots et l'ordre de dependances ;
 - `prompts/08_define_sr_passes_from_lots.md` et ses variantes localisees pour proposer des passes depuis les lots existants ;
-- des regles d'installation et d'upgrade qui preservent `SR_LOTS.yaml` et ajoutent les passes sans convertir les anciennes task memories.
+- des regles d'installation et d'upgrade qui preservent `SR_LOTS.yaml` et ajoutent les passes sans convertir les anciennes task memories ;
+- un Pass Planning Gate avant toute execution multi-lots significative.
+
+Cette evolution sert lorsqu'une roadmap, un gros brief ou une phase autonome ne se represente pas proprement comme un seul lot isole. La passe rend explicites l'ordre d'execution, le preflight commun, les validations humaines, les actions externes, les migrations, les conditions d'arret et les tests E2E groupes avant de coder.
+
+### SR Agent Method : agents runtime sans verrouillage framework
+
+SR 3.2.0 ajoute aussi :
+
 - un template de contrat agent runtime fonde sur action produit bornee, representation interne stable, prompt contract, message builder, tools/actions, routing/fallback, validation et traces.
 
 Lorsqu'une nouvelle fonction, une réparation ou une découverte peut dépasser le lot courant, Codex doit désormais :

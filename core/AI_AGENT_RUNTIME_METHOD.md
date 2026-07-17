@@ -8,26 +8,45 @@ Definir comment Codex doit concevoir les agents IA applicatifs dans les projets 
 Cette methode concerne les agents IA embarques dans l'application. Elle ne remplace pas les skills Codex, qui servent a guider Codex pendant le developpement.
 
 ## Principe central
-Ne pas fonder la V1 sur un framework agent lourd.
+Ne pas fonder la V1 sur un framework agent lourd. La methode est agnostique des frameworks, providers de modele, domaines metier, interfaces et representations internes.
+
+Un agent runtime n'est pas defini par son modele ni par son prompt. Il est defini par l'action produit bornee qu'il sert, la representation interne stable qu'il lit ou produit, le contrat type qui valide sa sortie, et la surface runtime qui consomme le resultat valide.
+
 Utiliser un pattern backend-first, explicite, testable et validable :
 
 ```text
-modele LLM
-+ system prompt
-+ user prompt template
-+ variables injectees
+action produit bornee
++ representation interne stable
++ contrat runtime type
++ input/output models Pydantic ou validateur type equivalent
++ JSON schema ou equivalent expose au LLM
++ prompt contract derive du contrat runtime
++ user message builder cote application
++ variables injectees explicites et limitees
 + bindings SQL controles
 + bindings Nexus/RAG optionnels
-+ skills runtime
-+ output contract
-+ Pydantic input/output models ou validateur type equivalent
-+ JSON schema expose au LLM
++ skills runtime optionnelles
++ tools/actions explicites
++ routing/fallback si plusieurs agents peuvent repondre
 + validation runtime stricte
 + retry/repair policy
 + traces d'erreur de validation
-+ traces
++ traces non sensibles
 + validation humaine si necessaire
 ```
+
+Le prompt systeme n'est pas la source de verite. Il est une projection du contrat runtime vers le modele.
+
+## Formes runtime d'agents
+
+Chaque agent doit declarer `runtime_shape` :
+
+- `micro_agent` : un appel modele, une action produit bornee, une sortie structuree, pas de boucle autonome ;
+- `workflow_agent` : boucle bornee avec outils, observations, actions visibles ou etapes successives ;
+- `delegation_agent` : route, transfere ou reformule une demande vers un agent specialise ;
+- `mini_agent` : variante reduite pour cout, latence, modele moins capable, contexte limite ou risque controle.
+
+Ces formes ne sont pas des niveaux de maturite. Elles servent a choisir le contrat runtime le plus simple suffisant.
 
 ## Contrat minimal d'un agent
 Chaque agent runtime doit etre decrit avec :
@@ -35,12 +54,17 @@ Chaque agent runtime doit etre decrit avec :
 - `label`
 - `purpose`
 - `business_function_key`
+- `runtime_shape`
+- `product_action_scope`
+- `internal_representation_contract`
 - `model_provider`
 - `model`
 - `temperature`
 - `execution_mode`
+- `prompt_contract`
 - `system_prompt`
 - `user_prompt_template`
+- `user_message_builder`
 - `input_schema`
 - `output_schema`
 - `input_model`
@@ -52,6 +76,8 @@ Chaque agent runtime doit etre decrit avec :
 - `sql_context_bindings`
 - `nexus_context_bindings`
 - `required_runtime_skills`
+- `tools_and_actions`
+- `routing_policy`
 - `ui_placement`
 - `test_cases`
 - `typed_output_tests`
@@ -61,12 +87,111 @@ Chaque agent runtime doit etre decrit avec :
 - `is_active`
 
 Champs recommandes :
+- `runtime_shape` : `micro_agent`, `workflow_agent`, `delegation_agent` ou `mini_agent` ;
+- `product_action_scope` : action utilisateur, moment metier, entree runtime, condition de declenchement, resultat visible attendu, hors-perimetre et fallback ;
+- `internal_representation_contract` : representation stable lue ou produite, source de verite, changements autorises/interdits, consommateur et proprietaire de validation ;
+- `prompt_contract` : role, inputs autorises, out-of-scope, format de sortie et regles dures derives du contrat runtime ;
+- `user_message_builder` : code applicatif responsable des variables injectees, de la serialisation, troncature et redaction ;
+- `tools_and_actions` : separation entre tools d'inspection/preparation et actions qui engagent l'UI, l'etat ou un artefact ;
+- `routing_policy` : routeur, intentions autorisees, route par defaut, politique d'incertitude et fallback ;
 - `input_model` : modele Pydantic ou equivalent qui decrit les entrees normalisees de l'agent ;
 - `output_model` : modele Pydantic ou equivalent qui decrit la sortie acceptee par l'application ;
 - `json_schema_source` : `generated_from_output_model`, `manual_schema` ou `external_contract` ;
 - `output_validation_mode` : `pydantic_strict`, `typed_validator_strict` ou `manual_json_schema` ;
 - `invalid_output_policy` : `reject`, `retry_once`, `repair_with_trace` ou `human_review` ;
 - `validation_error_trace` : emplacement ou format des traces d'erreur non sensibles.
+
+## Product action scope
+
+Un agent runtime doit etre rattache a une action produit bornee avant d'etre rattache a un prompt.
+
+```yaml
+product_action_scope:
+  user_action:
+  business_moment:
+  runtime_entrypoint:
+  triggering_condition:
+  expected_user_visible_result:
+  out_of_scope:
+  fallback_policy:
+```
+
+Regle : ne pas definir un agent global si une action produit bornee peut etre identifiee.
+
+## Internal representation contract
+
+Un agent runtime lit, produit ou modifie une representation interne stable que le runtime sait valider et consommer.
+
+```yaml
+internal_representation_contract:
+  representation_name:
+  representation_type:
+  source_of_truth:
+  allowed_changes:
+  forbidden_changes:
+  consumer:
+  validation_owner:
+```
+
+Exemples generiques : `RiskFinding[]`, `SupportReplyDraft`, `InvoiceClassification`, `QueryPlan`, `DocumentOutline`, `ActionRecommendation[]`, `UIStatePatch`.
+
+## Prompt contract et user message builder
+
+Flux attendu :
+
+```text
+Runtime contract
+-> typed input/output models
+-> JSON schema or equivalent
+-> prompt contract
+-> user message builder
+-> LLM response
+-> strict runtime validation
+-> accepted object or controlled failure
+```
+
+Le `user_message_builder` est le code applicatif qui transforme l'etat reel de l'application en message utilisateur controle.
+
+```yaml
+user_message_builder:
+  owner:
+  source_files:
+  injected_variables:
+  forbidden_variables:
+  serialization_rules:
+  truncation_rules:
+  redaction_rules:
+```
+
+## Tools, actions et routing
+
+Un tool inspecte, recupere ou prepare. Une action engage l'interface, l'etat applicatif, une ecriture, une notification, une decision ou un artefact utilisateur.
+
+```yaml
+tools_and_actions:
+  inspection_tools:
+  retrieval_tools:
+  computation_tools:
+  committing_actions:
+  user_visible_actions:
+  state_mutating_actions:
+  human_confirmed_actions:
+```
+
+Quand plusieurs agents peuvent repondre, definir une politique de routage et de fallback.
+
+```yaml
+routing_policy:
+  router_required:
+  router_agent_key:
+  allowed_intents:
+  default_route:
+  uncertainty_policy:
+  fallback_agent:
+  target_refusal_allowed:
+```
+
+Le fallback doit privilegier la route la moins risquee, pas la plus autonome.
 
 ## Sortie structuree
 Un agent ne doit pas produire uniquement une reponse finale textuelle si l'application doit la consommer.

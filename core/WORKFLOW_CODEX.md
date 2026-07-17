@@ -20,7 +20,7 @@ Si la tache touche objets metier, workflows, ecrans metier, validations humaines
 ## Agents IA runtime
 Si la tache touche LLM, agent IA applicatif, prompt, outil, orchestration, structured output, RAG/Nexus ou skill runtime :
 - lire `AI_AGENT_RUNTIME_METHOD.md` ;
-- utiliser le pattern prompt + bindings controles + skills runtime + JSON schema + validation + traces ;
+- utiliser le pattern action produit bornee + representation interne stable + contrat runtime type + prompt contract + message builder + bindings controles + tools/actions + routing/fallback + JSON schema + validation + traces ;
 - exiger validation humaine pour les actions critiques.
 
 ## SR Development Method et lots
@@ -28,6 +28,8 @@ Si la tache concerne une roadmap, un gros brief, une reprise longue, plusieurs l
 - lire `SR_HARNESS_METHOD.md` et `LOT_EXECUTION_METHOD.md` ;
 - utiliser `aurora-lot-runner` ;
 - maintenir `SR_INBOX.yaml` et `SR_LOTS.yaml` ;
+- verifier ou proposer `SR_PASSES.yaml` avant toute execution multi-lots ;
+- appliquer le Pass Planning Gate : ordre, dependances, preflight, validations humaines et E2E groupe ;
 - appliquer knowledge_gate puis evidence_gate avant plan/faisabilite ;
 - appliquer fact_gate avant toute conclusion factuelle sur l'existant ;
 - produire `gate_report.md` apres execution d'un lot ;

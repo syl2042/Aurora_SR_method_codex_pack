@@ -24,5 +24,7 @@ docs/codex/project-skills/
     references/
 ```
 
+Pour une skill locale liee a un agent IA runtime, appliquer `docs/codex/AI_AGENT_RUNTIME_METHOD.md` : definir l'action produit bornee, la forme runtime, la representation interne stable, les modeles types, le prompt contract, le message builder applicatif, les tools/actions, le routing/fallback, la validation stricte, les traces, les tests et la validation humaine si necessaire.
+
 La description frontmatter d'une skill metier doit rester sous 1024 caracteres et viser 300 a 800 caracteres.
 Le `short_description` dans `agents/openai.yaml` est distinct : 25 a 64 caracteres.

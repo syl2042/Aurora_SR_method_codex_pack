@@ -14,7 +14,7 @@ suggested_codex_domain_skills:
   - name: "codex-{{PROJECT_SLUG}}-agent-runtime"
     purpose: "concevoir les agents IA applicatifs et distinguer les skills runtime des skills Codex"
     description: >-
-      utiliser quand Codex cree ou modifie un agent IA applicatif, un prompt, un output schema, un binding SQL/Nexus/RAG, une skill runtime, une trace ou une validation humaine liee aux agents. Cette skill impose le contrat SR agent runtime: prompts controles, pas de SQL libre execute par LLM, schema JSON, cas de test, risques explicites et aucun agent actif sans validation.
+      utiliser quand Codex cree ou modifie un agent IA applicatif, un prompt, un output schema, un binding SQL/Nexus/RAG, une skill runtime, une trace ou une validation humaine liee aux agents. Cette skill impose le contrat SR agent runtime: action produit bornee, representation interne stable, prompt contract, message builder, tools/actions, routing/fallback, pas de SQL libre execute par LLM, schema JSON, cas de test, risques explicites et aucun agent actif sans validation.
     triggers: ["agent_ia", "prompt", "output_schema", "skill_runtime", "rag", "nexus"]
     non_negotiable_rules:
       - "aucun agent actif sans validation humaine"

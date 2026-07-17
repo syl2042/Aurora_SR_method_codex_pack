@@ -63,6 +63,12 @@ agent_runtime:
   public_name: "SR Agent Method"
   method_doc: docs/codex/AI_AGENT_RUNTIME_METHOD.md
   max_builder_candidates_v1: 5
+  require_bounded_product_action: true
+  require_runtime_shape: true
+  require_internal_representation_contract: true
+  require_user_message_builder: true
+  require_tools_actions_split: true
+  require_routing_policy_when_ambiguous: true
   require_output_schema: true
   require_test_cases: true
   require_human_validation_for_critical_actions: true
@@ -94,6 +100,16 @@ sr_harness:
     - external_secret_needed
     - user_testing_required
     - context_budget_risk
+
+sr_passes:
+  enabled: true
+  passes_file: docs/codex/SR_PASSES.yaml
+  max_lots_per_pass: 5
+  require_pass_planning_gate: true
+  require_preflight_before_pass: true
+  allow_grouped_e2e: true
+  require_pass_contract: false
+  migration_policy: "non_breaking_additive"
 
 lot_naming:
   convention: "<PROJECT_KEY>-<AREA>-<SEQ>"

@@ -48,7 +48,7 @@ Une skill metier locale doit rester declaree dans `SKILL_MAP.md` ou `PROJECT_PRO
 Les skills runtime des agents applicatifs ne sont pas des skills Codex globales. Avant de creer ou modifier un agent IA runtime, lire `docs/codex/AI_AGENT_RUNTIME_METHOD.md` et appliquer le pattern :
 
 ```text
-prompt + variables + bindings controles + skills runtime + schema JSON + validation + traces + validation humaine
+action produit bornee + representation interne stable + contrat runtime type + prompt contract + message builder + bindings controles + tools/actions + routing/fallback + schema JSON + validation + traces + validation humaine
 ```
 
 Ne jamais laisser un LLM generer puis executer librement du SQL.

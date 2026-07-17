@@ -9,7 +9,7 @@ La SR Method est la doctrine generale Auroramind pour encadrer le travail avec d
 Elle comporte deux branches complementaires :
 
 - **SR Development Method** : cadrage du developpement assiste par IA, avec lots, evidence gate, knowledge gate, verification, auto-evaluation, memoire de tache et reprise de contexte.
-- **SR Agent Method** : construction d'agents IA runtime embarques dans une application, avec prompts, variables, bindings controles, schemas de sortie, traces et validation humaine.
+- **SR Agent Method** : construction d'agents IA runtime embarques dans une application, avec action produit bornee, representation interne stable, contrat runtime type, prompt contract, message builder, bindings controles, tools/actions, schemas de sortie, routing/fallback, traces et validation humaine.
 
 ## Positionnement
 
@@ -19,6 +19,7 @@ La difference est que la SR Method applique ce principe a l'echelle complete d'u
 
 - backlog vivant ;
 - cartographie codebase ;
+- lots atomiques et passes d'execution multi-lots ;
 - skills Codex et skills runtime separees ;
 - gates de preuve ;
 - memoire long terme ;

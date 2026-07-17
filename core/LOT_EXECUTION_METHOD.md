@@ -39,6 +39,28 @@ Ne pas coder un lot `proposed` sans validation si le changement est significatif
 
 Si plusieurs lots sont executables et que l'utilisateur a valide une phase autonome, une roadmap ou un gros brief, preparer une passe jusqu'a `max_lots_per_session` en commencant par `reopened`, puis `validated`.
 
+Quand `docs/codex/SR_PASSES.yaml` existe, choisir une passe `validated` ou proposer une passe `planned` avant de coder. Une passe ne remplace pas les lots : elle declare seulement l'ordre, le preflight commun, les validations humaines et l'E2E groupe.
+
+### 1b. Pass Planning Gate
+
+Avant toute execution multi-lots, verifier la passe :
+
+- les lots inclus existent dans `SR_LOTS.yaml` ;
+- les dependances sont terminees ou incluses plus tot dans la passe ;
+- les lots `blocked`, `proposed` ou `superseded` ne sont pas executes silencieusement ;
+- les secrets, identifiants, assets, URLs, services Docker ou comptes de test requis sont listes ;
+- les migrations, actions externes et validations humaines sont explicites ;
+- la strategie E2E indique `per_lot`, `grouped_at_pass_end` ou `not_required` ;
+- les stop conditions couvrent gates, dependances, validation humaine et contexte.
+
+Valider si possible :
+
+```bash
+python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml
+```
+
+Si le gate est rouge, stopper avant codage significatif et proposer le delta `SR_PASSES.yaml` ou `SR_LOTS.yaml`.
+
 ### 2. Intake
 
 Lire uniquement les sources requises :
@@ -212,6 +234,7 @@ Si toujours rouge, stopper avec blocker clair.
 
 Completer `gate_report.md` :
 
+- pass planning gate si execution multi-lots ;
 - evidence gate ;
 - fact gate ;
 - backlog mutation gate ;
@@ -301,6 +324,12 @@ Si `SR_LOTS.yaml` a ete modifie pendant le lot, valider le backlog avant cloture
 
 ```bash
 python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml
+```
+
+Si `SR_PASSES.yaml` a ete modifie ou utilise pour une execution multi-lots, valider la passe avant cloture :
+
+```bash
+python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml
 ```
 
 Cette validation est obligatoire meme si `git diff --check` est vert. `git diff --check` ne valide pas les champs obligatoires du contrat de lot et peut manquer un fichier non suivi.

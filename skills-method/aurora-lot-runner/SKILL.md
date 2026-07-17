@@ -28,11 +28,12 @@ Lire uniquement ce qui est utile :
 2. `docs/codex/LOT_EXECUTION_METHOD.md`
 3. `docs/CURRENT_STATE.md`
 4. `docs/codex/SR_LOTS.yaml` si present
-5. `docs/codex/SR_INBOX.yaml` si present
-6. `docs/codex/SR_CONTEXT_PACK.md` si present
-7. `docs/codex/SKILL_MAP.md`
-8. RepoMap et sources du lot courant
-9. Nexus KG/context pack si `PROJECT_PROFILE.yaml` active le mode `nexus_kg`
+5. `docs/codex/SR_PASSES.yaml` si present
+6. `docs/codex/SR_INBOX.yaml` si present
+7. `docs/codex/SR_CONTEXT_PACK.md` si present
+8. `docs/codex/SKILL_MAP.md`
+9. RepoMap et sources du lot courant
+10. Nexus KG/context pack si `PROJECT_PROFILE.yaml` active le mode `nexus_kg`
 
 ## Classification obligatoire
 
@@ -46,15 +47,17 @@ Avant de coder, classer la demande :
 - demande de plan ;
 - execution d'un lot valide ;
 - phase multi-lots bornee.
+- execution ou cadrage d'une passe SR.
 
 Si la demande modifie le backlog, proposer ou effectuer la mise a jour de `SR_INBOX.yaml` ou `SR_LOTS.yaml` selon le risque.
 
 ## Boucle d'execution
 
-1. Selectionner le prochain lot executable.
+1. Selectionner le prochain lot executable ou la prochaine passe executable.
 2. Creer ou reprendre une task memory.
-3. Appliquer `evidence_gate` avant plan ou faisabilite.
-4. Appliquer `knowledge_gate` : RepoMap/KG -> fichiers candidats -> lecture code reel.
+3. Appliquer `pass_planning_gate` avant toute execution multi-lots.
+4. Appliquer `evidence_gate` avant plan ou faisabilite.
+5. Appliquer `knowledge_gate` : RepoMap/KG -> fichiers candidats -> lecture code reel.
 5. Selectionner les skills utiles :
    - `aurora-planning-with-files`
    - `aurora-diagnose` si bug
@@ -64,18 +67,20 @@ Si la demande modifie le backlog, proposer ou effectuer la mise a jour de `SR_IN
    - `aurora-review-diff` avant cloture
    - skill metier locale si domaine
    - skill design si UI et disponible
-6. Implementer dans le scope du lot.
-7. Lancer les verifications.
-8. Corriger au maximum selon `max_repair_attempts_per_lot`.
-9. Appliquer `self_evaluation_gate`.
-10. Produire `gate_report.md`.
-11. Produire et valider `loop_contract.json` avec `scripts/codex/validate_loop_contract.py` si disponible.
-12. Mettre a jour `SR_LOTS.yaml`, task memory, RepoMap/KG et `CURRENT_STATE.md` si necessaire.
-13. Continuer seulement si le niveau d'autonomie l'autorise et que les gates critiques sont verts.
+7. Implementer dans le scope du lot ou de la passe.
+8. Lancer les verifications.
+9. Corriger au maximum selon `max_repair_attempts_per_lot`.
+10. Appliquer `self_evaluation_gate`.
+11. Produire `gate_report.md`.
+12. Produire et valider `loop_contract.json` avec `scripts/codex/validate_loop_contract.py` si disponible.
+13. Valider `SR_PASSES.yaml` avec `scripts/codex/validate_pass_contract.py` si une passe a ete creee, modifiee ou utilisee.
+14. Mettre a jour `SR_LOTS.yaml`, `SR_PASSES.yaml`, task memory, RepoMap/KG et `CURRENT_STATE.md` si necessaire.
+15. Continuer seulement si le niveau d'autonomie l'autorise et que les gates critiques sont verts.
 
 ## Gates minimales
 
 - `evidence_gate` : verifier les fichiers avant suppositions.
+- `pass_planning_gate` : avant multi-lots, verifier ordre, dependances, preflight, validations humaines et E2E groupe.
 - `knowledge_gate` : utiliser RepoMap, puis KG si actif, avant de choisir les fichiers.
 - `scope_gate` : respecter `allowed_paths` / `forbidden_paths`.
 - `spec_gate` : couvrir les criteres d'acceptation.

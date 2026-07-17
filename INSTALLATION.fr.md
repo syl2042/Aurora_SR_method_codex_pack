@@ -23,6 +23,8 @@ git clone https://github.com/syl2042/Aurora_SR_method_codex_pack.git "$SR_PACK_S
 python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target /path/to/project --profile default --write
 ```
 
+Les nouvelles installations incluent `docs/codex/SR_PASSES.yaml`. Les passes SR regroupent plusieurs lots dans une execution bornee avec ordre de dependances, preflight commun, validations humaines et tests E2E groupes. Les lots restent l'unite atomique dans `SR_LOTS.yaml`.
+
 ## Mettre a jour
 
 Dans le projet cible, coller [prompts/fr/05_upgrade_codex_environment.md](prompts/fr/05_upgrade_codex_environment.md). Codex doit auditer, preserver les fichiers projet, proposer le plan, puis seulement appliquer l'upgrade.
@@ -30,6 +32,16 @@ Dans le projet cible, coller [prompts/fr/05_upgrade_codex_environment.md](prompt
 ## Verifier
 
 Coller [prompts/fr/06_verify_sr_installation.md](prompts/fr/06_verify_sr_installation.md).
+
+Codex doit aussi valider les passes si le fichier existe :
+
+```bash
+python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml
+```
+
+## Definir les passes SR
+
+Apres creation des lots ou apres upgrade d'un projet existant, coller [prompts/fr/08_define_sr_passes_from_lots.md](prompts/fr/08_define_sr_passes_from_lots.md). Cette etape met uniquement a jour la memoire SR et ne doit pas modifier le code applicatif.
 
 ## Demarrer une session
 

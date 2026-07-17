@@ -15,9 +15,11 @@ Instrucciones:
 1. Detectar la versión SR instalada.
 2. Verificar o clonar el paquete fuente oficial.
 3. Identificar archivos del proyecto a preservar: `AGENTS.md`, `DESIGN.md`, `docs/CURRENT_STATE.md`, `docs/codex/tasks/`, skills del proyecto y decisiones locales.
-4. Explicar el plan de upgrade y esperar validación explícita antes de mutación.
-5. Aplicar el upgrade con el instalador solo después de validación.
-6. Ejecutar scripts de auditoría y validación.
-7. Reportar commit fuente, archivos actualizados, archivos preservados, backups, warnings y próximos pasos.
+4. Preservar `SR_LOTS.yaml` y agregar `SR_PASSES.yaml` de forma aditiva si falta, sin convertir automáticamente lotes antiguos ni task memories.
+5. Explicar el plan de upgrade y esperar validación explícita antes de mutación.
+6. Aplicar el upgrade con el instalador solo después de validación.
+7. Ejecutar scripts de auditoría y validación, incluido `validate_pass_contract.py` si existe `SR_PASSES.yaml`.
+8. Reportar commit fuente, archivos actualizados, archivos preservados, backups, warnings, estado de `SR_PASSES.yaml` y próximos pasos.
+9. Recomendar `prompts/es/08_define_sr_passes_from_lots.md` si el proyecto tiene varios lotes y ninguna pasada válida.
 
 No modifiques código de aplicación, dependencias, migraciones ni secretos.

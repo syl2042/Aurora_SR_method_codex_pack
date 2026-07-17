@@ -128,9 +128,17 @@ Cada sessão importante deve deixar rastros utilizáveis: estado atual, decisõe
 
 ---
 
-## O que muda na 3.0.4
+## O que muda na 3.2.0
 
-A versão `3.0.4` reforça a SR para funções estruturantes que surgem durante o desenvolvimento.
+A versão `3.2.0` adiciona SR Passes para agrupar vários lotes em passagens com preflight, ordem de dependências e E2E agrupado, e reforça a SR Agent Method para projetar agentes runtime agnósticos de frameworks.
+
+SR 3.2.0 adiciona:
+
+- `docs/codex/SR_PASSES.yaml` para execucao multi-lote limitada;
+- `scripts/codex/validate_pass_contract.py` para verificar referencias de lotes e ordem de dependencias;
+- `prompts/08_define_sr_passes_from_lots.md` e variantes localizadas para propor passagens a partir dos lotes existentes;
+- regras de instalacao e upgrade que preservam `SR_LOTS.yaml` e adicionam passagens sem converter task memories historicas.
+- um template de contrato de agente runtime baseado em ação de produto delimitada, representação interna estável, prompt contract, message builder, tools/actions, routing/fallback, validação e traces.
 
 Quando uma nova função, correção ou descoberta pode afetar mais do que o lot atual, o Codex agora deve:
 
@@ -416,18 +424,21 @@ A **SR Agent Method** é uma extensão opcional para projetar agentes IA integra
 
 Ela não é um framework e não substitui LangChain, LangGraph, LlamaIndex, PydanticAI, CrewAI ou SDKs de agentes.
 
-Ela define o **contrato aplicativo** do agente antes da implementação:
+Ela é agnóstica de frameworks, providers, domínios e UI. Ela define o **contrato aplicativo runtime** do agente antes da implementação:
 
-- papel;
-- entradas;
-- saídas;
-- permissões;
-- dados autorizados;
-- tools utilizáveis;
-- validações;
-- logs;
-- riscos;
-- status de ativação.
+- ação de produto delimitada;
+- forma runtime (`micro_agent`, `workflow_agent`, `delegation_agent` ou `mini_agent`);
+- representação interna estável lida ou produzida pelo agente;
+- entradas e saídas tipadas;
+- contrato de prompt derivado do contrato runtime;
+- builder aplicativo da mensagem do usuário;
+- dados autorizados, tools e ações comprometedoras;
+- política de roteamento e fallback;
+- validações, traces, riscos e status de ativação.
+
+Regra central:
+
+> Um agente runtime não é definido por seu modelo nem por seu prompt. Ele é definido pela ação de produto delimitada que serve, pela representação interna estável que lê ou escreve, pelo contrato tipado que valida sua saída e pela superfície runtime que consome o resultado validado.
 
 Princípio forte:
 
@@ -438,6 +449,7 @@ Fluxo recomendado:
 ```text
 Modelo tipado
 -> JSON Schema exposto ao LLM
+-> contrato de prompt e message builder controlado
 -> resposta JSON do LLM
 -> validação runtime estrita
 -> objeto aplicativo aceito ou erro controlado

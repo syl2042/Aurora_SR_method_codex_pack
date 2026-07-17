@@ -2,33 +2,46 @@
 
 ## Objectif
 
-La SR Agent Method definit comment construire des agents IA runtime dans une application sans rendre le projet dependant d'un framework agent lourd.
+La SR Agent Method definit comment construire des agents IA runtime dans une application sans rendre le projet dependant d'un framework agent lourd, d'un provider modele, d'un domaine metier, d'une interface ou d'une representation technique particuliere.
 
 Elle privilegie un pattern backend-first, explicite, testable et validable.
+
+Principe fondateur :
+
+```text
+Un agent runtime n'est pas defini par son modele ni par son prompt.
+Il est defini par l'action produit bornee qu'il sert, la representation interne stable qu'il lit ou produit, le contrat type qui valide sa sortie, et la surface runtime qui consomme le resultat valide.
+```
 
 ## Pattern minimal
 
 ```text
-modele LLM
-+ system prompt
-+ user prompt template
-+ variables injectees
+action produit bornee
++ representation interne stable
++ contrat runtime type
++ input/output models Pydantic ou validateur type equivalent
++ JSON schema ou equivalent expose au LLM
++ prompt contract derive du contrat runtime
++ user message builder cote application
++ variables injectees explicites et limitees
 + bindings SQL controles
 + bindings Nexus/RAG optionnels
-+ skills runtime
-+ output contract
-+ Pydantic input/output models ou validateur type equivalent
-+ JSON schema expose au LLM
++ skills runtime optionnelles
++ tools/actions explicites
++ routing/fallback si plusieurs agents peuvent repondre
 + validation runtime stricte
 + retry/repair policy
 + traces d'erreur de validation
-+ traces
++ traces non sensibles
 + validation humaine si necessaire
 ```
 
 ## Principes
 
 - Un agent runtime est un composant applicatif, pas une conversation libre.
+- La methode est agnostique des frameworks : elle peut etre appliquee avec LangChain, LangGraph, LlamaIndex, PydanticAI, CrewAI, un SDK agents ou aucun framework agentique.
+- La methode est agnostique des domaines, providers, UI et representations internes.
+- Le prompt systeme n'est pas la source de verite ; il est une projection du contrat runtime vers le modele.
 - Les donnees injectees doivent etre explicites, versionnees et limitees.
 - Les bindings SQL sont controles cote backend ; le LLM ne genere pas puis n'execute pas du SQL libre.
 - Les sorties doivent etre structurees si l'application les consomme.
@@ -37,6 +50,123 @@ modele LLM
 - Pour les autres stacks, utiliser un validateur type equivalent avec les memes garanties : types stricts, champs obligatoires, enums controlees, erreurs tracees.
 - Les actions critiques exigent une validation humaine.
 - Les skills Codex et les skills runtime sont deux objets differents.
+
+## Runtime agent shapes
+
+Chaque agent runtime doit etre classe selon sa forme d'execution principale :
+
+- `micro_agent` : un appel modele, une action produit bornee, une sortie structuree, pas de boucle autonome ;
+- `workflow_agent` : boucle bornee avec outils, observations, actions visibles ou etapes successives ;
+- `delegation_agent` : route, transfere ou reformule une demande vers un agent specialise ;
+- `mini_agent` : variante reduite pour cout, latence, modele moins capable, contexte limite ou risque controle.
+
+Ces formes ne sont pas des niveaux de maturite. Elles servent a choisir le contrat runtime le plus simple suffisant.
+
+## Product action scope
+
+Un agent runtime doit etre rattache a une action produit bornee avant d'etre rattache a un prompt.
+
+Contrat recommande :
+
+```yaml
+product_action_scope:
+  user_action:
+  business_moment:
+  runtime_entrypoint:
+  triggering_condition:
+  expected_user_visible_result:
+  out_of_scope:
+  fallback_policy:
+```
+
+Regle : ne pas definir un agent global si une action produit bornee peut etre identifiee.
+
+## Internal representation contract
+
+Un agent fiable lit, produit ou modifie une representation interne stable que le runtime sait valider et consommer.
+
+Contrat recommande :
+
+```yaml
+internal_representation_contract:
+  representation_name:
+  representation_type:
+  source_of_truth:
+  allowed_changes:
+  forbidden_changes:
+  consumer:
+  validation_owner:
+```
+
+Exemples generiques de representations : `RiskFinding[]`, `SupportReplyDraft`, `InvoiceClassification`, `QueryPlan`, `DocumentOutline`, `ActionRecommendation[]`, `UIStatePatch`.
+
+## Prompt contract and user message builder
+
+Flux attendu :
+
+```text
+Runtime contract
+-> typed input/output models
+-> JSON schema or equivalent
+-> prompt contract
+-> user message builder
+-> LLM response
+-> strict runtime validation
+-> accepted object or controlled failure
+```
+
+Le `user_message_builder` est le code applicatif qui transforme l'etat reel de l'application en message utilisateur controle.
+
+Contrat recommande :
+
+```yaml
+user_message_builder:
+  owner:
+  source_files:
+  injected_variables:
+  forbidden_variables:
+  serialization_rules:
+  truncation_rules:
+  redaction_rules:
+```
+
+## Tools and actions
+
+Un tool inspecte, recupere ou prepare. Une action engage l'interface, l'etat applicatif, une ecriture, une notification, une decision ou un artefact utilisateur.
+
+Contrat recommande :
+
+```yaml
+tools_and_actions:
+  inspection_tools:
+  retrieval_tools:
+  computation_tools:
+  committing_actions:
+  user_visible_actions:
+  state_mutating_actions:
+  human_confirmed_actions:
+```
+
+Une action qui modifie l'etat, declenche une ecriture, notifie un tiers ou influence une decision critique doit etre controlee explicitement et, si necessaire, validee humainement.
+
+## Routing policy
+
+Quand plusieurs agents peuvent repondre, le runtime doit definir une politique de routage et de fallback.
+
+Contrat recommande :
+
+```yaml
+routing_policy:
+  router_required:
+  router_agent_key:
+  allowed_intents:
+  default_route:
+  uncertainty_policy:
+  fallback_agent:
+  target_refusal_allowed:
+```
+
+Le fallback doit privilegier la route la moins risquee, pas la plus autonome.
 
 ## Pydantic Output Contract
 

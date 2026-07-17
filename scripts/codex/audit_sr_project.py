@@ -17,6 +17,7 @@ REQUIRED_PROFILE_MARKERS = [
     "require_repo_map",
     "knowledge:",
     "sr_harness:",
+    "sr_passes:",
     "context_budget:",
     "lot_naming:",
 ]
@@ -63,6 +64,35 @@ def lot_contract_errors(path: Path) -> list[str]:
     return errors
 
 
+def pass_contract_errors(path: Path, lots: Path) -> list[str]:
+    if not path.exists():
+        return []
+    try:
+        from validate_pass_contract import load_lots, load_yaml, validate_pass
+    except Exception as exc:
+        return [f"validator import unavailable: {exc}"]
+    try:
+        data = load_yaml(path)
+        lots_by_id = load_lots(lots) if lots.exists() else None
+    except Exception as exc:
+        return [str(exc)]
+    passes = data.get("passes")
+    if not isinstance(passes, list) or not passes:
+        return ["no passes found"]
+    errors = []
+    seen = set()
+    for index, item in enumerate(passes):
+        if not isinstance(item, dict):
+            errors.append(f"pass[{index}]: must be an object")
+            continue
+        pass_id = item.get("pass_id")
+        if pass_id in seen:
+            errors.append(f"pass[{index}]: duplicate pass_id {pass_id!r}")
+        seen.add(pass_id)
+        errors.extend(validate_pass(item, index, lots_by_id))
+    return errors
+
+
 def collect_allowed_skills(profile: Path, skill_map: Path) -> set[str]:
     text = read_text(profile) + "\n" + read_text(skill_map)
     matches = re.findall(r"`([a-zA-Z0-9_.:-]+)`|-\s+([a-zA-Z0-9_.:-]+)\s*(?:#|$|:)", text.replace("\r", ""))
@@ -100,6 +130,7 @@ def main() -> int:
     profile = source_or_installed(root, "docs/codex/PROJECT_PROFILE.yaml", "core/PROJECT_PROFILE.template.yaml")
     skill_map = source_or_installed(root, "docs/codex/SKILL_MAP.md", "core/SKILL_MAP.template.md")
     lots = source_or_installed(root, "docs/codex/SR_LOTS.yaml", "blueprints/sr_lots.template.yaml")
+    passes = source_or_installed(root, "docs/codex/SR_PASSES.yaml", "blueprints/sr_passes.template.yaml")
     agents = source_or_installed(root, "AGENTS.md", "core/AGENTS.template.md")
     repomap = source_or_installed(root, "docs/codex/CODEBASE_MAP.md", "core/CODEBASE_MAP.md")
     errors = []
@@ -109,6 +140,8 @@ def main() -> int:
     errors.extend(check_markers(repomap, ["CODEBASE_MAP"], "repomap"))
     lot_errors = lot_contract_errors(lots)
     errors.extend(f"lot_contract: {err}" for err in lot_errors)
+    pass_errors = pass_contract_errors(passes, lots)
+    errors.extend(f"pass_contract: {err}" for err in pass_errors)
     allowed = collect_allowed_skills(profile, skill_map)
     warnings.extend(task_plan_skill_warnings(root, allowed))
     result = {
@@ -116,6 +149,7 @@ def main() -> int:
         "profile": str(profile),
         "skill_map": str(skill_map),
         "lots": str(lots),
+        "passes": str(passes),
         "agents": str(agents),
         "repomap": str(repomap),
         "errors": errors,

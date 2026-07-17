@@ -16,7 +16,8 @@ Instructions:
 2. Inspect the target repository before changing anything.
 3. Explain the installation scope and wait for explicit user validation if mutation is required.
 4. Run the installer with the `default` profile when validated.
-5. Run the verification scripts after installation.
-6. Report files added, checks executed, warnings, and next steps.
+5. Run the verification scripts after installation, including `validate_pass_contract.py` for `SR_PASSES.yaml`.
+6. Verify that `SR_PASSES.yaml` is installed and recommend `prompts/en/08_define_sr_passes_from_lots.md` after lots are defined.
+7. Report files added, checks executed, warnings, and next steps.
 
 Do not modify application code. Do not create migrations. Do not touch secrets. Do not invent project rules.

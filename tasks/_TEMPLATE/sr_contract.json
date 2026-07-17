@@ -55,6 +55,19 @@
     "open_questions": [],
     "sequencing_recommendation": "not_required"
   },
+  "pass_planning": {
+    "required": false,
+    "status": "not_applicable",
+    "pass_id": null,
+    "lots_included": [],
+    "execution_order": [],
+    "dependencies_satisfied": null,
+    "preflight_required": [],
+    "human_validation_required": [],
+    "grouped_e2e": false,
+    "stop_conditions": [],
+    "decision": "not_required"
+  },
   "evidence": {
     "sources_read": [],
     "code_files_read": [],
@@ -83,6 +96,7 @@
     "product_truth": "pending",
     "backlog_mutation": "pending",
     "global_impact": "pending",
+    "pass_planning": "pending",
     "lot_dependency_reconciliation": "pending",
     "verification": "pending",
     "self_evaluation": "pending",

@@ -65,9 +65,13 @@ Les skills metier Codex sont locales au projet par defaut dans `docs/codex/proje
 ## SR-Harness lots
 Pour toute demande qui modifie le backlog, lire `docs/codex/SR_HARNESS_METHOD.md`, `docs/codex/LOT_EXECUTION_METHOD.md`, `docs/codex/SR_LOTS.yaml` et `docs/codex/SR_INBOX.yaml`.
 
+Pour toute execution multi-lots, lire ou proposer `docs/codex/SR_PASSES.yaml` avant codage significatif. Une passe doit declarer les lots inclus, l'ordre, les prerequis, validations humaines, secrets/actions externes, migrations, criteres d'arret et tests E2E groupes.
+
 Politique par defaut :
 - traiter les lots `reopened` puis `validated` ;
 - enchainer jusqu'a 3 lots par passe si les gates restent verts ;
+- appliquer le Pass Planning Gate avant de coder une passe ;
+- valider `SR_PASSES.yaml` avec `validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml` si le fichier existe ou vient d'etre cree ;
 - stopper sur gate rouge, migration ambigue, dependance, regle metier absente, action sensible, test bloquant ou contexte a risque ;
 - mettre a jour `SR_LOTS.yaml` apres chaque decision de statut ;
 - valider `SR_LOTS.yaml` avec `validate_lot_contract.py` apres toute modification du backlog ;
@@ -118,7 +122,7 @@ RepoMap est obligatoire dans les deux modes. Nexus KG oriente et construit le co
 
 ## Agents IA runtime
 Avant de creer ou modifier un agent IA applicatif, lire `docs/codex/AI_AGENT_RUNTIME_METHOD.md`.
-Pattern obligatoire : prompt + variables + bindings SQL/Nexus controles + skills runtime + output JSON schema + validation + traces + validation humaine si action critique.
+Pattern obligatoire : action produit bornee + representation interne stable + contrat runtime type + prompt contract + message builder + bindings SQL/Nexus controles + skills runtime + tools/actions + routing/fallback + output JSON schema + validation + traces + validation humaine si action critique.
 Ne jamais laisser un LLM generer puis executer librement du SQL.
 
 ## Planning with files

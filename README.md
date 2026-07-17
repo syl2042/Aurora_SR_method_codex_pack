@@ -130,9 +130,17 @@ Every important session must leave usable traces: current state, decisions, sour
 
 ---
 
-## What changed in 3.0.4
+## What changed in 3.2.0
 
-Version `3.0.4` strengthens SR for structural features that emerge during development.
+Version `3.2.0` adds SR Passes to group multiple lots into passes with preflight, dependency ordering, and grouped E2E checks, and strengthens the SR Agent Method for framework-agnostic runtime agent design.
+
+SR 3.2.0 adds:
+
+- `docs/codex/SR_PASSES.yaml` for bounded multi-lot execution;
+- `scripts/codex/validate_pass_contract.py` to verify lot references and dependency order;
+- `prompts/08_define_sr_passes_from_lots.md` and localized variants to propose passes from existing lots;
+- installation and upgrade rules that preserve `SR_LOTS.yaml` and add passes without converting historical task memories.
+- a runtime agent contract template based on bounded product actions, stable internal representations, prompt contracts, message builders, tools/actions, routing/fallback, validation and traces.
 
 When a new function, repair, or discovery may affect more than the current lot, Codex must now:
 
@@ -420,18 +428,21 @@ The **SR Agent Method** is an optional extension for designing AI agents embedde
 
 It is not a framework and does not replace LangChain, LangGraph, LlamaIndex, PydanticAI, CrewAI, or agent SDKs.
 
-It defines the agent's **application contract** before implementation:
+It is framework-, provider-, domain-, and UI-agnostic. It defines the agent's **runtime application contract** before implementation:
 
-- role;
-- inputs;
-- outputs;
-- permissions;
-- authorized data;
-- usable tools;
-- validations;
-- logs;
-- risks;
-- activation status.
+- bounded product action;
+- runtime shape (`micro_agent`, `workflow_agent`, `delegation_agent`, or `mini_agent`);
+- stable internal representation read or produced by the agent;
+- typed inputs and outputs;
+- prompt contract derived from the runtime contract;
+- application-side user message builder;
+- authorized data, tools, and committing actions;
+- routing and fallback policy;
+- validations, traces, risks, and activation status.
+
+Core rule:
+
+> A runtime agent is not defined by its model or prompt. It is defined by the bounded product action it serves, the stable internal representation it reads or writes, the typed contract that validates its output, and the runtime surface that consumes the validated result.
 
 Strong principle:
 
@@ -442,6 +453,7 @@ Recommended flow:
 ```text
 Typed model
 -> JSON Schema exposed to the LLM
+-> prompt contract and controlled message builder
 -> LLM JSON response
 -> strict runtime validation
 -> accepted application object or controlled error

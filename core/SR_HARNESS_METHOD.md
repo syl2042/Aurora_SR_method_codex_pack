@@ -68,6 +68,7 @@ Doctrine non negociable : RepoMap et KG orientent. Le code reel, les tests et le
 ```text
 docs/codex/SR_INBOX.yaml
 docs/codex/SR_LOTS.yaml
+docs/codex/SR_PASSES.yaml
 docs/codex/SR_CONTEXT_PACK.md
 docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json
 docs/codex/tasks/YYYY-MM-DD_slug/gate_report.md
@@ -109,6 +110,24 @@ Pour les fonctions structurantes, il peut aussi declarer les relations entre lot
 Contexte court pour la session ou le lot courant.
 
 Il doit reduire les tokens en evitant de relire toutes les specs, tasks et fichiers.
+
+### `SR_PASSES.yaml`
+
+Orchestration optionnelle des lots en passes.
+
+Une passe ne remplace pas un lot. Le lot reste l'unite atomique de scope, criteres d'acceptation, chemins autorises, stop conditions et statut. La passe est une unite d'acceleration bornee qui regroupe plusieurs lots quand ils partagent un socle, un preflight ou un E2E coherent.
+
+Une passe doit declarer :
+
+- `pass_id`, titre, statut et priorite ;
+- lots inclus et ordre d'execution ;
+- rationale de sequencing ;
+- preflight commun : validations humaines, secrets, actions externes, migrations, questions ouvertes ;
+- sources partagees ;
+- strategie E2E : par lot, groupee en fin de passe ou non requise ;
+- gates et conditions d'arret.
+
+Migration douce : un projet existant sans `SR_PASSES.yaml` reste valide. Lors d'un upgrade, Codex ajoute le fichier et propose des passes `planned` ou `proposed` a partir de `SR_LOTS.yaml`, sans convertir automatiquement l'historique ni modifier les statuts de lots sans preuve.
 
 ### Nommage des lots
 
@@ -321,6 +340,54 @@ depends_on      le lot doit declarer une dependance nouvelle
 
 La reconciliation doit rester proportionnee : relire le backlog et les sources pertinentes, pas tout le repository si RepoMap/KG suffit a identifier les surfaces a risque. Les conclusions factuelles restent soumises au Fact Gate.
 
+### Pass Planning Gate
+
+Le Pass Planning Gate est obligatoire avant toute execution multi-lots.
+
+But : eviter qu'une passe commence avec un ordre incomplet, un prerequis cache ou une validation E2E trop precoce.
+
+Codex doit verifier :
+
+- les lots candidats et leur statut ;
+- les dependances directes et indirectes ;
+- les lots requis mais places plus tard ;
+- les questions bloquantes communes ;
+- les secrets, identifiants, comptes de test, assets, URLs et services requis ;
+- les validations humaines, migrations et actions externes ;
+- les surfaces partagees : DB, API, UI, auth, integrations, tests, agents runtime ;
+- la strategie E2E groupee ou par lot ;
+- le budget contexte estime.
+
+Sortie attendue :
+
+```text
+Pass Planning Gate:
+- required: oui/non
+- pass_id: ...
+- lots_included: [...]
+- execution_order: [...]
+- dependencies_satisfied: oui/non
+- preflight_required: [...]
+- human_validation_required: [...]
+- grouped_e2e: oui/non
+- stop_conditions: [...]
+- decision: pass / fail / requires_user_validation
+```
+
+Une passe executable doit etre validee avec :
+
+```bash
+python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml
+```
+
+Stopper avant codage si :
+
+- un lot depend d'un lot non termine et non inclus plus tot dans la passe ;
+- un secret, identifiant, asset ou acces requis est absent ;
+- une migration ou action sensible exige validation humaine non obtenue ;
+- le regroupement masque un E2E utilisateur bloquant ;
+- la passe depasse le budget contexte ou melange trop de surfaces a risque.
+
 ### Knowledge gate
 
 Le knowledge gate precise comment Codex a construit sa carte du changement.
@@ -511,11 +578,16 @@ Pour une tache non triviale, Codex doit rendre la methode visible sans verbiage 
 
 Quand le backlog contient plusieurs lots executables :
 
-1. traiter d'abord les lots `reopened`, puis `validated` ;
-2. executer jusqu'a `max_lots_per_session` si les gates restent verts ;
-3. mettre a jour `SR_LOTS.yaml` apres chaque decision de statut ;
-4. produire un `gate_report.md` par lot significatif ou une section par lot dans un gate report groupe ;
-5. stopper si une validation humaine, migration, dependance, regle metier absente, test bloquant ou contexte a risque apparait.
+1. verifier ou proposer une passe dans `SR_PASSES.yaml` ;
+2. appliquer le Pass Planning Gate ;
+3. traiter d'abord les lots `reopened`, puis `validated`, dans l'ordre valide de la passe ;
+4. executer jusqu'a `max_lots_per_session` ou `max_lots_per_pass` si les gates restent verts ;
+5. mettre a jour `SR_LOTS.yaml` apres chaque decision de statut ;
+6. mettre a jour `SR_PASSES.yaml` apres chaque decision de statut de passe ;
+7. produire un `gate_report.md` par lot significatif ou une section par lot dans un gate report de passe ;
+8. stopper si une validation humaine, migration, dependance, regle metier absente, test bloquant ou contexte a risque apparait.
+
+Si aucun `SR_PASSES.yaml` n'existe dans un projet ancien, Codex peut executer la politique multi-lots historique uniquement pour terminer la tache courante, puis doit proposer l'ajout d'une passe avant nouvelle execution longue.
 
 Quand l'utilisateur valide une roadmap ou un pack de specs, Codex doit soit :
 

@@ -48,6 +48,8 @@ scripts/codex/*
 
 These generated target-project files are intentionally not stored in this source repository.
 
+New installations include `docs/codex/SR_PASSES.yaml`. SR Passes group several SR lots into a bounded execution pass with dependency ordering, shared preflight, human validations, and grouped E2E checks. Lots remain the atomic delivery unit in `SR_LOTS.yaml`.
+
 ## Upgrade A Target Project
 
 Open Codex in the target project and paste:
@@ -89,9 +91,20 @@ python3 scripts/codex/verify_codex_pack.py
 python3 scripts/codex/audit_codex_pack.py --root . --json
 python3 scripts/codex/sr_post_install_check.py --root . --json
 python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml
+python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml
 python3 scripts/codex/validate_loop_contract.py --file docs/codex/tasks/_TEMPLATE/loop_contract.json
 python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/_TEMPLATE/sr_contract.json
 ```
+
+## Define SR Passes
+
+After lots have been created or after upgrading an existing project, ask Codex to propose passes:
+
+```text
+prompts/en/08_define_sr_passes_from_lots.md
+```
+
+This step updates only SR memory. It must not modify application code.
 
 ## Start A Governed Codex Session
 

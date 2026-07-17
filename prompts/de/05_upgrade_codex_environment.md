@@ -15,9 +15,11 @@ Anweisungen:
 1. Installierte SR-Version erkennen.
 2. Offizielles Source-Paket prüfen oder klonen.
 3. Projektdateien identifizieren, die erhalten bleiben müssen: `AGENTS.md`, `DESIGN.md`, `docs/CURRENT_STATE.md`, `docs/codex/tasks/`, Projektskills und lokale Entscheidungen.
-4. Upgrade-Plan erklären und vor Mutation explizite Validierung abwarten.
-5. Upgrade erst nach Validierung mit dem Installer anwenden.
-6. Audit- und Validierungsskripte ausführen.
-7. Source-Commit, aktualisierte Dateien, erhaltene Dateien, Backups, Warnungen und nächste Schritte berichten.
+4. `SR_LOTS.yaml` erhalten und `SR_PASSES.yaml` additiv hinzufuegen, wenn es fehlt, ohne alte Lose oder Task Memories automatisch zu konvertieren.
+5. Upgrade-Plan erklären und vor Mutation explizite Validierung abwarten.
+6. Upgrade erst nach Validierung mit dem Installer anwenden.
+7. Audit- und Validierungsskripte ausführen, einschliesslich `validate_pass_contract.py`, wenn `SR_PASSES.yaml` existiert.
+8. Source-Commit, aktualisierte Dateien, erhaltene Dateien, Backups, Warnungen, Status von `SR_PASSES.yaml` und nächste Schritte berichten.
+9. `prompts/de/08_define_sr_passes_from_lots.md` empfehlen, wenn das Projekt mehrere Lose und keine validen Passes hat.
 
 Ändere keinen Anwendungscode, keine Abhängigkeiten, Migrationen oder Secrets.

@@ -21,14 +21,15 @@ Etapes :
 7. Identifier le mode connaissance :
    - `core` : RepoMap obligatoire ;
    - `nexus_kg` : RepoMap + Nexus KG si le connecteur existe.
-8. Lancer si possible verify_codex_pack.py, audit_codex_pack.py, audit_sr_project.py --root ., validate_lot_contract.py --file docs/codex/SR_LOTS.yaml, generate_repo_map.py --write, context_budget_report.py --root . --compact, validate_skills.py.
+8. Lancer si possible verify_codex_pack.py, audit_codex_pack.py, audit_sr_project.py --root ., validate_lot_contract.py --file docs/codex/SR_LOTS.yaml, validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml, generate_repo_map.py --write, context_budget_report.py --root . --compact, validate_skills.py.
 9. Verifier la presence de `docs/codex/tasks/_TEMPLATE/loop_contract.json` et `scripts/codex/validate_loop_contract.py`.
 10. Valider le template : `python3 scripts/codex/validate_loop_contract.py --file docs/codex/tasks/_TEMPLATE/loop_contract.json`.
 11. Verifier la presence de `docs/codex/tasks/_TEMPLATE/sr_contract.json` et `scripts/codex/validate_sr_contract.py`.
 12. Valider le template : `python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/_TEMPLATE/sr_contract.json`.
 13. Auditer les task memories avec `python3 scripts/codex/audit_sr_task_contracts.py --root . --json`.
-14. Si le projet contient ou prevoit des agents IA runtime, confirmer que `docs/codex/SR_AGENT_METHOD.md`, `docs/codex/AI_AGENT_RUNTIME_METHOD.md` et `docs/codex/prompts/15_define_runtime_agents.md` existent, puis recommander le prompt `15` apres validation.
-15. Verifier RTK avec verify_rtk.sh si le script existe.
-16. Produire rapport presents/manquants/prochaines actions.
+14. Verifier `docs/codex/SR_PASSES.yaml`. Pour un nouveau projet, recommander de definir les passes apres les lots : ordre logique, dependances, preflight, validations humaines, secrets/actions externes et E2E groupe.
+15. Si le projet contient ou prevoit des agents IA runtime, confirmer que `docs/codex/SR_AGENT_METHOD.md`, `docs/codex/AI_AGENT_RUNTIME_METHOD.md` et `docs/codex/prompts/15_define_runtime_agents.md` existent, puis recommander le prompt `15` apres validation.
+16. Verifier RTK avec verify_rtk.sh si le script existe.
+17. Produire rapport presents/manquants/prochaines actions.
 
 Fin obligatoire : J'attends validation avant toute modification applicative.

@@ -33,6 +33,12 @@
 ## Agents IA runtime
 - Tache touche un agent IA/runtime/LLM : oui/non
 - AI_AGENT_RUNTIME_METHOD lu : oui/non/non applicable
+- Action produit bornee definie : oui/non/non applicable
+- Runtime shape declare : oui/non/non applicable
+- Representation interne stable definie : oui/non/non applicable
+- User message builder identifie : oui/non/non applicable
+- Tools/actions distingues : oui/non/non applicable
+- Routing/fallback defini si ambigu : oui/non/non applicable
 - Skills runtime concernees :
 - Validation humaine requise : oui/non/non applicable
 

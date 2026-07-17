@@ -67,6 +67,23 @@
 - Lots `depends_on` :
 - Champs backlog mis a jour :
 
+## Pass Planning Gate
+
+- Statut : OK / KO / N/A
+- Requis : oui/non
+- Passe :
+- Lots inclus :
+- Ordre d'execution :
+- Dependances satisfaites :
+- Preflight commun :
+- Validations humaines :
+- Secrets/actions externes :
+- Migrations :
+- E2E groupe :
+- Stop conditions :
+- Validation `validate_pass_contract.py` :
+- Decision :
+
 ## Knowledge Gate
 
 - Statut : OK / KO / N/A

@@ -9,8 +9,9 @@ Instruções:
 1. Executar `python3 scripts/codex/verify_codex_pack.py`.
 2. Executar `python3 scripts/codex/audit_codex_pack.py --root . --json`.
 3. Executar `python3 scripts/codex/sr_post_install_check.py --root . --json` se disponível.
-4. Validar contratos lot, loop e SR quando os scripts existirem.
-5. Classificar warnings restantes como aceitáveis, a documentar, a corrigir com validação ou bloqueantes.
-6. Relatar versão, verificações, erros, warnings e próxima ação recomendada.
+4. Validar contratos lot, pass, loop e SR quando os scripts existirem.
+5. Executar `python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml` se `SR_PASSES.yaml` existir.
+6. Classificar warnings restantes como aceitáveis, a documentar, a corrigir com validação ou bloqueantes.
+7. Relatar versão, verificações, erros, warnings, status de `SR_PASSES.yaml` e próxima ação recomendada.
 
 Esta não é uma tarefa de desenvolvimento da aplicação.

@@ -16,7 +16,8 @@ Instructions :
 2. Inspecter le repository cible avant toute modification.
 3. Expliquer le perimetre d'installation et attendre la validation explicite de l'utilisateur si une mutation est requise.
 4. Lancer l'installateur avec le profil `default` apres validation.
-5. Lancer les scripts de verification apres installation.
-6. Rapporter les fichiers ajoutes, les controles executes, les warnings et les prochaines etapes.
+5. Lancer les scripts de verification apres installation, dont `validate_pass_contract.py` pour `SR_PASSES.yaml`.
+6. Verifier que `SR_PASSES.yaml` est installe et recommander `prompts/fr/08_define_sr_passes_from_lots.md` apres definition des lots.
+7. Rapporter les fichiers ajoutes, les controles executes, les warnings et les prochaines etapes.
 
 Ne modifie pas le code applicatif. Ne cree pas de migration. Ne touche pas aux secrets. N'invente pas de regle projet.

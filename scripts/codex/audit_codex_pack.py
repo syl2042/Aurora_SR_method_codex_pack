@@ -3,7 +3,7 @@ import argparse
 import json
 from pathlib import Path
 
-TARGET_VERSION = "3.0.4"
+TARGET_VERSION = "3.2.0"
 
 REQUIRED = {
     "AGENTS.md": [
@@ -28,9 +28,10 @@ REQUIRED = {
     "docs/codex/SR_AGENT_METHOD.md": ["AI_AGENT_RUNTIME_METHOD.md", "output JSON schema", "Pydantic Output Contract"],
     "docs/codex/prompts/01_start_sr_session.md": ["find_next_session_prompt.py", "NEXT_SESSION_PROMPT.md", "Reprise SR stricte", "SR Contract 3.0.0", "validate_sr_contract.py"],
     "docs/codex/prompts/05_upgrade_codex_environment.md": ["https://github.com/syl2042/Aurora_SR_method_codex_pack", "commit source", "SR_PACK_SOURCE", "validate_sr_contract.py", "audit_sr_task_contracts.py"],
-    "docs/codex/SR_HARNESS_METHOD.md": ["SR Development Method", "SR_INBOX.yaml", "SR_LOTS.yaml", "Fact gate", "Backlog Mutation Gate", "Global Impact Gate", "Lot Dependency Reconciliation", "Execution multi-lots par defaut", "Visibilite utilisateur obligatoire", "Modes de connaissance codebase", "Self evaluation gate", "Loop Contract", "SR Contract 3.0.0", "validate_lot_contract.py"],
-    "docs/codex/LOT_EXECUTION_METHOD.md": ["Boucle lot", "Evidence gate", "Backlog Mutation Gate", "Global Impact Gate", "Self evaluation gate", "tests E2E utilisateur", "loop_contract.json", "sr_contract.json", "validate_lot_contract.py"],
+    "docs/codex/SR_HARNESS_METHOD.md": ["SR Development Method", "SR_INBOX.yaml", "SR_LOTS.yaml", "SR_PASSES.yaml", "Fact gate", "Backlog Mutation Gate", "Global Impact Gate", "Lot Dependency Reconciliation", "Pass Planning Gate", "Execution multi-lots par defaut", "Visibilite utilisateur obligatoire", "Modes de connaissance codebase", "Self evaluation gate", "Loop Contract", "SR Contract 3.0.0", "validate_lot_contract.py", "validate_pass_contract.py"],
+    "docs/codex/LOT_EXECUTION_METHOD.md": ["Boucle lot", "Evidence gate", "Pass Planning Gate", "Backlog Mutation Gate", "Global Impact Gate", "Self evaluation gate", "tests E2E utilisateur", "loop_contract.json", "sr_contract.json", "validate_lot_contract.py", "validate_pass_contract.py"],
     "docs/codex/SR_LOTS.yaml": ["lots:"],
+    "docs/codex/SR_PASSES.yaml": ["passes:"],
     "docs/codex/SR_INBOX.yaml": ["items:"],
     "docs/codex/WORKFLOW_CODEX.md": ["SR-Harness", "Agents IA runtime", "validation humaine stricte"],
     "docs/codex/SKILL_MAP.md": ["aurora-lot-runner", "SKILL_DIGEST.md"],
@@ -46,6 +47,7 @@ REQUIRED = {
     "docs/codex/tasks/_TEMPLATE/context_pack.md": ["SR Context Pack"],
     "docs/codex/tasks/_TEMPLATE/NEXT_SESSION_PROMPT.md": ["NEXT_SESSION_PROMPT", "Reprise SR stricte"],
     "scripts/codex/validate_lot_contract.py": ["REQUIRED_LOT_FIELDS"],
+    "scripts/codex/validate_pass_contract.py": ["SR_PASSES.yaml"],
     "scripts/codex/validate_scope.py": ["Scope gate failed"],
     "scripts/codex/context_budget_report.py": ["Context budget"],
     "scripts/codex/audit_sr_project.py": ["SR project audit"],
@@ -56,25 +58,35 @@ REQUIRED = {
     "scripts/codex/find_next_session_prompt.py": ["NEXT_SESSION_PROMPT.md"],
     "docs/codex/prompts/06_verify_sr_installation.md": ["sr_post_install_check.py", "SR Contract 3.0.0", "audit_sr_task_contracts.py"],
     "docs/codex/prompts/07_realign_sr_state_after_upgrade.md": ["audit SR de reprise", "audit_sr_task_contracts.py", "sr_contract.json"],
+    "docs/codex/prompts/08_define_sr_passes_from_lots.md": ["SR_PASSES.yaml", "validate_pass_contract.py"],
     "docs/codex/prompts/60_review_diff_before_close.md": ["SR Contract 3.0.0", "validate_sr_contract.py", "validated_requests", "validate_lot_contract.py"],
 }
 
 SOURCE_REQUIRED = {
     "README.md": ["Public source package", "Install Into A Project"],
     "INSTALLATION.md": ["Install In A Target Project", "--profile default"],
-    "MANIFEST.json": ["public_source", "profiles/default/PROJECT_PROFILE.yaml"],
+    "MANIFEST.json": ["public_source", "profiles/default/PROJECT_PROFILE.yaml", "blueprints/sr_passes.template.yaml"],
+    "blueprints/runtime_agent_contract.template/agent_contract.yaml": ["product_action_scope", "internal_representation_contract", "user_message_builder", "tools_and_actions", "routing_policy"],
+    "blueprints/runtime_agent_contract.template/README.md": ["framework-agnostic", "bounded product action", "runtime contract"],
     "core/SR_BOOTSTRAP.md": ["Memoire de tache", "Auto-reprise obligatoire", "Validation humaine stricte"],
     "core/SR_METHOD.md": ["Specification Runtime", "SR Development Method", "SR Agent Method"],
-    "core/SR_HARNESS_METHOD.md": ["SR Development Method", "SR_INBOX.yaml", "SR_LOTS.yaml", "Backlog Mutation Gate", "Global Impact Gate", "Lot Dependency Reconciliation"],
-    "core/LOT_EXECUTION_METHOD.md": ["Boucle lot", "Backlog Mutation Gate", "Global Impact Gate", "loop_contract.json", "sr_contract.json"],
-    "core/SR_PACK_VERSION.json": ["3.0.4"],
+    "core/SR_HARNESS_METHOD.md": ["SR Development Method", "SR_INBOX.yaml", "SR_LOTS.yaml", "SR_PASSES.yaml", "Backlog Mutation Gate", "Global Impact Gate", "Lot Dependency Reconciliation", "Pass Planning Gate"],
+    "core/LOT_EXECUTION_METHOD.md": ["Boucle lot", "Pass Planning Gate", "Backlog Mutation Gate", "Global Impact Gate", "loop_contract.json", "sr_contract.json"],
+    "core/SR_PACK_VERSION.json": ["3.2.0"],
     "core/V3_UPGRADE_TEST_PLAN.md": ["SR 3.0.0", "Prompt initial pour projet pilote"],
     "prompts/05_upgrade_codex_environment.md": ["SR_PACK_SOURCE", "commit source"],
     "prompts/06_verify_sr_installation.md": ["sr_post_install_check.py"],
     "prompts/07_realign_sr_state_after_upgrade.md": ["audit SR de reprise"],
+    "prompts/08_define_sr_passes_from_lots.md": ["SR_PASSES.yaml", "validate_pass_contract.py"],
+    "prompts/en/08_define_sr_passes_from_lots.md": ["SR_PASSES.yaml", "validate_pass_contract.py"],
+    "prompts/fr/08_define_sr_passes_from_lots.md": ["SR_PASSES.yaml", "validate_pass_contract.py"],
+    "prompts/es/08_define_sr_passes_from_lots.md": ["SR_PASSES.yaml", "validate_pass_contract.py"],
+    "prompts/de/08_define_sr_passes_from_lots.md": ["SR_PASSES.yaml", "validate_pass_contract.py"],
+    "prompts/pt/08_define_sr_passes_from_lots.md": ["SR_PASSES.yaml", "validate_pass_contract.py"],
     "scripts/install_codex_pack.py": ["default", "docs/codex/SR_BOOTSTRAP.md"],
     "scripts/codex/verify_codex_pack.py": ["source_mode"],
     "scripts/codex/sr_post_install_check.py": ["SR post-install check"],
+    "scripts/codex/validate_pass_contract.py": ["SR_PASSES.yaml"],
     "scripts/codex/validate_loop_contract.py": ["SR loop contract"],
     "scripts/codex/validate_sr_contract.py": ["SR 3.0.0", "validated_requests"],
     "profiles/default/PROJECT_PROFILE.yaml": ["default-project", "knowledge:", "context_budget:"],

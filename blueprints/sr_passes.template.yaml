@@ -1,0 +1,86 @@
+# SR_PASSES.yaml - orchestration des lots en passes SR
+
+version: "0.1"
+project: "{{PROJECT_NAME}}"
+project_key: "{{PROJECT_KEY}}"
+updated_at: null
+
+pass_naming:
+  pattern: "{{PROJECT_KEY}}-PASS-<SEQ>"
+  sequence_digits: 3
+  examples:
+    - "{{PROJECT_KEY}}-PASS-001"
+
+pass_policy:
+  enabled: true
+  max_lots_per_pass: 5
+  require_pass_planning_gate: true
+  require_preflight_before_pass: true
+  allow_grouped_e2e: true
+  require_pass_contract: false
+  stop_on:
+    - gate_failure
+    - human_validation_required
+    - missing_secret
+    - migration_failure
+    - dependency_unresolved
+    - context_budget_risk
+
+status_values:
+  - proposed
+  - planned
+  - validated
+  - in_progress
+  - done
+  - user_testing
+  - blocked
+  - superseded
+
+passes:
+  - pass_id: "{{PROJECT_KEY}}-PASS-001"
+    title: "Socle produit et technique initial"
+    status: "planned"
+    priority: "high" # low | medium | high | critical
+    created_at: null
+    updated_at: null
+    lots:
+      - "{{PROJECT_KEY}}-DOCS-001"
+    sequencing:
+      strategy: "topological_with_foundation_first"
+      rationale:
+        - "La passe regroupe des lots qui partagent un socle ou un E2E commun."
+      dependency_overrides: []
+      open_questions: []
+    preflight:
+      required_before_start:
+        - "Les lots references existent dans SR_LOTS.yaml."
+        - "Les dependances directes des lots sont terminees ou incluses plus tot dans la passe."
+      secrets_required: []
+      external_actions_required: []
+      human_validation_required: []
+      migrations_required: []
+      open_questions: []
+    shared_sources:
+      - "docs/CURRENT_STATE.md"
+      - "docs/codex/SR_LOTS.yaml"
+      - "docs/codex/CODEBASE_MAP.md"
+    e2e_strategy:
+      mode: "grouped_at_pass_end" # per_lot | grouped_at_pass_end | not_required
+      items:
+        - "Verifier le parcours utilisateur couvre par la passe."
+    gates:
+      pass_planning_gate: true
+      evidence_gate: true
+      knowledge_gate: true
+      scope_gate: true
+      spec_gate: true
+      verification_gate: true
+      self_evaluation_gate: true
+      context_budget_gate: true
+    stop_on:
+      - "gate_failure"
+      - "human_validation_required"
+      - "dependency_unresolved"
+      - "context_budget_risk"
+    notes:
+      - "Template a adapter au projet avant validation."

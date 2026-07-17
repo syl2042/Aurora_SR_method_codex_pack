@@ -18,14 +18,21 @@ Pour chaque agent candidat, produire :
 - `label`
 - `purpose`
 - `business_function_key`
+- `runtime_shape` (`micro_agent`, `workflow_agent`, `delegation_agent` ou `mini_agent`)
+- `product_action_scope`
+- `internal_representation_contract`
 - priorite
 - modele recommande
 - temperature
+- `prompt_contract`
 - system prompt
 - user prompt template
+- `user_message_builder`
 - bindings SQL justifies
 - bindings Nexus/RAG justifies
 - skills runtime requises
+- `tools_and_actions`
+- `routing_policy` si plusieurs agents ou intentions peuvent repondre
 - output schema
 - input model Pydantic ou validateur type equivalent
 - output model Pydantic ou validateur type equivalent
@@ -49,6 +56,12 @@ Pour chaque agent candidat, produire :
 
 Contraintes :
 - maximum 5 agents candidats en V1 ;
+- methode agnostique des frameworks, providers, domaines et UI ;
+- le prompt n'est pas la source de verite : il est une projection du contrat runtime ;
+- chaque agent doit servir une action produit bornee ou justifier pourquoi ce n'est pas possible ;
+- chaque agent doit declarer la representation interne stable qu'il lit, produit ou modifie ;
+- distinguer tools d'inspection/preparation et actions qui engagent l'UI, l'etat, une ecriture, une notification ou un artefact ;
+- definir fallback et refus possibles quand le routage ou le perimetre sont incertains ;
 - aucun agent actif sans validation ;
 - output schema obligatoire ;
 - Pydantic obligatoire pour backend Python si la sortie est consommee par l'application ;

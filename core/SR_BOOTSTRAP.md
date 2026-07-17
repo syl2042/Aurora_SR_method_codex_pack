@@ -26,7 +26,7 @@ Executer ce bootstrap mentalement et explicitement avant toute tache non trivial
 12. `docs/codex/NEXUS_CONTEXT_PACK.md` ou context pack KG si `knowledge.mode: nexus_kg`
 13. `docs/codex/AI_AGENT_RUNTIME_METHOD.md` si agents IA, LLM, prompts, tools ou orchestration
 14. `docs/codex/DOMAIN_EXPERTISE_BOOTSTRAP.md` si metier, donnees metier, workflow ou verticale
-15. `docs/codex/SR_HARNESS_METHOD.md` et `docs/codex/LOT_EXECUTION_METHOD.md` si gros brief, roadmap, lots, reprise longue ou autonomie bornee
+15. `docs/codex/SR_HARNESS_METHOD.md`, `docs/codex/LOT_EXECUTION_METHOD.md` et `docs/codex/SR_PASSES.yaml` si gros brief, roadmap, lots, reprise longue, passe ou autonomie bornee
 
 ## Auto-reprise obligatoire
 
@@ -77,6 +77,8 @@ Quand un `AGENTS.md`, un lot, une reprise ou l'utilisateur active le mode strict
 Cette validation ne couvre que l'action ou le plan decrit juste avant. Toute extension de perimetre, dependance, migration, configuration, donnees, agent IA runtime, backlog, publication Git, action destructive ou changement metier exige une nouvelle validation explicite.
 
 Si la demande modifie un backlog de lots, Codex doit classer la demande et proposer la mise a jour de `SR_INBOX.yaml` ou `SR_LOTS.yaml` avant de coder.
+
+Si la demande lance ou valide plusieurs lots, Codex doit verifier ou proposer une passe SR dans `SR_PASSES.yaml` avant codage significatif. Le Pass Planning Gate verifie l'ordre, les dependances, le preflight commun, les validations humaines et l'E2E groupe.
 
 Avant une recommandation technique engageante, appliquer le knowledge gate :
 

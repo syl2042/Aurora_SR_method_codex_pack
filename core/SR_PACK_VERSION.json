@@ -1,7 +1,7 @@
 {
   "pack": "auroramind_codex_operating_pack",
-  "version": "3.0.4",
-  "released_at": "2026-06-30",
+  "version": "3.2.0",
+  "released_at": "2026-07-17",
   "features": [
     "sr_harness",
     "sr_inbox",
@@ -44,6 +44,17 @@
     "agent_pydantic_output_contract",
     "backlog_mutation_gate",
     "global_impact_gate",
-    "lot_dependency_reconciliation"
+    "lot_dependency_reconciliation",
+    "sr_passes",
+    "pass_planning_gate",
+    "pass_preflight",
+    "grouped_pass_e2e",
+    "pass_contract_validator",
+    "product_bound_runtime_agents",
+    "runtime_agent_shapes",
+    "runtime_agent_contract_template",
+    "agent_message_builder_contract",
+    "agent_tools_actions_split",
+    "agent_routing_policy"
   ]
 }

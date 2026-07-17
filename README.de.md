@@ -128,9 +128,17 @@ Jede wichtige Sitzung muss verwertbare Spuren hinterlassen: aktueller Zustand, E
 
 ---
 
-## Was sich in 3.0.4 ändert
+## Was sich in 3.2.0 ändert
 
-Version `3.0.4` stärkt SR für strukturelle Funktionen, die während der Entwicklung entstehen.
+Version `3.2.0` fuegt SR Passes hinzu, um mehrere Lose mit Preflight, Abhaengigkeitsreihenfolge und gruppierten E2E-Pruefungen zu buendeln, und staerkt die SR Agent Method fuer framework-agnostisches Runtime-Agent-Design.
+
+SR 3.2.0 fuegt hinzu:
+
+- `docs/codex/SR_PASSES.yaml` fuer begrenzte Multi-Los-Ausfuehrung;
+- `scripts/codex/validate_pass_contract.py` zur Pruefung von Losreferenzen und Abhaengigkeitsreihenfolge;
+- `prompts/08_define_sr_passes_from_lots.md` und lokalisierte Varianten, um Passes aus bestehenden Losen vorzuschlagen;
+- Installations- und Upgrade-Regeln, die `SR_LOTS.yaml` erhalten und Passes hinzufuegen, ohne historische Task Memories zu konvertieren.
+- ein Runtime-Agent-Contract-Template fuer begrenzte Produktaktionen, stabile interne Representation, Prompt Contract, Message Builder, Tools/Actions, Routing/Fallback, Validierung und Traces.
 
 Wenn eine neue Funktion, Reparatur oder Entdeckung mehr als das aktuelle Lot betreffen kann, muss Codex jetzt:
 
@@ -416,18 +424,21 @@ Die **SR Agent Method** ist eine optionale Erweiterung zum Entwerfen von KI-Agen
 
 Sie ist kein Framework und ersetzt nicht LangChain, LangGraph, LlamaIndex, PydanticAI, CrewAI oder Agent-SDKs.
 
-Sie definiert den **Anwendungsvertrag** des Agenten vor der Implementierung:
+Sie ist framework-, provider-, domain- und UI-agnostisch. Sie definiert den **Runtime-Anwendungsvertrag** des Agenten vor der Implementierung:
 
-- Rolle;
-- Eingaben;
-- Ausgaben;
-- Berechtigungen;
-- erlaubte Daten;
-- nutzbare Tools;
-- Validierungen;
-- Logs;
-- Risiken;
-- Aktivierungsstatus.
+- begrenzte Produktaktion;
+- Runtime-Form (`micro_agent`, `workflow_agent`, `delegation_agent` oder `mini_agent`);
+- stabile interne Representation, die der Agent liest oder erzeugt;
+- typisierte Inputs und Outputs;
+- Prompt Contract, abgeleitet vom Runtime Contract;
+- anwendungsseitiger User Message Builder;
+- erlaubte Daten, Tools und verpflichtende Actions;
+- Routing- und Fallback-Policy;
+- Validierungen, Traces, Risiken und Aktivierungsstatus.
+
+Zentrale Regel:
+
+> Ein Runtime Agent wird nicht durch sein Modell oder seinen Prompt definiert. Er wird durch die begrenzte Produktaktion, die stabile interne Representation, den typisierten Vertrag zur Output-Validierung und die Runtime-Oberflaeche definiert, die das validierte Ergebnis konsumiert.
 
 Starkes Prinzip:
 
@@ -438,6 +449,7 @@ Empfohlener Ablauf:
 ```text
 Typisiertes Modell
 -> JSON Schema für das LLM
+-> Prompt Contract und kontrollierter Message Builder
 -> JSON-Antwort des LLM
 -> strikte Runtime-Validierung
 -> akzeptiertes Anwendungsobjekt oder kontrollierter Fehler

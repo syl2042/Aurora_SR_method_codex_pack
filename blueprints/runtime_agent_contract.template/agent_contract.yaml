@@ -1,0 +1,134 @@
+# SR Runtime Agent Contract Template
+#
+# This template is framework-agnostic. It can describe an agent implemented with
+# an agent framework, a provider SDK, a custom backend service, or a single LLM call.
+
+agent_key: ""
+version: "0.1.0"
+status: "draft" # draft | validated | active | deprecated
+runtime_shape: "" # micro_agent | workflow_agent | delegation_agent | mini_agent
+owner: ""
+
+product_action_scope:
+  user_action: ""
+  business_moment: ""
+  runtime_entrypoint: ""
+  triggering_condition: ""
+  expected_user_visible_result: ""
+  out_of_scope: []
+  fallback_policy: ""
+
+internal_representation_contract:
+  representation_name: ""
+  representation_type: "" # typed_model | json_contract | query_plan | document_contract | ui_patch | other
+  source_of_truth: ""
+  allowed_changes: []
+  forbidden_changes: []
+  consumer: ""
+  validation_owner: ""
+
+input_contract:
+  input_model: ""
+  input_schema: ""
+  required_inputs: []
+  optional_inputs: []
+  authorized_data: []
+  forbidden_data: []
+  truncation_rules: []
+  redaction_rules: []
+
+output_contract:
+  output_model: ""
+  output_schema: ""
+  json_schema_source: "" # generated_from_output_model | manual_schema | external_contract
+  structured_output_required: true
+  accepted_output_object: ""
+  rejected_output_examples: []
+
+prompt_contract:
+  system_prompt_source: ""
+  role: ""
+  hard_rules: []
+  out_of_scope: []
+  refusal_format: ""
+  output_format: ""
+  prompt_is_source_of_truth: false
+
+user_message_builder:
+  owner: ""
+  source_files: []
+  injected_variables: []
+  forbidden_variables: []
+  serialization_rules: []
+  truncation_rules: []
+  redaction_rules: []
+
+tools_and_actions:
+  inspection_tools: []
+  retrieval_tools: []
+  computation_tools: []
+  committing_actions: []
+  user_visible_actions: []
+  state_mutating_actions: []
+  human_confirmed_actions: []
+
+routing_policy:
+  router_required: false
+  router_agent_key: ""
+  allowed_intents: []
+  default_route: ""
+  uncertainty_policy: ""
+  fallback_agent: ""
+  target_refusal_allowed: true
+
+validation_policy:
+  output_validation_mode: "" # pydantic_strict | typed_validator_strict | manual_json_schema
+  unknown_fields_policy: "" # reject | strip_with_trace | allow
+  validation_error_trace: ""
+  validated_before_ui_render: true
+  validated_before_persistence: true
+  validated_before_action: true
+
+failure_policy:
+  invalid_output_policy: "" # reject | retry_once | repair_with_trace | human_review
+  retry_budget: 0
+  repair_allowed: false
+  controlled_error_surface: ""
+
+human_validation:
+  required: false
+  required_for: []
+  reviewer_role: ""
+  approval_artifact: ""
+
+traces:
+  log_start: true
+  log_end: true
+  log_model_error: true
+  log_validation_error: true
+  log_routing_decision: false
+  redact: []
+
+tests:
+  test_cases: []
+  typed_output_tests:
+    valid_output: true
+    malformed_json: true
+    missing_required_field: true
+    wrong_type: true
+    invalid_enum: true
+    unexpected_field_if_closed: true
+    partial_output: true
+    invalid_output_blocks_critical_action: true
+  routing_tests: []
+  tool_action_tests: []
+
+risks:
+  risk_notes: []
+  likely_llm_failures: []
+  mitigations: []
+
+activation:
+  validation_status: "not_validated" # not_validated | validated | blocked
+  is_active: false
+  activation_requirements: []

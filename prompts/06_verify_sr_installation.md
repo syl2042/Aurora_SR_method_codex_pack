@@ -23,13 +23,14 @@ Sources a lire :
 3. `docs/codex/SKILL_MAP.md`
 4. `docs/codex/SR_PACK_VERSION.json`
 5. `docs/codex/SR_LOTS.yaml`
-6. `docs/codex/SR_INBOX.yaml`
-7. `docs/codex/SR_BOOTSTRAP.md`
-8. `docs/codex/SR_HARNESS_METHOD.md`
-9. `docs/codex/LOT_EXECUTION_METHOD.md`
-10. `docs/codex/SR_METHOD.md`
-11. `docs/codex/SR_DEVELOPMENT_METHOD.md`
-12. `docs/codex/SR_AGENT_METHOD.md`
+6. `docs/codex/SR_PASSES.yaml` si present
+7. `docs/codex/SR_INBOX.yaml`
+8. `docs/codex/SR_BOOTSTRAP.md`
+9. `docs/codex/SR_HARNESS_METHOD.md`
+10. `docs/codex/LOT_EXECUTION_METHOD.md`
+11. `docs/codex/SR_METHOD.md`
+12. `docs/codex/SR_DEVELOPMENT_METHOD.md`
+13. `docs/codex/SR_AGENT_METHOD.md`
 
 Etapes :
 
@@ -67,6 +68,12 @@ python3 scripts/codex/audit_sr_task_contracts.py --root .
 
 ```bash
 python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml
+```
+
+1g. Valider les passes si `SR_PASSES.yaml` existe :
+
+```bash
+python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml
 ```
 
 2. Analyser le resultat :
@@ -118,6 +125,7 @@ Sortie attendue :
 - presence et validation du Loop Contract, incluant `conversation_transition` et `resume_protocol` ;
 - presence et validation du SR Contract 3.0.0, incluant `validated_requests` ;
 - resultat de `validate_lot_contract.py --file docs/codex/SR_LOTS.yaml` ;
+- resultat de `validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml` si applicable ;
 - resultat de `audit_sr_task_contracts.py`, avec contrats manquants acceptables en legacy, contrats invalides et migrations eventuelles a valider ;
 - points bloquants ;
 - prochaine etape recommandee : reprise normale, realignement SR, ou correction manuelle.

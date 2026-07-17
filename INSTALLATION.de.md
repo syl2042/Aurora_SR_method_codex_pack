@@ -23,6 +23,8 @@ git clone https://github.com/syl2042/Aurora_SR_method_codex_pack.git "$SR_PACK_S
 python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target /path/to/project --profile default --write
 ```
 
+Neue Installationen enthalten `docs/codex/SR_PASSES.yaml`. SR Passes gruppiert mehrere SR-Lose in einen begrenzten Pass mit Abhaengigkeitsreihenfolge, gemeinsamem Preflight, menschlichen Validierungen und gruppierten E2E-Pruefungen. Lose bleiben die atomare Einheit in `SR_LOTS.yaml`.
+
 ## Aktualisieren
 
 Im Zielprojekt [prompts/de/05_upgrade_codex_environment.md](prompts/de/05_upgrade_codex_environment.md) einfügen. Codex soll auditieren, projektbezogene Dateien erhalten, den Plan melden und erst danach aktualisieren.
@@ -30,6 +32,16 @@ Im Zielprojekt [prompts/de/05_upgrade_codex_environment.md](prompts/de/05_upgrad
 ## Prüfen
 
 [prompts/de/06_verify_sr_installation.md](prompts/de/06_verify_sr_installation.md) einfügen.
+
+Codex soll auch die Passes validieren, wenn die Datei existiert:
+
+```bash
+python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml
+```
+
+## SR Passes definieren
+
+Nachdem Lose erstellt wurden oder nach einem Upgrade eines bestehenden Projekts, [prompts/de/08_define_sr_passes_from_lots.md](prompts/de/08_define_sr_passes_from_lots.md) einfuegen. Dieser Schritt aktualisiert nur den SR-Speicher und darf keinen Anwendungscode aendern.
 
 ## Sitzung starten
 

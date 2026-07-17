@@ -15,9 +15,11 @@ Instructions:
 1. Detect the installed SR version.
 2. Verify or clone the official source package.
 3. Identify project-owned files to preserve: `AGENTS.md`, `DESIGN.md`, `docs/CURRENT_STATE.md`, `docs/codex/tasks/`, project skills, and local decisions.
-4. Explain the upgrade plan and wait for explicit validation before mutation.
-5. Apply the upgrade with the installer only after validation.
-6. Run audit and validation scripts.
-7. Report source commit, files upgraded, files preserved, backups, warnings, and next steps.
+4. Preserve `SR_LOTS.yaml` and add `SR_PASSES.yaml` additively when missing, without automatically converting old lots or task memories.
+5. Explain the upgrade plan and wait for explicit validation before mutation.
+6. Apply the upgrade with the installer only after validation.
+7. Run audit and validation scripts, including `validate_pass_contract.py` when `SR_PASSES.yaml` exists.
+8. Report source commit, files upgraded, files preserved, backups, warnings, `SR_PASSES.yaml` status, and next steps.
+9. Recommend `prompts/en/08_define_sr_passes_from_lots.md` when the project has multiple lots and no valid passes.
 
 Do not modify application code, dependencies, migrations, or secrets.

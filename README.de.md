@@ -128,15 +128,15 @@ Jede wichtige Sitzung muss verwertbare Spuren hinterlassen: aktueller Zustand, E
 
 ---
 
-## Was sich in 3.2.0 ändert
+## Was sich in 3.2.1 ändert
 
-Version `3.2.0` enthaelt zwei getrennte Erweiterungen:
+Version `3.2.1` enthaelt zwei getrennte Erweiterungen:
 
 ### SR Passes: Lose in Ausfuehrungspasses buendeln
 
 SR Passes fuegt eine Orchestrierungsschicht oberhalb der Lose hinzu. Das Los bleibt die atomare Einheit fuer Scope, Akzeptanzkriterien, erlaubte Pfade, Stop Conditions, Status und Task Memory. Ein Pass buendelt mehrere zusammenhaengende Lose, wenn sie eine gemeinsame Grundlage, einen Preflight, Abhaengigkeiten oder eine koharente E2E-Pruefung teilen.
 
-SR 3.2.0 fuegt hinzu:
+SR 3.2.1 fuegt hinzu:
 
 - `docs/codex/SR_PASSES.yaml` fuer begrenzte Multi-Los-Ausfuehrung;
 - `scripts/codex/validate_pass_contract.py` zur Pruefung von Losreferenzen und Abhaengigkeitsreihenfolge;
@@ -148,7 +148,7 @@ Diese Erweiterung ist nuetzlich, wenn eine Roadmap, ein grosser Brief oder eine 
 
 ### SR Agent Method: Runtime Agents ohne Framework-Lock-in
 
-SR 3.2.0 fuegt ausserdem hinzu:
+SR 3.2.1 fuegt ausserdem hinzu:
 
 - ein Runtime-Agent-Contract-Template fuer begrenzte Produktaktionen, stabile interne Representation, Prompt Contract, Message Builder, Tools/Actions, Routing/Fallback, Validierung und Traces.
 

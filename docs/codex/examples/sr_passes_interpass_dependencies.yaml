@@ -1,0 +1,64 @@
+# Example SR_PASSES.yaml - proposed inter-pass dependencies
+version: "0.1"
+project: "MIA example"
+project_key: "MIA"
+updated_at: "2026-07-20"
+
+passes:
+  - pass_id: "MIA-PASS-001"
+    title: "Foundation"
+    status: "proposed"
+    priority: "high"
+    lots:
+      - "LOT-A"
+    sequencing:
+      strategy: "topological"
+      rationale:
+        - "LOT-A prepares the foundation for LOT-B."
+      dependency_overrides: []
+      open_questions: []
+    preflight:
+      required_before_start:
+        - "Lots exist in SR_LOTS.yaml."
+      secrets_required: []
+      external_actions_required: []
+      human_validation_required: []
+      migrations_required: []
+      open_questions: []
+    shared_sources:
+      - "docs/codex/SR_LOTS.yaml"
+    e2e_strategy:
+      mode: "not_required"
+      items: []
+    stop_on:
+      - "dependency_unresolved"
+    notes: []
+
+  - pass_id: "MIA-PASS-002"
+    title: "Feature depending on foundation"
+    status: "proposed"
+    priority: "high"
+    lots:
+      - "LOT-B"
+    sequencing:
+      strategy: "topological"
+      rationale:
+        - "LOT-B depends on LOT-A, which is planned in the previous pass."
+      dependency_overrides: []
+      open_questions: []
+    preflight:
+      required_before_start:
+        - "MIA-PASS-001 remains earlier in the pass list."
+      secrets_required: []
+      external_actions_required: []
+      human_validation_required: []
+      migrations_required: []
+      open_questions: []
+    shared_sources:
+      - "docs/codex/SR_LOTS.yaml"
+    e2e_strategy:
+      mode: "not_required"
+      items: []
+    stop_on:
+      - "dependency_unresolved"
+    notes: []

@@ -22,6 +22,8 @@ VALID_STATUSES = {
 VALID_PRIORITIES = {"low", "medium", "high", "critical"}
 VALID_E2E_MODES = {"per_lot", "grouped_at_pass_end", "not_required"}
 REQUIRED_PASS_FIELDS = ["pass_id", "title", "status", "lots", "preflight", "e2e_strategy", "stop_on"]
+FINISHED_DEPENDENCY_STATUSES = {"done", "user_testing"}
+EXECUTABLE_PASS_STATUSES = {"validated", "in_progress"}
 
 
 def load_yaml(path: Path) -> dict:
@@ -136,7 +138,88 @@ def as_list(value) -> list:
     return value if isinstance(value, list) else []
 
 
-def validate_pass(item: dict, index: int, lots_by_id: dict[str, dict] | None) -> list[str]:
+def has_dependency_override(overrides: list, lot_id: str, dependency: str) -> bool:
+    return any(isinstance(value, str) and lot_id in value and dependency in value for value in overrides)
+
+
+def build_pass_lot_index(passes: list) -> tuple[dict[str, dict], list[str]]:
+    lot_index: dict[str, dict] = {}
+    errors: list[str] = []
+    seen_pass_ids = set()
+    for pass_index, item in enumerate(passes):
+        if not isinstance(item, dict):
+            continue
+        pass_id = item.get("pass_id")
+        if not isinstance(pass_id, str) or not pass_id.strip():
+            continue
+        if pass_id in seen_pass_ids:
+            errors.append(f"pass[{pass_index}]: ambiguous global pass order because pass_id {pass_id!r} is duplicated")
+        seen_pass_ids.add(pass_id)
+        lots = item.get("lots")
+        if not isinstance(lots, list):
+            continue
+        for lot_position, lot_id in enumerate(lots):
+            if not isinstance(lot_id, str):
+                continue
+            previous = lot_index.get(lot_id)
+            if previous:
+                if previous["pass_index"] != pass_index:
+                    errors.append(
+                        f"lot {lot_id!r} appears in multiple passes: "
+                        f"{previous['pass_id']!r} and {pass_id!r}; duplicate lots are not supported"
+                    )
+                continue
+            lot_index[lot_id] = {
+                "pass_id": pass_id,
+                "pass_index": pass_index,
+                "lot_index": lot_position,
+            }
+    return lot_index, errors
+
+
+def validate_external_dependency(
+    pass_item: dict,
+    pass_index: int,
+    lot_id: str,
+    dependency: str,
+    lots_by_id: dict[str, dict],
+    pass_lot_index: dict[str, dict] | None,
+) -> str | None:
+    dependency_lot = lots_by_id.get(dependency)
+    dependency_position = pass_lot_index.get(dependency) if pass_lot_index else None
+    status = pass_item.get("status")
+    if dependency_position:
+        dependency_pass_index = dependency_position["pass_index"]
+        dependency_pass_id = dependency_position["pass_id"]
+        if dependency_pass_index < pass_index:
+            if status in EXECUTABLE_PASS_STATUSES and (
+                not dependency_lot or dependency_lot.get("status") not in FINISHED_DEPENDENCY_STATUSES
+            ):
+                return (
+                    f"pass[{pass_index}]: lot {lot_id!r} depends on unfinished lot {dependency!r} "
+                    f"in earlier pass {dependency_pass_id!r}"
+                )
+            return None
+        if dependency_pass_index > pass_index:
+            return (
+                f"pass[{pass_index}]: lot {lot_id!r} depends on lot {dependency!r} "
+                f"in later pass {dependency_pass_id!r}"
+            )
+        return (
+            f"pass[{pass_index}]: lot {lot_id!r} depends on lot {dependency!r} "
+            "outside its local pass order but indexed in the same pass"
+        )
+    if dependency_lot and dependency_lot.get("status") not in FINISHED_DEPENDENCY_STATUSES:
+        return f"pass[{pass_index}]: lot {lot_id!r} depends on unfinished lot {dependency!r} outside pass"
+    return None
+
+
+def validate_pass(
+    item: dict,
+    index: int,
+    lots_by_id: dict[str, dict] | None,
+    pass_lot_index: dict[str, dict] | None = None,
+) -> list[str]:
     errors = []
     prefix = f"pass[{index}]"
     for field in REQUIRED_PASS_FIELDS:
@@ -209,12 +292,29 @@ def validate_pass(item: dict, index: int, lots_by_id: dict[str, dict] | None) ->
                 errors.append(f"{prefix}: executable pass includes non-executable lot {lot_id!r} with status {lot_status!r}")
             for dependency in as_list(lot.get("depends_on")):
                 if dependency in lot_positions and lot_positions[dependency] > lot_positions[lot_id]:
-                    if not overrides:
+                    if not has_dependency_override(overrides, lot_id, dependency):
                         errors.append(f"{prefix}: lot {lot_id!r} appears before dependency {dependency!r}")
                 elif dependency not in lot_positions:
-                    dependency_lot = lots_by_id.get(dependency)
-                    if dependency_lot and dependency_lot.get("status") not in {"done", "user_testing"}:
-                        errors.append(f"{prefix}: lot {lot_id!r} depends on unfinished lot {dependency!r} outside pass")
+                    error = validate_external_dependency(item, index, lot_id, dependency, lots_by_id, pass_lot_index)
+                    if error:
+                        errors.append(error)
+    return errors
+
+
+def validate_passes(passes: list, lots_by_id: dict[str, dict] | None) -> list[str]:
+    errors = []
+    seen = set()
+    pass_lot_index, index_errors = build_pass_lot_index(passes)
+    errors.extend(index_errors)
+    for index, item in enumerate(passes):
+        if not isinstance(item, dict):
+            errors.append(f"pass[{index}]: must be an object")
+            continue
+        pass_id = item.get("pass_id")
+        if pass_id in seen:
+            errors.append(f"pass[{index}]: duplicate pass_id {pass_id!r}")
+        seen.add(pass_id)
+        errors.extend(validate_pass(item, index, lots_by_id, pass_lot_index))
     return errors
 
 
@@ -240,17 +340,7 @@ def main() -> int:
         print("SR_PASSES must contain a non-empty `passes` list", file=sys.stderr)
         return 1
 
-    errors = []
-    seen = set()
-    for index, item in enumerate(passes):
-        if not isinstance(item, dict):
-            errors.append(f"pass[{index}]: must be an object")
-            continue
-        pass_id = item.get("pass_id")
-        if pass_id in seen:
-            errors.append(f"pass[{index}]: duplicate pass_id {pass_id!r}")
-        seen.add(pass_id)
-        errors.extend(validate_pass(item, index, lots_by_id))
+    errors = validate_passes(passes, lots_by_id)
 
     if errors:
         print("Pass contract errors:")

@@ -128,15 +128,15 @@ Cada sesión importante debe dejar rastros utilizables: estado actual, decisione
 
 ---
 
-## Qué cambia en 3.2.0
+## Qué cambia en 3.2.1
 
-La versión `3.2.0` incluye dos evoluciones distintas:
+La versión `3.2.1` incluye dos evoluciones distintas:
 
 ### SR Passes: agrupar lotes en pasadas de ejecución
 
 SR Passes agrega una capa de orquestación por encima de los lotes. El lote sigue siendo la unidad atómica para alcance, criterios de aceptación, rutas autorizadas, stop conditions, estado y task memory. Una pasada agrupa varios lotes relacionados cuando comparten una base, un preflight, dependencias o una validación E2E coherente.
 
-SR 3.2.0 agrega:
+SR 3.2.1 agrega:
 
 - `docs/codex/SR_PASSES.yaml` para ejecucion multi-lote acotada;
 - `scripts/codex/validate_pass_contract.py` para verificar referencias de lotes y orden de dependencias;
@@ -148,7 +148,7 @@ Esta evolucion sirve cuando una roadmap, un brief grande o una fase autonoma no 
 
 ### SR Agent Method: agentes runtime sin bloqueo de framework
 
-SR 3.2.0 tambien agrega:
+SR 3.2.1 tambien agrega:
 
 - un template de contrato de agente runtime basado en acción de producto acotada, representación interna estable, prompt contract, message builder, tools/actions, routing/fallback, validación y traces.
 

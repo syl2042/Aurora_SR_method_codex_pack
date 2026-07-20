@@ -3,7 +3,7 @@ import argparse
 import json
 from pathlib import Path
 
-TARGET_VERSION = "3.2.0"
+TARGET_VERSION = "3.2.1"
 
 REQUIRED = {
     "AGENTS.md": [
@@ -72,7 +72,7 @@ SOURCE_REQUIRED = {
     "core/SR_METHOD.md": ["Specification Runtime", "SR Development Method", "SR Agent Method"],
     "core/SR_HARNESS_METHOD.md": ["SR Development Method", "SR_INBOX.yaml", "SR_LOTS.yaml", "SR_PASSES.yaml", "Backlog Mutation Gate", "Global Impact Gate", "Lot Dependency Reconciliation", "Pass Planning Gate"],
     "core/LOT_EXECUTION_METHOD.md": ["Boucle lot", "Pass Planning Gate", "Backlog Mutation Gate", "Global Impact Gate", "loop_contract.json", "sr_contract.json"],
-    "core/SR_PACK_VERSION.json": ["3.2.0"],
+    "core/SR_PACK_VERSION.json": ["3.2.1"],
     "core/V3_UPGRADE_TEST_PLAN.md": ["SR 3.0.0", "Prompt initial pour projet pilote"],
     "prompts/05_upgrade_codex_environment.md": ["SR_PACK_SOURCE", "commit source"],
     "prompts/06_verify_sr_installation.md": ["sr_post_install_check.py"],

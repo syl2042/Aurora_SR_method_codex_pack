@@ -46,7 +46,9 @@ Quand `docs/codex/SR_PASSES.yaml` existe, choisir une passe `validated` ou propo
 Avant toute execution multi-lots, verifier la passe :
 
 - les lots inclus existent dans `SR_LOTS.yaml` ;
-- les dependances sont terminees ou incluses plus tot dans la passe ;
+- les dependances sont terminees, incluses plus tot dans la passe, ou placees dans une passe strictement anterieure quand la passe courante est encore `proposed` ou `planned` ;
+- les passes `validated` et `in_progress` n'ont que des dependances anterieures reellement satisfaites (`done` ou `user_testing`) ;
+- aucune dependance ne pointe vers une passe posterieure et aucun lot n'apparait dans plusieurs passes ;
 - les lots `blocked`, `proposed` ou `superseded` ne sont pas executes silencieusement ;
 - les secrets, identifiants, assets, URLs, services Docker ou comptes de test requis sont listes ;
 - les migrations, actions externes et validations humaines sont explicites ;

@@ -130,15 +130,15 @@ Every important session must leave usable traces: current state, decisions, sour
 
 ---
 
-## What changed in 3.2.0
+## What changed in 3.2.1
 
-Version `3.2.0` has two distinct evolutions:
+Version `3.2.1` has two distinct evolutions:
 
 ### SR Passes: group lots into execution passes
 
 SR Passes introduce an orchestration layer above lots. A lot remains the atomic unit for scope, acceptance criteria, authorized paths, stop conditions, status, and task memory. A pass groups several related lots when they share a foundation, a preflight, dependencies, or one coherent E2E validation.
 
-SR 3.2.0 adds:
+SR 3.2.1 adds:
 
 - `docs/codex/SR_PASSES.yaml` for bounded multi-lot execution;
 - `scripts/codex/validate_pass_contract.py` to verify lot references and dependency order;
@@ -146,11 +146,13 @@ SR 3.2.0 adds:
 - installation and upgrade rules that preserve `SR_LOTS.yaml` and add passes without converting historical task memories;
 - a Pass Planning Gate before any significant multi-lot execution.
 
+3.2.x note: the validator now accepts dependencies to strictly earlier passes for `proposed` or `planned` passes, so a future pass plan can be audited before execution. `validated` or `in_progress` passes still require those earlier dependencies to be `done` or `user_testing`. Dependencies to later passes, lots duplicated across passes, and unfinished dependencies outside every pass remain rejected.
+
 This evolution is useful when a roadmap, a large brief, or an autonomous phase cannot be represented cleanly as one isolated lot. The pass makes the execution order, shared preflight, human validations, external actions, migrations, stop conditions, and grouped E2E checks explicit before coding starts.
 
 ### SR Agent Method: runtime agents without framework lock-in
 
-SR 3.2.0 also adds:
+SR 3.2.1 also adds:
 
 - a runtime agent contract template based on bounded product actions, stable internal representations, prompt contracts, message builders, tools/actions, routing/fallback, validation and traces.
 

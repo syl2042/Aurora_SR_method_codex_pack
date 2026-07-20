@@ -1,0 +1,33 @@
+# Companion SR_LOTS.yaml for sr_passes_interpass_dependencies.yaml
+version: "0.2"
+project: "MIA example"
+project_key: "MIA"
+updated_at: "2026-07-20"
+
+lots:
+  - lot_id: "LOT-A"
+    title: "Foundation"
+    status: "proposed"
+    priority: "high"
+    depends_on: []
+    objective: "Prepare the foundation needed by LOT-B."
+    acceptance_criteria:
+      - "Foundation scope is defined before execution."
+    verification_commands:
+      - "python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml"
+    stop_conditions:
+      - "dependency_unresolved"
+
+  - lot_id: "LOT-B"
+    title: "Feature depending on foundation"
+    status: "proposed"
+    priority: "high"
+    depends_on:
+      - "LOT-A"
+    objective: "Plan a feature lot that depends on the previous pass."
+    acceptance_criteria:
+      - "The dependency on LOT-A is explicit and ordered through SR_PASSES.yaml."
+    verification_commands:
+      - "python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml"
+    stop_conditions:
+      - "dependency_unresolved"

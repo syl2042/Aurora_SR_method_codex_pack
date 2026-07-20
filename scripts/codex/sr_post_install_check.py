@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-EXPECTED_VERSION = "3.2.0"
+EXPECTED_VERSION = "3.2.1"
 VALID_KNOWLEDGE_MODES = {"core", "nexus_kg"}
 
 SKILL_AGENT_TEMPLATE = """\

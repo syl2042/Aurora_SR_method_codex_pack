@@ -128,15 +128,15 @@ Chaque session importante doit laisser une trace exploitable : √©tat courant, d√
 
 ---
 
-## Ce qui change en 3.2.0
+## Ce qui change en 3.2.1
 
-La version `3.2.0` porte deux evolutions distinctes :
+La version `3.2.1` porte deux evolutions distinctes :
 
 ### SR Passes : regrouper les lots en passes d'execution
 
 SR Passes ajoute une couche d'orchestration au-dessus des lots. Le lot reste l'unite atomique pour le perimetre, les criteres d'acceptation, les chemins autorises, les stop conditions, le statut et la task memory. Une passe regroupe plusieurs lots lies quand ils partagent un socle, un preflight, des dependances ou une validation E2E coherente.
 
-SR 3.2.0 ajoute :
+SR 3.2.1 ajoute :
 
 - `docs/codex/SR_PASSES.yaml` pour encadrer l'execution multi-lots ;
 - `scripts/codex/validate_pass_contract.py` pour verifier les references de lots et l'ordre de dependances ;
@@ -144,11 +144,13 @@ SR 3.2.0 ajoute :
 - des regles d'installation et d'upgrade qui preservent `SR_LOTS.yaml` et ajoutent les passes sans convertir les anciennes task memories ;
 - un Pass Planning Gate avant toute execution multi-lots significative.
 
+Note 3.2.x : le validateur accepte maintenant une dependance vers une passe strictement anterieure pour les passes `proposed` ou `planned`, afin d'auditer un plan de passes avant execution. Les passes `validated` ou `in_progress` exigent toujours que ces dependances anterieures soient `done` ou `user_testing`. Les dependances vers une passe posterieure, les lots dupliques entre passes et les dependances hors passe non terminees restent refuses.
+
 Cette evolution sert lorsqu'une roadmap, un gros brief ou une phase autonome ne se represente pas proprement comme un seul lot isole. La passe rend explicites l'ordre d'execution, le preflight commun, les validations humaines, les actions externes, les migrations, les conditions d'arret et les tests E2E groupes avant de coder.
 
 ### SR Agent Method : agents runtime sans verrouillage framework
 
-SR 3.2.0 ajoute aussi :
+SR 3.2.1 ajoute aussi :
 
 - un template de contrat agent runtime fonde sur action produit bornee, representation interne stable, prompt contract, message builder, tools/actions, routing/fallback, validation et traces.
 

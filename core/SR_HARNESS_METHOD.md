@@ -129,6 +129,22 @@ Une passe doit declarer :
 
 Migration douce : un projet existant sans `SR_PASSES.yaml` reste valide. Lors d'un upgrade, Codex ajoute le fichier et propose des passes `planned` ou `proposed` a partir de `SR_LOTS.yaml`, sans convertir automatiquement l'historique ni modifier les statuts de lots sans preuve.
 
+Note de migration 3.2.x : le validateur de passes reconnait les dependances inter-passes ordonnees. Une passe `proposed` ou `planned` peut declarer une dependance vers un lot place dans une passe strictement anterieure, meme si ce lot est lui aussi `proposed` ou `planned`. Une passe `validated` ou `in_progress` reste executable seulement si ses dependances placees dans les passes anterieures sont reellement satisfaites (`done` ou `user_testing`). Les dependances vers une passe posterieure, les dependances hors de toute passe non terminees et les lots presents dans plusieurs passes restent des erreurs.
+
+Exemple valide de planification avant execution :
+
+```yaml
+passes:
+  - pass_id: MIA-PASS-001
+    status: proposed
+    lots: [LOT-A]
+  - pass_id: MIA-PASS-002
+    status: proposed
+    lots: [LOT-B]
+```
+
+avec `LOT-B.depends_on: [LOT-A]` dans `SR_LOTS.yaml`.
+
 ### Nommage des lots
 
 Convention recommandee pour les nouveaux lots :
@@ -383,10 +399,15 @@ python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml
 Stopper avant codage si :
 
 - un lot depend d'un lot non termine et non inclus plus tot dans la passe ;
+- une passe `validated` ou `in_progress` depend d'un lot place dans une passe anterieure mais non `done` ou `user_testing` ;
+- un lot depend d'un lot place dans une passe posterieure ;
+- un lot apparait dans plusieurs passes ;
 - un secret, identifiant, asset ou acces requis est absent ;
 - une migration ou action sensible exige validation humaine non obtenue ;
 - le regroupement masque un E2E utilisateur bloquant ;
 - la passe depasse le budget contexte ou melange trop de surfaces a risque.
+
+`sequencing.dependency_overrides` est une liste d'exceptions precises pour l'ordre interne d'une passe. Chaque entree doit nommer le lot et sa dependance concernes. Elle ne doit pas servir de contournement global pour ignorer les dependances inter-passes, les doublons ou les dependances hors passe non satisfaites.
 
 ### Knowledge gate
 

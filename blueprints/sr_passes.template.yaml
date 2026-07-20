@@ -18,6 +18,12 @@ pass_policy:
   require_preflight_before_pass: true
   allow_grouped_e2e: true
   require_pass_contract: false
+  dependency_rules:
+    - "Une dependance vers un lot inclus dans une passe strictement anterieure est valide pour une passe proposed/planned."
+    - "Une passe validated/in_progress exige que les dependances des passes anterieures soient done ou user_testing."
+    - "Une dependance vers une passe posterieure est interdite."
+    - "Un lot ne doit apparaitre que dans une seule passe."
+    - "dependency_overrides doit nommer explicitement le lot et sa dependance; il ne desactive pas les controles globalement."
   stop_on:
     - gate_failure
     - human_validation_required
@@ -49,7 +55,7 @@ passes:
       strategy: "topological_with_foundation_first"
       rationale:
         - "La passe regroupe des lots qui partagent un socle ou un E2E commun."
-      dependency_overrides: []
+      dependency_overrides: [] # chaque entree doit nommer le lot et la dependance concernes
       open_questions: []
     preflight:
       required_before_start:
@@ -84,3 +90,4 @@ passes:
       - "context_budget_risk"
     notes:
       - "Template a adapter au projet avant validation."
+      - "Exemple inter-passes: PASS-002 proposed peut contenir LOT-B avec depends_on: [LOT-A] si LOT-A est dans PASS-001 proposed/planned."

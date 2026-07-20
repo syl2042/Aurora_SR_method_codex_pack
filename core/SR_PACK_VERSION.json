@@ -1,7 +1,14 @@
 {
   "pack": "auroramind_codex_operating_pack",
-  "version": "3.2.0",
-  "released_at": "2026-07-17",
+  "version": "3.2.1",
+  "released_at": "2026-07-20",
+  "patch_notes": [
+    {
+      "date": "2026-07-20",
+      "scope": "pass_contract_validator",
+      "change": "Recognize ordered inter-pass dependencies for proposed/planned pass audits while keeping executable passes strict."
+    }
+  ],
   "features": [
     "sr_harness",
     "sr_inbox",

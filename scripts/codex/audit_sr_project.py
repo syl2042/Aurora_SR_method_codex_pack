@@ -68,7 +68,7 @@ def pass_contract_errors(path: Path, lots: Path) -> list[str]:
     if not path.exists():
         return []
     try:
-        from validate_pass_contract import load_lots, load_yaml, validate_pass
+        from validate_pass_contract import load_lots, load_yaml, validate_passes
     except Exception as exc:
         return [f"validator import unavailable: {exc}"]
     try:
@@ -79,18 +79,7 @@ def pass_contract_errors(path: Path, lots: Path) -> list[str]:
     passes = data.get("passes")
     if not isinstance(passes, list) or not passes:
         return ["no passes found"]
-    errors = []
-    seen = set()
-    for index, item in enumerate(passes):
-        if not isinstance(item, dict):
-            errors.append(f"pass[{index}]: must be an object")
-            continue
-        pass_id = item.get("pass_id")
-        if pass_id in seen:
-            errors.append(f"pass[{index}]: duplicate pass_id {pass_id!r}")
-        seen.add(pass_id)
-        errors.extend(validate_pass(item, index, lots_by_id))
-    return errors
+    return validate_passes(passes, lots_by_id)
 
 
 def collect_allowed_skills(profile: Path, skill_map: Path) -> set[str]:

@@ -1,0 +1,145 @@
+{
+  "schema_version": "1.0",
+  "task_id": "2026-07-20_pass-contract-interpass-deps",
+  "task_type": "bugfix",
+  "status_decision": "done",
+  "evidence_gate": {
+    "done": true,
+    "sources_read": [
+      "scripts/codex/validate_pass_contract.py",
+      "scripts/codex/audit_sr_project.py",
+      "scripts/codex/test_validate_pass_contract.py",
+      "scripts/codex/validate_lot_contract.py",
+      "core/SR_HARNESS_METHOD.md",
+      "core/LOT_EXECUTION_METHOD.md",
+      "blueprints/sr_passes.template.yaml",
+      "blueprints/sr_lots.template.yaml",
+      "README.md",
+      "README.fr.md",
+      "README.es.md",
+      "README.de.md",
+      "README.pt.md",
+      "core/SR_PACK_VERSION.json",
+      "MANIFEST.json",
+      "scripts/codex/audit_codex_pack.py",
+      "scripts/codex/sr_post_install_check.py",
+      "core/V3_UPGRADE_TEST_PLAN.md"
+    ]
+  },
+  "fact_gate": {
+    "status": "pass",
+    "classification": "fait_verifiable",
+    "facts_verified": [
+      "Le validateur ne construisait pas d'index global des passes.",
+      "audit_sr_project.py appelait la validation passe par passe.",
+      "Le repo source conserve la compatibilite des projets sans SR_PASSES.yaml."
+    ],
+    "sources_checked": [
+      "scripts/codex/validate_pass_contract.py",
+      "scripts/codex/audit_sr_project.py",
+      "core/SR_HARNESS_METHOD.md"
+    ],
+    "unverified_hypotheses": []
+  },
+  "backlog_mutation_gate": {
+    "status": "not_applicable",
+    "structural_change_detected": false,
+    "mutation_required": false,
+    "sr_inbox_updated": false,
+    "sr_lots_updated": false,
+    "affected_lots": [],
+    "created_lots": [],
+    "reopened_lots": [],
+    "blocked_lots": [],
+    "superseded_lots": [],
+    "not_updated_reason": "Le repo source du pack n'a pas de SR_LOTS actif a modifier.",
+    "decision": "no_backlog_mutation_required"
+  },
+  "global_impact_gate": {
+    "required": true,
+    "status": "pass",
+    "surfaces_reviewed": [
+      "pass_contract_validator",
+      "sr_project_audit",
+      "tests",
+      "sr_passes_template",
+      "method_documentation",
+      "version_note"
+    ],
+    "impacted_lots": [],
+    "new_lots_to_create": [],
+    "lots_to_reopen_or_block": [],
+    "assumptions": [
+      "Aucun mecanisme officiel ne permet les doublons de lot entre passes."
+    ],
+    "open_questions": [],
+    "sequencing_recommendation": "Publier comme correctif compatible 3.2.x du validateur de passes."
+  },
+  "implementation": {
+    "app_code_changed": false,
+    "changed_files": [
+      "scripts/codex/validate_pass_contract.py",
+      "scripts/codex/audit_sr_project.py",
+      "scripts/codex/test_validate_pass_contract.py",
+      "blueprints/sr_passes.template.yaml",
+      "core/SR_HARNESS_METHOD.md",
+      "core/LOT_EXECUTION_METHOD.md",
+      "README.md",
+      "README.fr.md",
+      "README.es.md",
+      "README.de.md",
+      "README.pt.md",
+      "core/SR_PACK_VERSION.json",
+      "MANIFEST.json",
+      "scripts/codex/audit_codex_pack.py",
+      "scripts/codex/sr_post_install_check.py",
+      "core/V3_UPGRADE_TEST_PLAN.md",
+      "docs/codex/examples/sr_passes_interpass_dependencies.yaml",
+      "docs/codex/examples/sr_lots_interpass_dependencies.yaml",
+      "docs/codex/tasks/2026-07-20_pass-contract-interpass-deps"
+    ]
+  },
+  "verification": {
+    "commands_run": [
+      "python3 -m unittest discover scripts/codex -p 'test_*.py'",
+      "python3 scripts/codex/validate_lot_contract.py --file docs/codex/examples/sr_lots_interpass_dependencies.yaml",
+      "python3 scripts/codex/validate_pass_contract.py --file docs/codex/examples/sr_passes_interpass_dependencies.yaml --lots-file docs/codex/examples/sr_lots_interpass_dependencies.yaml",
+      "python3 scripts/codex/validate_pass_contract.py --file blueprints/sr_passes.template.yaml --lots-file blueprints/sr_lots.template.yaml",
+      "python3 scripts/codex/audit_sr_project.py --root <temporary installed scenario>",
+      "python3 scripts/codex/verify_codex_pack.py",
+      "python3 scripts/codex/audit_codex_pack.py",
+      "temporary sr_post_install_check.py on installed pack",
+      "git diff --check"
+    ],
+    "commands_failed": [],
+    "not_run_reason": null
+  },
+  "e2e_user_tests": {
+    "required": false,
+    "items": []
+  },
+  "memory_updates": {
+    "sr_lots_updated": false,
+    "current_state_updated": false,
+    "task_memory_updated": true,
+    "gate_report_updated": true
+  },
+  "context_budget": {
+    "checked": true,
+    "status": "green",
+    "next_session_prompt": "not_required"
+  },
+  "conversation_transition": {
+    "decision": "not_applicable",
+    "reason": "Correctif termine dans la session courante.",
+    "next_session_prompt_path": null,
+    "user_message_required": false
+  },
+  "resume_protocol": {
+    "required": false,
+    "mode": "not_required",
+    "next_user_prompt": null,
+    "default_on_plain_resume": "not_applicable",
+    "must_not_code_before_user_validation": false
+  }
+}

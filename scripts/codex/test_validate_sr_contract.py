@@ -19,6 +19,7 @@ def valid_contract() -> dict:
             {
                 "id": "REQ-001",
                 "source": "validation utilisateur",
+                "requirement_type": "method",
                 "status": "done",
                 "coverage": "schema, template et validateur crees",
                 "files": ["scripts/codex/validate_sr_contract.py"],
@@ -26,6 +27,24 @@ def valid_contract() -> dict:
                 "notes": [],
             }
         ],
+        "lot_completion_gate": {
+            "status": "pass",
+            "validated_scope_source": "validation utilisateur",
+            "scope_reduction_requested": False,
+            "scope_reduction_validated_by_user": False,
+            "coverage_table": [
+                {
+                    "requirement_id": "REQ-001",
+                    "requirement": "Installer le contrat SR vivant.",
+                    "status": "fait",
+                    "proof": ["scripts/codex/validate_sr_contract.py", "unit"],
+                    "comment": "",
+                }
+            ],
+            "ui_ux_required": False,
+            "visual_evidence": [],
+            "decision": "done",
+        },
         "scope": {"in": ["schema"], "out": [], "allowed_paths": [], "forbidden_paths": []},
         "product_truth": {"required": True, "items": ["les fichiers legacy restent historiques"]},
         "backlog_mutation": {
@@ -60,7 +79,7 @@ def valid_contract() -> dict:
         "decisions": [],
         "implementation": {"app_code_changed": False, "changed_files": ["scripts/codex/validate_sr_contract.py"]},
         "verification": {"commands_run": ["unit"], "commands_failed": [], "not_run_reason": None},
-        "gates": {"evidence": "pass", "verification": "pass", "context_budget": "pass"},
+        "gates": {"evidence": "pass", "lot_completion": "pass", "verification": "pass", "context_budget": "pass"},
         "e2e": {"required": True, "items": ["Relire le contrat et verifier les requetes couvertes."]},
         "context": {"status": "green", "report_path": None},
         "transition": {
@@ -136,6 +155,19 @@ class ValidateSrContractTest(unittest.TestCase):
         data["validated_requests"][0]["coverage"] = "Sortie du lot courant sans cible explicite."
         errors, _warnings = validate_sr_contract.validate(data)
         self.assertTrue(any("moved_to_new_lot requests require" in error for error in errors), errors)
+
+    def test_done_rejects_partial_completion_row(self) -> None:
+        data = valid_contract()
+        data["lot_completion_gate"]["coverage_table"][0]["status"] = "partiel"
+        errors, _warnings = validate_sr_contract.validate(data)
+        self.assertTrue(any("incomplete lot_completion_gate rows" in error for error in errors), errors)
+
+    def test_done_ui_requires_visual_or_e2e_evidence(self) -> None:
+        data = valid_contract()
+        data["validated_requests"][0]["requirement_type"] = "ui_ux"
+        data["e2e"]["items"] = []
+        errors, _warnings = validate_sr_contract.validate(data)
+        self.assertTrue(any("UI/UX requirements requires" in error for error in errors), errors)
 
 
 if __name__ == "__main__":

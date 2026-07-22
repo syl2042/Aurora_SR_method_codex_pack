@@ -9,6 +9,7 @@
     {
       "id": "REQ-001",
       "source": "message utilisateur ou source verifiee",
+      "requirement_type": "method",
       "status": "todo",
       "coverage": "Ce qui devra etre couvert pour considerer cette intention traitee.",
       "files": [],
@@ -16,6 +17,24 @@
       "notes": []
     }
   ],
+  "lot_completion_gate": {
+    "status": "pending",
+    "validated_scope_source": "Template non execute.",
+    "scope_reduction_requested": false,
+    "scope_reduction_validated_by_user": false,
+    "coverage_table": [
+      {
+        "requirement_id": "REQ-001",
+        "requirement": "Objectif valide a couvrir.",
+        "status": "non fait",
+        "proof": [],
+        "comment": "Template non execute."
+      }
+    ],
+    "ui_ux_required": false,
+    "visual_evidence": [],
+    "decision": "repair"
+  },
   "scope": {
     "in": [],
     "out": [],
@@ -97,6 +116,7 @@
     "backlog_mutation": "pending",
     "global_impact": "pending",
     "pass_planning": "pending",
+    "lot_completion": "pending",
     "lot_dependency_reconciliation": "pending",
     "verification": "pending",
     "self_evaluation": "pending",

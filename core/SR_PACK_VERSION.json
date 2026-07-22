@@ -1,8 +1,13 @@
 {
   "pack": "auroramind_codex_operating_pack",
-  "version": "3.2.1",
-  "released_at": "2026-07-20",
+  "version": "3.2.2",
+  "released_at": "2026-07-22",
   "patch_notes": [
+    {
+      "date": "2026-07-22",
+      "scope": "lot_completion_gate",
+      "change": "Require explicit coverage of every validated lot requirement before closure and reject done when coverage is partial, blocked or awaiting E2E."
+    },
     {
       "date": "2026-07-20",
       "scope": "pass_contract_validator",
@@ -57,6 +62,7 @@
     "pass_preflight",
     "grouped_pass_e2e",
     "pass_contract_validator",
+    "lot_completion_gate",
     "product_bound_runtime_agents",
     "runtime_agent_shapes",
     "runtime_agent_contract_template",

@@ -33,6 +33,10 @@ La SR Method supporte un mode de validation humaine stricte, activable par `AGEN
 
 La validation ne couvre que l'action ou le plan decrit juste avant. Toute extension de perimetre, dependance, migration, configuration, donnees, agent IA runtime, backlog, publication Git, action destructive ou changement metier exige une nouvelle validation explicite.
 
+Une validation utilisateur d'un lot ou d'une passe engage tout le perimetre decrit juste avant validation. Les principes de solution simple, changement chirurgical, scope minimal et respect du style local s'appliquent a la maniere d'implementer chaque exigence validee ; ils ne peuvent jamais reduire silencieusement le perimetre fonctionnel valide.
+
+Si Codex estime que le lot valide est trop large, trop risque, ambigu ou doit etre decoupe, il doit le declarer avant mutation, proposer le decoupage et attendre une nouvelle validation utilisateur. Il est interdit de livrer un sous-ensemble comme si le lot complet etait couvert.
+
 ## SR 3.0.0 - Contrat vivant de lot
 
 A partir de SR 3.0.0, la cible machine d'un lot non trivial est un contrat vivant :
@@ -59,6 +63,8 @@ Le contrat 3.0.0 doit porter explicitement :
 - la decision de transition conversationnelle.
 
 Regle centrale : un lot ne peut pas etre `done` si une intention validee reste `todo`, `doing`, `requires_e2e` ou `blocked`.
+
+Regle de completude : avant toute cloture de lot ou de passe, Codex doit produire une table de couverture des exigences validees avec statut, preuve et commentaire. Si une exigence est `partiel`, `non fait`, `blocked` ou `requires_e2e`, le lot ne peut pas etre declare `done`; il doit rester `repair`, `user_testing` ou `blocked`.
 
 Validation :
 

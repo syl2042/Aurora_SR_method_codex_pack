@@ -84,6 +84,27 @@
 - Validation `validate_pass_contract.py` :
 - Decision :
 
+## Lot Completion Gate
+
+- Statut : OK / KO / N/A
+- Lot/passe valide explicitement : oui/non
+- Source de validation :
+- Perimetre valide relu avant cloture : oui/non
+- Reduction silencieuse detectee : oui/non
+- Exigence UI/UX explicite : oui/non
+- Preuve visuelle ou E2E ciblee :
+
+| Exigence validee | Statut | Preuve | Commentaire |
+|---|---|---|---|
+| ... | fait/partiel/non fait/bloque/hors perimetre valide/requires_e2e | fichier/test/log/capture/endpoint/build/E2E | ... |
+
+- Exigences partielles :
+- Exigences non faites :
+- Exigences bloquees :
+- Exigences en attente E2E :
+- Decision de statut autorisee : `done` / `user_testing` / `repair` / `blocked`
+- Cloture `done` autorisee : oui/non
+
 ## Knowledge Gate
 
 - Statut : OK / KO / N/A
@@ -219,6 +240,7 @@
 
 - Ce qui est fait :
 - Resultat observe :
+- Couverture du lot valide :
 - Lecture expert / produit :
 - Verifications executees :
 - Memoire SR mise a jour :

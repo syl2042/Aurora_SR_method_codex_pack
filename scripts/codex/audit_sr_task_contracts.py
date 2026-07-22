@@ -85,6 +85,7 @@ def contract_template(path: Path) -> dict:
             {
                 "id": "REQ-LEGACY-001",
                 "source": f"audit_sr_task_contracts.py {today}",
+                "requirement_type": "realign",
                 "status": "todo",
                 "coverage": "Relire la memoire legacy et confirmer manuellement les intentions utilisateur avant de marquer le contrat done.",
                 "files": files,
@@ -95,6 +96,24 @@ def contract_template(path: Path) -> dict:
                 ],
             }
         ],
+        "lot_completion_gate": {
+            "status": "pending",
+            "validated_scope_source": f"audit_sr_task_contracts.py {today}",
+            "scope_reduction_requested": False,
+            "scope_reduction_validated_by_user": False,
+            "coverage_table": [
+                {
+                    "requirement_id": "REQ-LEGACY-001",
+                    "requirement": "Relire la memoire legacy et confirmer les intentions utilisateur.",
+                    "status": "non fait",
+                    "proof": files,
+                    "comment": "Contrat de migration initialise, non cloturable en done sans reprise SR."
+                }
+            ],
+            "ui_ux_required": False,
+            "visual_evidence": [],
+            "decision": "planned"
+        },
         "scope": {
             "in": ["audit de memoire legacy"],
             "out": ["suppression des fichiers legacy", "modification applicative"],
@@ -140,6 +159,7 @@ def contract_template(path: Path) -> dict:
             "evidence": "pending",
             "scope": "pending",
             "product_truth": "pass",
+            "lot_completion": "pending",
             "verification": "pending",
             "self_evaluation": "pending",
             "context_budget": "not_applicable",

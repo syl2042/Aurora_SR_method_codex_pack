@@ -73,6 +73,20 @@
 - Conforme `<PROJECT_KEY>-<AREA>-<SEQ>` : oui/non/legacy
 - Alias legacy :
 
+## Perimetre valide et Lot Completion Gate
+- Lot/passe valide explicitement : oui/non
+- Source de validation :
+- Perimetre decrit juste avant validation :
+- Reduction/decoupage necessaire avant mutation : oui/non
+- Si oui, nouvelle validation utilisateur obtenue : oui/non/non applicable
+
+| Exigence validee | Preuve minimale prevue | Risque de couverture | Statut attendu |
+|---|---|---|---|
+| ... | fichier/test/log/capture/E2E | faible/moyen/fort | fait/requires_e2e |
+
+- Exigence UI/UX explicite : oui/non
+- Verification visuelle ou E2E prevue :
+
 ## Context budget
 - `context_budget_report.py --root . --compact` execute : oui/non/non disponible
 - Statut contexte hybride : green/yellow/orange/red/unknown/stale/ambiguous

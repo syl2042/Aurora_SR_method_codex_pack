@@ -26,6 +26,8 @@ VALID_PLAIN_RESUME_DEFAULTS = {
     "not_applicable",
 }
 VALID_GATE_STATUSES = {"pending", "pass", "fail", "not_applicable"}
+VALID_COMPLETION_STATUSES = {"fait", "partiel", "non fait", "bloque", "hors perimetre valide", "requires_e2e"}
+BLOCKING_COMPLETION_STATUSES = {"partiel", "non fait", "bloque", "requires_e2e"}
 
 
 def load_contract(path: Path) -> dict:
@@ -118,6 +120,66 @@ def validate_global_impact_gate(data: dict, errors: list[str]) -> None:
             errors.append("global_impact_gate.surfaces_reviewed must not be empty when required is true")
 
 
+def validate_lot_completion_gate(data: dict, e2e_items: list, errors: list[str]) -> None:
+    gate = data.get("lot_completion_gate")
+    if not isinstance(gate, dict):
+        errors.append("lot_completion_gate must be an object")
+        return
+    status = gate.get("status")
+    if status not in VALID_GATE_STATUSES:
+        errors.append(f"lot_completion_gate.status must be one of {sorted(VALID_GATE_STATUSES)}")
+    if "validated_scope_source" in gate and not non_empty_string(gate.get("validated_scope_source")):
+        errors.append("lot_completion_gate.validated_scope_source must be a non-empty string when present")
+    for key in ("scope_reduction_requested", "scope_reduction_validated_by_user", "ui_ux_required"):
+        if key in gate and not isinstance(gate.get(key), bool):
+            errors.append(f"lot_completion_gate.{key} must be boolean")
+    if gate.get("scope_reduction_requested") is True and gate.get("scope_reduction_validated_by_user") is not True:
+        errors.append("lot_completion_gate scope reduction requires explicit user validation")
+
+    coverage_table = gate.get("coverage_table")
+    if not isinstance(coverage_table, list):
+        errors.append("lot_completion_gate.coverage_table must be a list")
+        coverage_table = []
+    for index, row in enumerate(coverage_table):
+        prefix = f"lot_completion_gate.coverage_table[{index}]"
+        if not isinstance(row, dict):
+            errors.append(f"{prefix} must be an object")
+            continue
+        if not non_empty_string(row.get("requirement_id")):
+            errors.append(f"{prefix}.requirement_id must be a non-empty string")
+        if not non_empty_string(row.get("requirement")):
+            errors.append(f"{prefix}.requirement must be a non-empty string")
+        if row.get("status") not in VALID_COMPLETION_STATUSES:
+            errors.append(f"{prefix}.status must be one of {sorted(VALID_COMPLETION_STATUSES)}")
+        if not isinstance(row.get("proof"), list):
+            errors.append(f"{prefix}.proof must be a list")
+        if "comment" in row and not isinstance(row.get("comment"), str):
+            errors.append(f"{prefix}.comment must be a string when present")
+
+    visual_evidence = gate.get("visual_evidence")
+    if not isinstance(visual_evidence, list):
+        errors.append("lot_completion_gate.visual_evidence must be a list")
+        visual_evidence = []
+    decision = gate.get("decision")
+    if decision not in VALID_STATUS_DECISIONS:
+        errors.append(f"lot_completion_gate.decision must be one of {sorted(VALID_STATUS_DECISIONS)}")
+
+    if data.get("status_decision") == "done":
+        if status != "pass":
+            errors.append("status_decision done requires lot_completion_gate.status pass")
+        if not coverage_table:
+            errors.append("status_decision done requires lot_completion_gate.coverage_table")
+        blocking_rows = [
+            row.get("requirement_id", f"#{index}")
+            for index, row in enumerate(coverage_table)
+            if isinstance(row, dict) and row.get("status") in BLOCKING_COMPLETION_STATUSES
+        ]
+        if blocking_rows:
+            errors.append(f"status_decision done is incompatible with incomplete lot_completion_gate rows: {blocking_rows}")
+        if gate.get("ui_ux_required") is True and not visual_evidence and not e2e_items:
+            errors.append("status_decision done with UI/UX requirements requires lot_completion_gate.visual_evidence or e2e_user_tests.items")
+
+
 def validate(data: dict) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -128,6 +190,7 @@ def validate(data: dict) -> tuple[list[str], list[str]]:
         "task_type",
         "status_decision",
         "evidence_gate",
+        "lot_completion_gate",
         "implementation",
         "verification",
         "e2e_user_tests",
@@ -180,6 +243,7 @@ def validate(data: dict) -> tuple[list[str], list[str]]:
         errors.append("e2e_user_tests.required must be boolean")
     if (status_decision == "user_testing" or e2e_required is True) and not e2e_items:
         errors.append("e2e_user_tests.items must not be empty when user testing is required")
+    validate_lot_completion_gate(data, e2e_items, errors)
 
     memory = require_object(data, "memory_updates", errors)
     if memory:

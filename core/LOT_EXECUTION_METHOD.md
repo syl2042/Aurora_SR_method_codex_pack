@@ -198,7 +198,28 @@ Produire un plan de lot limite :
 
 Ne pas elargir le lot sans enregistrer une decision.
 
+Ne pas reduire le lot valide au nom de la simplicite. Si une exigence validee ne peut pas etre couverte dans ce lot, stopper avant mutation ou proposer explicitement un decoupage avec impacts et attendre une nouvelle validation.
+
 Si `Global Impact Gate` est requis, le plan doit inclure la sequence de livraison recommandee et les lots qui ne doivent pas etre executes avant reconciliation.
+
+### 4b. Validated Lot Execution Contract
+
+Une validation utilisateur d'un lot ou d'une passe engage tout le perimetre decrit juste avant validation.
+
+Hierarchie d'arbitrage :
+
+1. securite, secrets, actions externes et validations humaines ;
+2. perimetre valide utilisateur ;
+3. contrat de lot ou de passe SR ;
+4. criteres d'acceptation ;
+5. simplicite, changements chirurgicaux et absence de refactor hors besoin ;
+6. style local.
+
+La simplicite s'applique donc a l'implementation de chaque exigence validee, jamais a la suppression silencieuse d'une exigence.
+
+Avant codage significatif, extraire les exigences validees dans `validated_requests` et preparer la table de couverture attendue. Pour chaque exigence, indiquer la preuve minimale prevue : fichier, test, log, endpoint, capture, build, E2E ou justification.
+
+Si le lot contient une exigence UI/UX explicite, prevoir une verification visuelle ou E2E ciblee. Un build, lint ou smoke HTTP ne suffit pas pour declarer une UI alignee sur une reference produit.
 
 ### 5. Implementation
 
@@ -237,6 +258,7 @@ Si toujours rouge, stopper avec blocker clair.
 Completer `gate_report.md` :
 
 - pass planning gate si execution multi-lots ;
+- lot completion gate ;
 - evidence gate ;
 - fact gate ;
 - backlog mutation gate ;
@@ -262,6 +284,7 @@ Completer `loop_contract.json` dans la memoire de tache.
 Le contrat doit rester court et ne pas dupliquer les logs. Il doit declarer :
 
 - `status_decision` ;
+- `lot_completion_gate` avec table de couverture des exigences validees ;
 - `evidence_gate.sources_read` ;
 - `fact_gate.status` si le contrat local le declare ;
 - `backlog_mutation_gate` si le contrat local le declare ;
@@ -299,6 +322,25 @@ todo, doing, done, requires_e2e, blocked, moved_to_new_lot, cancelled
 ```
 
 Un lot ne peut pas etre `done` tant qu'une intention validee reste ouverte.
+
+Le contrat doit aussi renseigner `lot_completion_gate` avant cloture :
+
+```text
+status: pass/fail/not_applicable
+coverage_table:
+  - requirement_id
+  - requirement
+  - status: fait/partiel/non fait/bloque/hors perimetre valide/requires_e2e
+  - proof
+  - comment
+ui_ux_required: true/false
+visual_evidence: [...]
+decision: done/user_testing/repair/blocked
+```
+
+Si une ligne est `partiel`, `non fait`, `bloque` ou `requires_e2e`, le lot ne peut pas etre `done`. Il doit rester en `repair`, `user_testing` ou `blocked` avec les actions restantes visibles.
+
+Pour une exigence UI/UX, le gate exige une preuve visuelle ou E2E ciblee : capture Playwright, smoke visuel, checklist de composants/patterns ou justification d'impossibilite avec statut non `done`.
 
 Si une intention validee est sortie du lot courant, utiliser `moved_to_new_lot` et renseigner le lot cible, l'entree inbox ou la raison de blocage dans la couverture, les notes ou `backlog_mutation`.
 
@@ -343,6 +385,7 @@ Si `SR_LOTS.yaml` n'a pas ete modifie apres une tache non triviale, documenter d
 Continuer uniquement si :
 
 - tous les gates critiques sont verts ;
+- le Lot Completion Gate confirme que toutes les exigences validees du lot courant sont couvertes ou explicitement sorties avec validation ;
 - le niveau d'autonomie autorise un lot suivant ;
 - le contexte reste sain ;
 - aucune validation humaine n'est requise.

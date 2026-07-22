@@ -63,7 +63,7 @@ Ne lire `SR_LOTS.yaml`, `CODEBASE_MAP.md`, les docs methode completes ou le code
 Pour toute tache non triviale, Codex doit annoncer :
 - objectif verifiable ;
 - hypotheses retenues ;
-- approche simple suffisante ;
+- approche simple suffisante pour couvrir tout le perimetre valide, sans reduction silencieuse ;
 - skills methode selectionnees ;
 - skills metier Codex selectionnees ou raison de leur absence ;
 - digest skills consulte ou raison de non-consultation ;
@@ -75,6 +75,10 @@ Pour toute tache non triviale, Codex doit annoncer :
 Quand un `AGENTS.md`, un lot, une reprise ou l'utilisateur active le mode strict, Codex peut analyser, lire et recommander sans validation, mais ne doit modifier aucun fichier ni lancer d'action de mutation tant que l'utilisateur n'a pas ecrit exactement `je valide`.
 
 Cette validation ne couvre que l'action ou le plan decrit juste avant. Toute extension de perimetre, dependance, migration, configuration, donnees, agent IA runtime, backlog, publication Git, action destructive ou changement metier exige une nouvelle validation explicite.
+
+Une validation explicite d'un lot, d'une passe ou d'un plan engage tout le perimetre decrit juste avant validation. Les principes `solution simple`, `changements chirurgicaux`, `scope minimal` et `eviter les refactors` ne peuvent jamais reduire ce perimetre ; ils guident seulement l'implementation de chaque exigence validee.
+
+Si Codex estime qu'un lot valide doit etre reduit, decoupe, reporte ou clarifie, il doit stopper avant mutation, signaler les exigences concernees, proposer un nouveau decoupage et attendre une nouvelle validation. Aucune livraison partielle ne doit etre presentee comme cloture du lot valide.
 
 Si la demande modifie un backlog de lots, Codex doit classer la demande et proposer la mise a jour de `SR_INBOX.yaml` ou `SR_LOTS.yaml` avant de coder.
 
@@ -138,6 +142,7 @@ Le `task_plan.md` doit contenir au minimum :
 - sources lues ;
 - skills utilisees ;
 - fichiers candidats puis fichiers confirmes apres lecture ;
+- perimetre valide et table de couverture prevue si un lot ou une passe a ete valide ;
 - risques ;
 - plan court ;
 - verification prevue.
@@ -198,6 +203,9 @@ Avant de conclure une tache non triviale :
 - completer `verification.md` ;
 - creer ou mettre a jour `loop_contract.json` ;
 - creer ou mettre a jour `sr_contract.json` si le projet declare SR 3.0.0 ;
+- appliquer le Lot Completion Gate : table de couverture des exigences validees, statut `fait/partiel/non fait/bloque/hors perimetre valide/requires_e2e`, preuve et commentaire ;
+- refuser le statut `done` si une exigence validee reste partielle, non faite, bloquee ou requiert un E2E non execute ;
+- pour toute exigence UI/UX explicite, fournir une preuve visuelle ou E2E ciblee, ou declarer `requires_e2e` et cloturer en `user_testing` ou `repair`, pas en `done` ;
 - executer `python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json` si le contrat existe ;
 - executer `python3 scripts/codex/validate_loop_contract.py --file docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json` si le script existe ;
 - executer ou documenter la verification impossible ;

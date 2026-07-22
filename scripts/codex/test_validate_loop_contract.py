@@ -36,6 +36,24 @@ def valid_contract() -> dict:
             "open_questions": [],
             "sequencing_recommendation": "not_required",
         },
+        "lot_completion_gate": {
+            "status": "pass",
+            "validated_scope_source": "validation utilisateur",
+            "scope_reduction_requested": False,
+            "scope_reduction_validated_by_user": False,
+            "coverage_table": [
+                {
+                    "requirement_id": "REQ-001",
+                    "requirement": "Verifier la maintenance.",
+                    "status": "fait",
+                    "proof": ["unit"],
+                    "comment": "",
+                }
+            ],
+            "ui_ux_required": False,
+            "visual_evidence": [],
+            "decision": "done",
+        },
         "implementation": {"app_code_changed": False, "changed_files": []},
         "verification": {"commands_run": ["unit"], "commands_failed": [], "not_run_reason": None},
         "e2e_user_tests": {"required": False, "items": []},
@@ -115,6 +133,18 @@ class ValidateLoopContractTest(unittest.TestCase):
         data["global_impact_gate"]["status"] = "pass"
         errors, _warnings = validate_loop_contract.validate(data)
         self.assertTrue(any("surfaces_reviewed must not be empty" in error for error in errors), errors)
+
+    def test_done_rejects_partial_completion_row(self) -> None:
+        data = valid_contract()
+        data["lot_completion_gate"]["coverage_table"][0]["status"] = "partiel"
+        errors, _warnings = validate_loop_contract.validate(data)
+        self.assertTrue(any("incomplete lot_completion_gate rows" in error for error in errors), errors)
+
+    def test_done_ui_requires_visual_or_e2e_evidence(self) -> None:
+        data = valid_contract()
+        data["lot_completion_gate"]["ui_ux_required"] = True
+        errors, _warnings = validate_loop_contract.validate(data)
+        self.assertTrue(any("UI/UX requirements requires" in error for error in errors), errors)
 
 
 if __name__ == "__main__":

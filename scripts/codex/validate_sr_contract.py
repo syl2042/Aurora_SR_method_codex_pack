@@ -2,6 +2,7 @@
 """Validate a SR 3.0.0 living task contract."""
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -11,6 +12,8 @@ VALID_TASK_TYPES = {"feature", "bugfix", "upgrade", "realign", "documentation", 
 VALID_STATUSES = {"planned", "doing", "user_testing", "repair", "done", "blocked", "cancelled"}
 VALID_REQUEST_STATUSES = {"todo", "doing", "done", "requires_e2e", "blocked", "moved_to_new_lot", "cancelled"}
 VALID_GATE_STATUSES = {"pending", "pass", "fail", "not_applicable"}
+VALID_COMPLETION_STATUSES = {"fait", "partiel", "non fait", "bloque", "hors perimetre valide", "requires_e2e"}
+BLOCKING_COMPLETION_STATUSES = {"partiel", "non fait", "bloque", "requires_e2e"}
 VALID_CONTEXT_STATUSES = {"green", "yellow", "orange", "red", "unknown", "stale", "ambiguous", "not_checked"}
 VALID_TRANSITIONS = {"continue_current", "recommend_new_conversation", "stop_for_new_conversation", "not_applicable"}
 
@@ -122,6 +125,8 @@ def validate_requests(data: dict, errors: list[str]) -> list:
             seen.add(request_id)
         if request.get("status") not in VALID_REQUEST_STATUSES:
             errors.append(f"{prefix}.status must be one of {sorted(VALID_REQUEST_STATUSES)}")
+        if "requirement_type" in request and not non_empty_string(request.get("requirement_type")):
+            errors.append(f"{prefix}.requirement_type must be a non-empty string when present")
         for key in ("source", "coverage"):
             if not non_empty_string(request.get(key)):
                 errors.append(f"{prefix}.{key} must be a non-empty string")
@@ -132,6 +137,99 @@ def validate_requests(data: dict, errors: list[str]) -> list:
         if "notes" in request and not isinstance(request["notes"], list):
             errors.append(f"{prefix}.notes must be a list when present")
     return requests
+
+
+def request_requires_ui_evidence(request: dict) -> bool:
+    request_type = str(request.get("requirement_type", "")).lower()
+    text = " ".join(str(request.get(key, "")) for key in ("id", "source", "coverage")).lower()
+    return request_type in {"ui", "ui_ux", "design", "ux"} or bool(
+        re.search(r"\b(ui|ux|design|ecran|écran|page|interface|visuel)\b", text)
+    )
+
+
+def validate_lot_completion_gate(data: dict, requests: list, errors: list[str]) -> dict:
+    gate = data.get("lot_completion_gate")
+    if gate is None:
+        return {}
+    if not isinstance(gate, dict):
+        errors.append("lot_completion_gate must be an object")
+        return {}
+    status = gate.get("status")
+    if status not in VALID_GATE_STATUSES:
+        errors.append(f"lot_completion_gate.status must be one of {sorted(VALID_GATE_STATUSES)}")
+    if "validated_scope_source" in gate and not non_empty_string(gate.get("validated_scope_source")):
+        errors.append("lot_completion_gate.validated_scope_source must be a non-empty string when present")
+    for key in ("scope_reduction_requested", "scope_reduction_validated_by_user", "ui_ux_required"):
+        if key in gate and not isinstance(gate.get(key), bool):
+            errors.append(f"lot_completion_gate.{key} must be boolean")
+    if gate.get("scope_reduction_requested") is True and gate.get("scope_reduction_validated_by_user") is not True:
+        errors.append("lot_completion_gate scope reduction requires explicit user validation")
+
+    coverage_table = gate.get("coverage_table")
+    if not isinstance(coverage_table, list):
+        errors.append("lot_completion_gate.coverage_table must be a list")
+        coverage_table = []
+
+    request_ids = {
+        request.get("id")
+        for request in requests
+        if isinstance(request, dict) and non_empty_string(request.get("id"))
+    }
+    covered_ids = set()
+    for index, row in enumerate(coverage_table):
+        prefix = f"lot_completion_gate.coverage_table[{index}]"
+        if not isinstance(row, dict):
+            errors.append(f"{prefix} must be an object")
+            continue
+        requirement_id = row.get("requirement_id")
+        if not non_empty_string(requirement_id):
+            errors.append(f"{prefix}.requirement_id must be a non-empty string")
+        else:
+            covered_ids.add(requirement_id)
+        if not non_empty_string(row.get("requirement")):
+            errors.append(f"{prefix}.requirement must be a non-empty string")
+        if row.get("status") not in VALID_COMPLETION_STATUSES:
+            errors.append(f"{prefix}.status must be one of {sorted(VALID_COMPLETION_STATUSES)}")
+        if not isinstance(row.get("proof"), list):
+            errors.append(f"{prefix}.proof must be a list")
+        if "comment" in row and not isinstance(row.get("comment"), str):
+            errors.append(f"{prefix}.comment must be a string when present")
+
+    missing_ids = sorted(request_ids - covered_ids)
+    if data.get("status") in {"done", "user_testing", "repair"} and missing_ids:
+        errors.append(f"lot_completion_gate.coverage_table must cover all validated_requests: missing {missing_ids}")
+
+    visual_evidence = gate.get("visual_evidence")
+    if not isinstance(visual_evidence, list):
+        errors.append("lot_completion_gate.visual_evidence must be a list")
+        visual_evidence = []
+    decision = gate.get("decision")
+    if decision not in VALID_STATUSES:
+        errors.append(f"lot_completion_gate.decision must be one of {sorted(VALID_STATUSES)}")
+
+    if data.get("status") == "done":
+        if status != "pass":
+            errors.append("status done requires lot_completion_gate.status pass")
+        blocking_rows = [
+            row.get("requirement_id", f"#{index}")
+            for index, row in enumerate(coverage_table)
+            if isinstance(row, dict) and row.get("status") in BLOCKING_COMPLETION_STATUSES
+        ]
+        if blocking_rows:
+            errors.append(f"status done is incompatible with incomplete lot_completion_gate rows: {blocking_rows}")
+        for request in requests:
+            if not isinstance(request, dict) or request.get("status") != "done":
+                continue
+            has_proof = bool(request.get("files")) or bool(request.get("verification")) or bool(request.get("notes"))
+            if not has_proof:
+                errors.append(f"validated_requests {request.get('id')} marked done requires files, verification or notes proof")
+        ui_required = gate.get("ui_ux_required") is True or any(
+            isinstance(request, dict) and request_requires_ui_evidence(request) for request in requests
+        )
+        e2e = data.get("e2e") if isinstance(data.get("e2e"), dict) else {}
+        if ui_required and not visual_evidence and not e2e.get("items"):
+            errors.append("status done with UI/UX requirements requires lot_completion_gate.visual_evidence or e2e.items")
+    return gate
 
 
 def validate(data: dict) -> tuple[list[str], list[str]]:
@@ -145,6 +243,7 @@ def validate(data: dict) -> tuple[list[str], list[str]]:
         "status",
         "objective",
         "validated_requests",
+        "lot_completion_gate",
         "scope",
         "product_truth",
         "evidence",
@@ -175,6 +274,7 @@ def validate(data: dict) -> tuple[list[str], list[str]]:
             errors.append(f"{key} must be a non-empty string")
 
     requests = validate_requests(data, errors)
+    validate_lot_completion_gate(data, requests, errors)
     if data.get("task_type") != "analysis" and not requests:
         errors.append("validated_requests must not be empty for non-analysis tasks")
     if status == "done":
@@ -276,6 +376,8 @@ def validate(data: dict) -> tuple[list[str], list[str]]:
             for key, value in gates.items():
                 if value == "fail":
                     errors.append(f"status done is incompatible with gates.{key}=fail")
+            if gates.get("lot_completion") != "pass":
+                errors.append("status done requires gates.lot_completion pass")
 
     e2e = require_object(data, "e2e", errors)
     if e2e:

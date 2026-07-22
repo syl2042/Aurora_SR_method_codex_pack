@@ -41,6 +41,16 @@
     "open_questions": [],
     "sequencing_recommendation": "not_required"
   },
+  "lot_completion_gate": {
+    "status": "not_applicable",
+    "validated_scope_source": "Template non execute.",
+    "scope_reduction_requested": false,
+    "scope_reduction_validated_by_user": false,
+    "coverage_table": [],
+    "ui_ux_required": false,
+    "visual_evidence": [],
+    "decision": "not_applicable"
+  },
   "implementation": {
     "app_code_changed": false,
     "changed_files": []

@@ -33,6 +33,8 @@ demande utilisateur
 → mettre a jour memoire
 ```
 
+Quand l'utilisateur valide explicitement un lot, une passe ou un plan, ce perimetre devient contractuel. SR-Harness doit ensuite chercher l'implementation la plus simple pour couvrir tout ce perimetre, sans le reduire silencieusement.
+
 ## Modes de connaissance codebase
 
 SR 2.3 distingue deux modes.
@@ -221,6 +223,48 @@ Validation humaine obligatoire.
 Non recommande par defaut.
 
 ## Gates obligatoires
+
+### Lot Completion Gate
+
+Le Lot Completion Gate est obligatoire avant toute cloture de lot ou de passe validee.
+
+But : empecher qu'un sous-ensemble du lot valide soit livre comme si tout le lot etait termine.
+
+Regles :
+
+- une validation utilisateur engage tout le perimetre decrit juste avant validation ;
+- `simple`, `chirurgical`, `scope minimal` et `eviter les refactors` ne peuvent jamais retirer une exigence validee ;
+- si Codex veut reduire, reporter, decouper ou clarifier le lot valide, il doit stopper avant mutation et attendre une nouvelle validation ;
+- la cloture doit produire une table de couverture exigence par exigence ;
+- un lot ne peut pas etre `done` si une exigence validee est `partiel`, `non fait`, `blocked` ou `requires_e2e` ;
+- une exigence sortie du lot doit etre marquee `moved_to_new_lot` ou justifiee comme hors perimetre valide avec une decision explicite ;
+- pour une exigence UI/UX, un build/lint/smoke HTTP ne suffit pas : il faut une preuve visuelle ou E2E ciblee, ou un statut `requires_e2e`.
+
+Format minimal :
+
+```text
+Lot Completion Gate:
+- status: pass/fail/not_applicable
+- coverage_table:
+  | Exigence validee | Statut | Preuve | Commentaire |
+  |---|---|---|---|
+- ui_ux_required: oui/non
+- visual_evidence: [...]
+- decision: done/user_testing/repair/blocked
+```
+
+Statuts de ligne autorises :
+
+```text
+fait, partiel, non fait, bloque, hors perimetre valide, requires_e2e
+```
+
+Decision :
+
+- `done` seulement si toutes les exigences validees sont couvertes et les preuves suffisantes ;
+- `user_testing` si la couverture technique est faite mais qu'un E2E utilisateur reste requis ;
+- `repair` si une exigence est partielle ou non faite ;
+- `blocked` si une exigence depend d'une decision, d'un acces, d'une source, d'un secret ou d'une validation absente.
 
 ### Evidence gate
 
@@ -434,6 +478,8 @@ Le diff doit rester dans `allowed_paths` et hors `forbidden_paths` du lot.
 
 Les criteres d'acceptation doivent etre couverts ou explicitement marques incomplets.
 
+Le Spec gate ne remplace pas le Lot Completion Gate : il verifie les criteres, tandis que le Lot Completion Gate verifie toutes les exigences validees, y compris produit, UI/UX, E2E, documentation, i18n, rebuild ou integrations.
+
 ### Verification gate
 
 Les commandes du lot doivent etre executees ou l'impossibilite documentee.
@@ -443,6 +489,8 @@ Les commandes du lot doivent etre executees ou l'impossibilite documentee.
 Obligatoire pour toute tache UI non triviale.
 
 Codex doit lire la direction design du projet et les ressources UI/design locales si presentes, eviter les patterns interdits et verifier par screenshot quand possible.
+
+Pour une exigence "UI alignee sur X", la preuve attendue doit couvrir le parcours ou l'ecran demande : capture Playwright, comparaison de composants/patterns, checklist visuelle ciblee ou E2E. Sans cette preuve, le Lot Completion Gate doit rester `fail` ou la decision doit etre `user_testing`/`repair`.
 
 ### Context budget gate
 
@@ -490,6 +538,7 @@ docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json
 
 Ce contrat ne contient pas les logs. Il pointe seulement les preuves minimales :
 
+- table de couverture du Lot Completion Gate ;
 - sources lues pour l'evidence gate ;
 - mutation backlog et impact global si les gates sont applicables ;
 - fichiers modifies ;
@@ -502,6 +551,7 @@ Ce contrat ne contient pas les logs. Il pointe seulement les preuves minimales :
 
 Regles critiques :
 
+- si `status_decision` vaut `done`, `lot_completion_gate.status` doit valoir `pass` et aucune ligne de couverture ne doit etre `partiel`, `non fait`, `blocked` ou `requires_e2e` ;
 - si `status_decision` vaut `user_testing`, `e2e_user_tests.items` doit contenir une vraie liste de tests ;
 - si du code applicatif change, `changed_files` et `verification.commands_run` ou `verification.not_run_reason` sont obligatoires ;
 - si le contexte est `orange` ou `red`, `next_session_prompt` doit valoir `created` ou `updated`.
@@ -529,6 +579,7 @@ Il fusionne la partie machine de `task_plan.md`, `findings.md`, `decisions.md`, 
 Champs structurants :
 
 - `validated_requests` : intentions validees, statut, couverture, fichiers et verification ;
+- `lot_completion_gate` : table de couverture avant cloture et decision de completude ;
 - `scope` : inclus, exclus, chemins autorises/interdits ;
 - `product_truth` : verites produit/metier a preserver ;
 - `backlog_mutation` : mutation du backlog requise, effectuee ou justifiee ;
@@ -546,6 +597,8 @@ Regles critiques :
 - `validated_requests` ne doit pas etre vide pour un lot non trivial ;
 - les identifiants de requetes doivent etre uniques ;
 - un lot `done` est invalide si une requete reste `todo`, `doing`, `requires_e2e` ou `blocked` ;
+- un lot `done` est invalide si `lot_completion_gate.status` n'est pas `pass` ou si une exigence de la table de couverture reste partielle, non faite, bloquee ou en attente E2E ;
+- si `lot_completion_gate.ui_ux_required` vaut `true`, une preuve visuelle ou E2E ciblee doit etre declaree avant `done` ;
 - si une requete est `moved_to_new_lot`, elle doit pointer vers une entree inbox ou un lot cible dans ses notes, sa couverture ou les champs de mutation backlog ;
 - si `global_impact.required` vaut `true`, les surfaces revues et la decision de sequence doivent etre renseignees ;
 - si `backlog_mutation.mutation_required` vaut `true`, `SR_INBOX.yaml` ou `SR_LOTS.yaml` doit etre mis a jour, ou une raison de blocage/non-mutation doit etre explicite ;
@@ -642,6 +695,7 @@ Avant de clore une tache SR-Harness :
 - mettre a jour `progress.md` ;
 - completer `verification.md` ;
 - produire `gate_report.md` pour un lot execute ;
+- produire le Lot Completion Gate avec table de couverture des exigences validees ;
 - produire et valider `loop_contract.json` pour une tache non triviale ;
 - mettre a jour `SR_LOTS.yaml` si le statut change ;
 - si `SR_LOTS.yaml` a ete modifie, executer `python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml` et noter le resultat dans `verification.md` ;
@@ -653,6 +707,7 @@ Format de cloture utilisateur recommande :
 ```text
 Ce qui est fait
 Resultat observe
+Couverture du lot valide
 Lecture expert / produit
 Verifications executees
 Memoire SR mise a jour

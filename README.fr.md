@@ -128,6 +128,27 @@ Chaque session importante doit laisser une trace exploitable : état courant, d�
 
 ---
 
+## Outils optionnels
+
+### Aurora SR Cockpit
+
+Le repository inclut un petit dashboard read-only dans [tools/sr-cockpit](tools/sr-cockpit) pour superviser les projets SR Method présents sous `/home/ubuntu/apps`.
+
+Il affiche la liste des projets, les sessions Codex actives, la version SR, les lots, les passes, l'inbox, les task memories, les statuts de gates et l'état Git de base. Le cockpit n'est pas installé dans les projets cibles par l'installateur SR ; c'est un outil opérateur conservé dans ce pack afin que les projets existants puissent mettre à jour la méthode SR sans recevoir de fichiers UI non liés à leur code.
+
+Démarrage local rapide :
+
+```bash
+cd tools/sr-cockpit
+npm install
+npm run build
+npm start -- --host 127.0.0.1 --port 18787
+```
+
+Les scripts de lancement Windows/MobaXterm sont disponibles dans [tools/sr-cockpit/scripts/windows](tools/sr-cockpit/scripts/windows).
+
+---
+
 ## Ce qui change en 3.2.1
 
 La version `3.2.1` porte deux evolutions distinctes :

@@ -3,3 +3,5 @@ __pycache__/
 .DS_Store
 .env
 .env.*
+tools/sr-cockpit/node_modules/
+tools/sr-cockpit/dist/

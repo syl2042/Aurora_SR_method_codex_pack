@@ -1,0 +1,19 @@
+[Unit]
+Description=Aurora SR Cockpit
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/apps/Aurora_Codex_Pack/tools/sr-cockpit
+Environment=NODE_ENV=production
+Environment=SR_COCKPIT_HOST=127.0.0.1
+Environment=SR_COCKPIT_PORT=18787
+Environment=SR_COCKPIT_APPS_ROOT=/home/ubuntu/apps
+Environment=PATH=/home/ubuntu/.nvm/versions/node/v20.19.5/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=/home/ubuntu/.nvm/versions/node/v20.19.5/bin/node server/index.js
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

@@ -5,6 +5,11 @@
   "patch_notes": [
     {
       "date": "2026-08-04",
+      "scope": "pack_tooling",
+      "change": "Add Aurora SR Cockpit as an optional read-only operator dashboard under tools/sr-cockpit, without installing it into target SR projects."
+    },
+    {
+      "date": "2026-08-04",
       "scope": "propagation_gate",
       "change": "Add a Propagation Gate / Reference Integrity Gate for shared symbols and contracts, with pre-mutation impact notice, human validation when risk is non-local, post-mutation reference checks, and legacy-compatible warnings for historical contracts."
     },
@@ -73,6 +78,7 @@
     "propagation_preflight",
     "propagation_postcheck",
     "legacy_contract_propagation_warning",
+    "sr_cockpit_tooling",
     "product_bound_runtime_agents",
     "runtime_agent_shapes",
     "runtime_agent_contract_template",

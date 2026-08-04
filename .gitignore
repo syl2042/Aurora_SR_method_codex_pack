@@ -3,6 +3,9 @@ __pycache__/
 .DS_Store
 .env
 .env.*
+.handoffs/
 docs/*.pdf
+docs/codex/CODEBASE_MAP.generated.md
+docs/codex/tasks/
 tools/sr-cockpit/node_modules/
 tools/sr-cockpit/dist/

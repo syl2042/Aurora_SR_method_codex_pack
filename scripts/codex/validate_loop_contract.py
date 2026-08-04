@@ -28,6 +28,14 @@ VALID_PLAIN_RESUME_DEFAULTS = {
 VALID_GATE_STATUSES = {"pending", "pass", "fail", "not_applicable"}
 VALID_COMPLETION_STATUSES = {"fait", "partiel", "non fait", "bloque", "hors perimetre valide", "requires_e2e"}
 BLOCKING_COMPLETION_STATUSES = {"partiel", "non fait", "bloque", "requires_e2e"}
+VALID_PROPAGATION_RISK_LEVELS = {"low", "medium", "high", "critical", "not_applicable"}
+VALID_PROPAGATION_COMPATIBILITY = {
+    "full_propagation",
+    "compatibility_shim",
+    "two_step_migration",
+    "not_required",
+}
+VALID_PROPAGATION_DECISIONS = {"pass", "repair", "blocked", "not_applicable"}
 
 
 def load_contract(path: Path) -> dict:
@@ -180,6 +188,78 @@ def validate_lot_completion_gate(data: dict, e2e_items: list, errors: list[str])
             errors.append("status_decision done with UI/UX requirements requires lot_completion_gate.visual_evidence or e2e_user_tests.items")
 
 
+def validate_propagation_gate(data: dict, errors: list[str], warnings: list[str]) -> None:
+    gate = data.get("propagation_gate")
+    if gate is None:
+        warnings.append("propagation_gate missing; accepted as legacy contract")
+        return
+    if not isinstance(gate, dict):
+        errors.append("propagation_gate must be an object")
+        return
+
+    required = gate.get("required")
+    if not isinstance(required, bool):
+        errors.append("propagation_gate.required must be boolean")
+        required = False
+    status = gate.get("status")
+    if status not in VALID_GATE_STATUSES:
+        errors.append(f"propagation_gate.status must be one of {sorted(VALID_GATE_STATUSES)}")
+    risk_level = gate.get("risk_level")
+    if risk_level not in VALID_PROPAGATION_RISK_LEVELS:
+        errors.append(f"propagation_gate.risk_level must be one of {sorted(VALID_PROPAGATION_RISK_LEVELS)}")
+    compatibility = gate.get("compatibility_strategy")
+    if compatibility not in VALID_PROPAGATION_COMPATIBILITY:
+        errors.append(f"propagation_gate.compatibility_strategy must be one of {sorted(VALID_PROPAGATION_COMPATIBILITY)}")
+    decision = gate.get("decision")
+    if decision not in VALID_PROPAGATION_DECISIONS:
+        errors.append(f"propagation_gate.decision must be one of {sorted(VALID_PROPAGATION_DECISIONS)}")
+    for key in ("preflight_done", "human_validation_required", "human_validation_received"):
+        if not isinstance(gate.get(key), bool):
+            errors.append(f"propagation_gate.{key} must be boolean")
+    for key in (
+        "changed_symbols",
+        "affected_surfaces",
+        "consumers_identified",
+        "reference_searches",
+        "remaining_references",
+        "ignored_references",
+        "verification",
+    ):
+        if not isinstance(gate.get(key), list):
+            errors.append(f"propagation_gate.{key} must be a list")
+
+    if required is True and status == "not_applicable":
+        errors.append("propagation_gate.status cannot be not_applicable when required is true")
+    if required is not True:
+        return
+
+    is_done_or_pass = data.get("status_decision") == "done" or status == "pass" or decision == "pass"
+    if not is_done_or_pass:
+        return
+
+    if status != "pass":
+        errors.append("status_decision done requires propagation_gate.status pass when propagation is required")
+    if decision != "pass":
+        errors.append("status_decision done requires propagation_gate.decision pass when propagation is required")
+    if gate.get("preflight_done") is not True:
+        errors.append("propagation_gate.preflight_done must be true when propagation is required")
+    if gate.get("human_validation_required") is True and gate.get("human_validation_received") is not True:
+        errors.append("propagation_gate human validation required but not received")
+    if not gate.get("changed_symbols"):
+        errors.append("propagation_gate.changed_symbols must not be empty when propagation is required")
+    if not gate.get("reference_searches"):
+        errors.append("propagation_gate.reference_searches must not be empty when propagation is required")
+    if gate.get("remaining_references") and not gate.get("ignored_references"):
+        errors.append("propagation_gate.remaining_references require ignored_references justification")
+    if risk_level in {"high", "critical"}:
+        if not gate.get("affected_surfaces"):
+            errors.append("high/critical propagation requires propagation_gate.affected_surfaces")
+        if not gate.get("consumers_identified"):
+            errors.append("high/critical propagation requires propagation_gate.consumers_identified")
+        if not gate.get("verification"):
+            errors.append("high/critical propagation requires propagation_gate.verification")
+
+
 def validate(data: dict) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -244,6 +324,7 @@ def validate(data: dict) -> tuple[list[str], list[str]]:
     if (status_decision == "user_testing" or e2e_required is True) and not e2e_items:
         errors.append("e2e_user_tests.items must not be empty when user testing is required")
     validate_lot_completion_gate(data, e2e_items, errors)
+    validate_propagation_gate(data, errors, warnings)
 
     memory = require_object(data, "memory_updates", errors)
     if memory:

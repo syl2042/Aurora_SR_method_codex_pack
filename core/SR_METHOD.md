@@ -22,6 +22,7 @@ La difference est que la SR Method applique ce principe a l'echelle complete d'u
 - lots atomiques et passes d'execution multi-lots ;
 - skills Codex et skills runtime separees ;
 - gates de preuve ;
+- gate de propagation des changements de symboles et contrats partages ;
 - memoire long terme ;
 - budget contexte ;
 - verification humaine et automatisee ;
@@ -65,6 +66,8 @@ Le contrat 3.0.0 doit porter explicitement :
 Regle centrale : un lot ne peut pas etre `done` si une intention validee reste `todo`, `doing`, `requires_e2e` ou `blocked`.
 
 Regle de completude : avant toute cloture de lot ou de passe, Codex doit produire une table de couverture des exigences validees avec statut, preuve et commentaire. Si une exigence est `partiel`, `non fait`, `blocked` ou `requires_e2e`, le lot ne peut pas etre declare `done`; il doit rester `repair`, `user_testing` ou `blocked`.
+
+Regle de propagation : quand un lot modifie un symbole ou contrat partage (fonction, signature, type, schema, endpoint, champ DB, config, import/export, composant ou agent runtime), Codex doit annoncer avant mutation les consommateurs et surfaces a risque, obtenir la validation humaine requise selon le risque, puis prouver apres mutation que les references, appels, imports/exports, signatures, tests et smokes proportionnes ont ete verifies. Un lot ne peut pas etre `done` si le Propagation Gate requis n'est pas `pass`.
 
 Validation :
 

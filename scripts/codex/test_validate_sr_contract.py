@@ -72,6 +72,27 @@ def valid_contract() -> dict:
             "open_questions": [],
             "sequencing_recommendation": "not_required",
         },
+        "propagation": {
+            "required": False,
+            "status": "not_applicable",
+            "trigger": "not_applicable",
+            "risk_level": "not_applicable",
+            "preflight": {
+                "done": False,
+                "summary": "Aucun changement de symbole ou contrat partage.",
+                "human_validation_required": False,
+                "human_validation_received": False,
+            },
+            "changed_symbols": [],
+            "affected_surfaces": [],
+            "consumers_checked": [],
+            "reference_searches": [],
+            "remaining_references": [],
+            "ignored_references": [],
+            "compatibility_strategy": "not_required",
+            "verification": [],
+            "decision": "not_applicable",
+        },
         "evidence": {"sources_read": ["docs/codex/SR_METHOD.md"], "code_files_read": [], "tests_or_logs": []},
         "skills": {"method": ["aurora-lot-runner"], "domain": []},
         "plan": ["Creer le schema."],
@@ -79,7 +100,7 @@ def valid_contract() -> dict:
         "decisions": [],
         "implementation": {"app_code_changed": False, "changed_files": ["scripts/codex/validate_sr_contract.py"]},
         "verification": {"commands_run": ["unit"], "commands_failed": [], "not_run_reason": None},
-        "gates": {"evidence": "pass", "lot_completion": "pass", "verification": "pass", "context_budget": "pass"},
+        "gates": {"evidence": "pass", "lot_completion": "pass", "propagation": "not_applicable", "verification": "pass", "context_budget": "pass"},
         "e2e": {"required": True, "items": ["Relire le contrat et verifier les requetes couvertes."]},
         "context": {"status": "green", "report_path": None},
         "transition": {
@@ -168,6 +189,44 @@ class ValidateSrContractTest(unittest.TestCase):
         data["e2e"]["items"] = []
         errors, _warnings = validate_sr_contract.validate(data)
         self.assertTrue(any("UI/UX requirements requires" in error for error in errors), errors)
+
+    def test_done_requires_propagation_pass_when_required(self) -> None:
+        data = valid_contract()
+        data["propagation"]["required"] = True
+        data["propagation"]["status"] = "pending"
+        data["propagation"]["risk_level"] = "medium"
+        data["propagation"]["decision"] = "repair"
+        data["gates"]["propagation"] = "pending"
+        errors, _warnings = validate_sr_contract.validate(data)
+        self.assertTrue(any("propagation.status pass" in error for error in errors), errors)
+
+    def test_high_risk_propagation_requires_consumers_and_verification(self) -> None:
+        data = valid_contract()
+        data["propagation"].update(
+            {
+                "required": True,
+                "status": "pass",
+                "risk_level": "high",
+                "decision": "pass",
+                "changed_symbols": ["old_name -> new_name"],
+                "reference_searches": ["rg old_name", "rg new_name"],
+            }
+        )
+        data["propagation"]["preflight"]["done"] = True
+        data["propagation"]["preflight"]["human_validation_required"] = True
+        data["propagation"]["preflight"]["human_validation_received"] = True
+        data["gates"]["propagation"] = "pass"
+        errors, _warnings = validate_sr_contract.validate(data)
+        self.assertTrue(any("consumers_checked" in error for error in errors), errors)
+        self.assertTrue(any("propagation.verification" in error for error in errors), errors)
+
+    def test_missing_propagation_is_legacy_warning(self) -> None:
+        data = valid_contract()
+        del data["propagation"]
+        data["gates"]["propagation"] = "not_applicable"
+        errors, warnings = validate_sr_contract.validate(data)
+        self.assertEqual([], errors)
+        self.assertTrue(any("legacy contract" in warning for warning in warnings), warnings)
 
 
 if __name__ == "__main__":

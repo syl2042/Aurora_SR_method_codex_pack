@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-EXPECTED_VERSION = "3.2.2"
+EXPECTED_VERSION = "3.3.0"
 VALID_KNOWLEDGE_MODES = {"core", "nexus_kg"}
 
 SKILL_AGENT_TEMPLATE = """\
@@ -137,29 +137,29 @@ def check_markers(root: Path) -> tuple[list[str], list[str]]:
     errors = []
     warnings = []
     marker_checks = {
-        "AGENTS.md": ["Context budget gate", "Self Evaluation Gate", "Fact Gate", "Backlog Mutation Gate", "Global Impact Gate", "Pass Planning Gate", "Lot Completion Gate", "SR Core = RepoMap", "find_next_session_prompt.py", "Loop Contract", "SKILL_DIGEST.md", "Validation humaine stricte"],
-        "docs/codex/SR_METHOD.md": ["Specification Runtime", "SR Development Method", "SR Agent Method", "sr_contract.json", "Validation humaine stricte", "Regle de completude"],
+        "AGENTS.md": ["Context budget gate", "Self Evaluation Gate", "Fact Gate", "Backlog Mutation Gate", "Global Impact Gate", "Pass Planning Gate", "Lot Completion Gate", "Propagation Gate", "SR Core = RepoMap", "find_next_session_prompt.py", "Loop Contract", "SKILL_DIGEST.md", "Validation humaine stricte"],
+        "docs/codex/SR_METHOD.md": ["Specification Runtime", "SR Development Method", "SR Agent Method", "sr_contract.json", "Validation humaine stricte", "Regle de completude", "Regle de propagation"],
         "docs/codex/SR_DEVELOPMENT_METHOD.md": ["loop_contract.json", "validate_loop_contract.py"],
         "docs/codex/SR_AGENT_METHOD.md": ["AI_AGENT_RUNTIME_METHOD.md", "output JSON schema"],
         "docs/codex/SKILL_MAP.md": ["Knowledge mode", "SKILL_DIGEST.md"],
         "docs/codex/SKILL_DIGEST.md": ["Skills methode globales", "Skills metier Codex locales", "Skills runtime applicatives"],
         "docs/codex/V3_UPGRADE_TEST_PLAN.md": ["SR 3.0.0", "Prompt initial pour projet pilote", "validate_sr_contract.py", "audit_sr_task_contracts.py"],
-        "docs/codex/tasks/_TEMPLATE/gate_report.md": ["Knowledge Gate", "Fact Gate", "Backlog Mutation Gate", "Global Impact Gate", "Lot Dependency Reconciliation", "Lot Completion Gate", "Self Evaluation Gate", "Context Budget Gate", "Loop Contract"],
-        "docs/codex/tasks/_TEMPLATE/loop_contract.json": ["schema_version", "status_decision", "backlog_mutation_gate", "global_impact_gate", "lot_completion_gate", "e2e_user_tests", "resume_protocol"],
-        "docs/codex/tasks/_TEMPLATE/sr_contract.json": ["schema_version", "validated_requests", "lot_completion_gate", "backlog_mutation", "global_impact", "transition"],
-        "docs/codex/prompts/06_verify_sr_installation.md": ["sr_post_install_check.py", "--fix-safe", "SR Contract 3.0.0", "audit_sr_task_contracts.py"],
+        "docs/codex/tasks/_TEMPLATE/gate_report.md": ["Knowledge Gate", "Fact Gate", "Backlog Mutation Gate", "Global Impact Gate", "Lot Dependency Reconciliation", "Propagation Gate", "Lot Completion Gate", "Self Evaluation Gate", "Context Budget Gate", "Loop Contract"],
+        "docs/codex/tasks/_TEMPLATE/loop_contract.json": ["schema_version", "status_decision", "backlog_mutation_gate", "global_impact_gate", "propagation_gate", "lot_completion_gate", "e2e_user_tests", "resume_protocol"],
+        "docs/codex/tasks/_TEMPLATE/sr_contract.json": ["schema_version", "validated_requests", "lot_completion_gate", "backlog_mutation", "global_impact", "propagation", "transition"],
+        "docs/codex/prompts/06_verify_sr_installation.md": ["sr_post_install_check.py", "--fix-safe", "SR Contract 3.0.0", "audit_sr_task_contracts.py", "Propagation Gate"],
         "docs/codex/prompts/07_realign_sr_state_after_upgrade.md": ["audit SR de reprise", "audit_sr_task_contracts.py", "sr_contract.json"],
         "docs/codex/prompts/08_define_sr_passes_from_lots.md": ["SR_PASSES.yaml", "validate_pass_contract.py"],
-        "docs/codex/prompts/05_upgrade_codex_environment.md": ["https://github.com/syl2042/Aurora_SR_method_codex_pack", "commit source", "SR_PACK_SOURCE", "validate_sr_contract.py", "audit_sr_task_contracts.py"],
-        "docs/codex/prompts/01_start_sr_session.md": ["find_next_session_prompt.py", "NEXT_SESSION_PROMPT.md", "Reprise SR stricte", "SR Contract 3.0.0", "validate_sr_contract.py"],
-        "docs/codex/prompts/60_review_diff_before_close.md": ["SR Contract 3.0.0", "validate_sr_contract.py", "validated_requests", "Lot Completion Gate"],
-        "docs/codex/SR_HARNESS_METHOD.md": ["SR_PASSES.yaml", "Pass Planning Gate", "Lot Completion Gate", "validate_pass_contract.py"],
-        "docs/codex/LOT_EXECUTION_METHOD.md": ["Pass Planning Gate", "Lot Completion Gate", "validate_pass_contract.py"],
-        "docs/codex/SR_BOOTSTRAP.md": ["find_next_session_prompt.py", "Auto-reprise obligatoire", "Reprise SR stricte", "Validation humaine stricte", "Lot Completion Gate"],
+        "docs/codex/prompts/05_upgrade_codex_environment.md": ["https://github.com/syl2042/Aurora_SR_method_codex_pack", "commit source", "SR_PACK_SOURCE", "validate_sr_contract.py", "audit_sr_task_contracts.py", "Propagation Gate"],
+        "docs/codex/prompts/01_start_sr_session.md": ["find_next_session_prompt.py", "NEXT_SESSION_PROMPT.md", "Reprise SR stricte", "SR Contract 3.0.0", "validate_sr_contract.py", "Propagation Gate"],
+        "docs/codex/prompts/60_review_diff_before_close.md": ["SR Contract 3.0.0", "validate_sr_contract.py", "validated_requests", "Lot Completion Gate", "Propagation Gate"],
+        "docs/codex/SR_HARNESS_METHOD.md": ["SR_PASSES.yaml", "Pass Planning Gate", "Lot Completion Gate", "Propagation Gate", "validate_pass_contract.py"],
+        "docs/codex/LOT_EXECUTION_METHOD.md": ["Pass Planning Gate", "Lot Completion Gate", "Propagation Gate", "validate_pass_contract.py"],
+        "docs/codex/SR_BOOTSTRAP.md": ["find_next_session_prompt.py", "Auto-reprise obligatoire", "Reprise SR stricte", "Validation humaine stricte", "Lot Completion Gate", "Propagation Gate"],
         "scripts/codex/find_next_session_prompt.py": ["NEXT_SESSION_PROMPT.md"],
-        "scripts/codex/validate_loop_contract.py": ["SR loop contract", "lot_completion_gate"],
+        "scripts/codex/validate_loop_contract.py": ["SR loop contract", "lot_completion_gate", "propagation_gate"],
         "scripts/codex/validate_pass_contract.py": ["SR_PASSES.yaml"],
-        "scripts/codex/validate_sr_contract.py": ["SR 3.0.0", "validated_requests", "lot_completion_gate"],
+        "scripts/codex/validate_sr_contract.py": ["SR 3.0.0", "validated_requests", "lot_completion_gate", "propagation"],
         "scripts/codex/audit_sr_task_contracts.py": ["SR 3.0.0", "legacy task memories"],
     }
     for rel, markers in marker_checks.items():
@@ -236,6 +236,16 @@ def merge_profile_defaults(root: Path) -> list[str]:
     if isinstance(data["sr_harness"], dict) and "require_self_evaluation_gate" not in data["sr_harness"]:
         data["sr_harness"]["require_self_evaluation_gate"] = True
         changed.append("sr_harness.require_self_evaluation_gate")
+    if isinstance(data["sr_harness"], dict) and "require_propagation_gate_for_reference_changes" not in data["sr_harness"]:
+        data["sr_harness"]["require_propagation_gate_for_reference_changes"] = True
+        changed.append("sr_harness.require_propagation_gate_for_reference_changes")
+    if isinstance(data["sr_harness"], dict) and "propagation_gate_policy" not in data["sr_harness"]:
+        data["sr_harness"]["propagation_gate_policy"] = {
+            "legacy_contracts_missing_gate": "warn_only",
+            "new_contracts_missing_gate": "blocking",
+            "strict_mode_requires_validation_from": "medium",
+        }
+        changed.append("sr_harness.propagation_gate_policy")
     if "sr_passes" not in data:
         data["sr_passes"] = {
             "enabled": True,

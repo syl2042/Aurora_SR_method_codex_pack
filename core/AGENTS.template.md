@@ -15,6 +15,7 @@
 - SR Contract 3.0.0 : creer ou mettre a jour `docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json` quand `PROJECT_PROFILE.yaml` declare `require_sr_contract`, suivre `validated_requests`, puis verifier avec `python3 scripts/codex/validate_sr_contract.py --file <chemin>`.
 - Loop Contract obligatoire pour toute tache non triviale : creer ou mettre a jour `docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json`, declarer `conversation_transition`, puis verifier avec `python3 scripts/codex/validate_loop_contract.py --file <chemin>`.
 - Lot Completion Gate obligatoire : avant de declarer un lot ou une passe `done`, produire une table de couverture des exigences validees avec statut et preuve. `simple/chirurgical` ne reduit jamais le perimetre valide ; toute exigence partielle, non faite, bloquee ou en attente E2E interdit `done`.
+- Propagation Gate obligatoire : si un changement touche un symbole ou contrat partage (fonction, signature, type, schema, endpoint, champ DB, config, import/export, composant, agent runtime), annoncer avant mutation les consommateurs et surfaces a risque, demander validation humaine si le risque depasse le local, puis verifier apres mutation les references, appels, imports/exports, signatures, tests et smokes proportionnes. Un lot ne peut pas etre `done` si le gate requis n'est pas `pass`.
 - Backlog Contract obligatoire : si `docs/codex/SR_LOTS.yaml` est modifie, executer `python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml` avant cloture. `git diff --check` ne remplace jamais cette validation.
 - Backlog Mutation Gate obligatoire : si une demande, une decouverte ou une reparation introduit une fonction structurante ou un impact durable, ne pas la traiter comme un simple detail du lot courant. Classer l'evenement, analyser les implications globales, puis mettre a jour `SR_INBOX.yaml` ou `SR_LOTS.yaml`, ou documenter explicitement pourquoi aucune mutation de backlog n'est requise.
 - Global Impact Gate obligatoire : avant de cadrer ou coder une fonction structurante, analyser son impact sur le produit global, les parcours, donnees, permissions, API/services, UI, tests, lots existants, dependances, migrations et risques. Cette analyse doit rester agnostique du domaine et s'appliquer a toute fonction transversale.
@@ -81,6 +82,13 @@ Politique par defaut :
 - classer les lots existants pertinents comme `unaffected`, `impacted`, `blocked_by`, `reopened`, `superseded`, `split_required` ou `depends_on` ;
 - consigner le resultat dans `backlog_mutation_gate`, `global_impact_gate`, `SR_INBOX.yaml`, `SR_LOTS.yaml` ou le gate report.
 
+Propagation Gate obligatoire :
+- avant mutation, si un symbole ou contrat partage change, declarer le changement, les consommateurs detectes, les surfaces a risque, le niveau `low/medium/high/critical`, la strategie de propagation et les verifications prevues ;
+- stopper avant mutation si validation humaine requise non recue : risque `high/critical`, ou `medium` quand la validation humaine stricte est active ;
+- apres mutation, rechercher les anciennes et nouvelles references, verifier les imports/exports, signatures, schemas, tests consommateurs et smokes proportionnes ;
+- documenter les references restantes comme `ignored_references` avec justification, sinon rester en `repair` ou `blocked` ;
+- ne jamais clore `done` avec `propagation_gate.required=true` et `status` different de `pass`.
+
 Evidence gate obligatoire avant recommandation :
 - suivre la chaine `RepoMap/KG -> fichiers candidats -> lecture code reel -> tests/logs` ;
 - citer les fichiers ou sources lus ;
@@ -119,6 +127,7 @@ Loop Contract obligatoire :
 - pour toute tache non triviale, creer ou mettre a jour `loop_contract.json` dans la memoire de tache ;
 - si `status_decision: user_testing`, fournir une vraie liste `e2e_user_tests.items`, pas une simple mention d'attente E2E ;
 - si du code applicatif change, declarer `changed_files` et les verifications executees ou la raison de non-execution ;
+- si un symbole ou contrat partage change, declarer `propagation_gate` et les preuves de propagation ;
 - declarer `conversation_transition` pour dire clairement si la prochaine action peut rester dans la conversation courante ou doit partir dans une nouvelle conversation ;
 - declarer `resume_protocol` si une nouvelle conversation est recommandee ou imposee, avec le prompt exact a donner a l'utilisateur ;
 - valider avec `python3 scripts/codex/validate_loop_contract.py --file docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json`.

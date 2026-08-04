@@ -54,6 +54,24 @@ def valid_contract() -> dict:
             "visual_evidence": [],
             "decision": "done",
         },
+        "propagation_gate": {
+            "required": False,
+            "status": "not_applicable",
+            "trigger": "not_applicable",
+            "risk_level": "not_applicable",
+            "preflight_done": False,
+            "human_validation_required": False,
+            "human_validation_received": False,
+            "changed_symbols": [],
+            "affected_surfaces": [],
+            "consumers_identified": [],
+            "reference_searches": [],
+            "remaining_references": [],
+            "ignored_references": [],
+            "compatibility_strategy": "not_required",
+            "verification": [],
+            "decision": "not_applicable",
+        },
         "implementation": {"app_code_changed": False, "changed_files": []},
         "verification": {"commands_run": ["unit"], "commands_failed": [], "not_run_reason": None},
         "e2e_user_tests": {"required": False, "items": []},
@@ -145,6 +163,41 @@ class ValidateLoopContractTest(unittest.TestCase):
         data["lot_completion_gate"]["ui_ux_required"] = True
         errors, _warnings = validate_loop_contract.validate(data)
         self.assertTrue(any("UI/UX requirements requires" in error for error in errors), errors)
+
+    def test_done_requires_propagation_pass_when_required(self) -> None:
+        data = valid_contract()
+        data["propagation_gate"]["required"] = True
+        data["propagation_gate"]["status"] = "pending"
+        data["propagation_gate"]["risk_level"] = "medium"
+        data["propagation_gate"]["decision"] = "repair"
+        errors, _warnings = validate_loop_contract.validate(data)
+        self.assertTrue(any("propagation_gate.status pass" in error for error in errors), errors)
+
+    def test_high_risk_propagation_requires_consumers_and_verification(self) -> None:
+        data = valid_contract()
+        data["propagation_gate"].update(
+            {
+                "required": True,
+                "status": "pass",
+                "risk_level": "high",
+                "preflight_done": True,
+                "human_validation_required": True,
+                "human_validation_received": True,
+                "changed_symbols": ["old_name -> new_name"],
+                "reference_searches": ["rg old_name", "rg new_name"],
+                "decision": "pass",
+            }
+        )
+        errors, _warnings = validate_loop_contract.validate(data)
+        self.assertTrue(any("consumers_identified" in error for error in errors), errors)
+        self.assertTrue(any("propagation_gate.verification" in error for error in errors), errors)
+
+    def test_missing_propagation_gate_is_legacy_warning(self) -> None:
+        data = valid_contract()
+        del data["propagation_gate"]
+        errors, warnings = validate_loop_contract.validate(data)
+        self.assertEqual([], errors)
+        self.assertTrue(any("legacy contract" in warning for warning in warnings), warnings)
 
 
 if __name__ == "__main__":

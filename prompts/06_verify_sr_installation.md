@@ -98,6 +98,7 @@ python3 scripts/codex/sr_post_install_check.py --root . --json
    - a documenter ;
    - a corriger avec validation ;
    - bloquant.
+   Les anciennes task memories sans `propagation_gate` sont acceptables legacy si elles precedent l'upgrade. Les nouveaux templates sans Propagation Gate sont bloquants.
 
 Corrections autorisees en `--fix-safe` :
 

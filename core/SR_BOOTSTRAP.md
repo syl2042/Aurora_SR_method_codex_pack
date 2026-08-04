@@ -143,6 +143,7 @@ Le `task_plan.md` doit contenir au minimum :
 - skills utilisees ;
 - fichiers candidats puis fichiers confirmes apres lecture ;
 - perimetre valide et table de couverture prevue si un lot ou une passe a ete valide ;
+- Propagation Gate preflight si un symbole ou contrat partage peut changer : consommateurs, surfaces a risque, niveau de risque, validation humaine requise et verifications prevues ;
 - risques ;
 - plan court ;
 - verification prevue.
@@ -204,6 +205,8 @@ Avant de conclure une tache non triviale :
 - creer ou mettre a jour `loop_contract.json` ;
 - creer ou mettre a jour `sr_contract.json` si le projet declare SR 3.0.0 ;
 - appliquer le Lot Completion Gate : table de couverture des exigences validees, statut `fait/partiel/non fait/bloque/hors perimetre valide/requires_e2e`, preuve et commentaire ;
+- appliquer le Propagation Gate si un symbole ou contrat partage a change : references ancien/nouveau nom recherchees, consommateurs verifies, imports/exports/signatures controles, references restantes justifiees, verification proportionnee executee ;
+- refuser le statut `done` si `propagation_gate.required` ou `propagation.required` vaut `true` et que le gate n'est pas `pass` ;
 - refuser le statut `done` si une exigence validee reste partielle, non faite, bloquee ou requiert un E2E non execute ;
 - pour toute exigence UI/UX explicite, fournir une preuve visuelle ou E2E ciblee, ou declarer `requires_e2e` et cloturer en `user_testing` ou `repair`, pas en `done` ;
 - executer `python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json` si le contrat existe ;

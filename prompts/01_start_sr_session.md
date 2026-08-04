@@ -48,7 +48,7 @@ Puis repondre avec :
 
 Si ma demande modifie le backlog, classer la demande et proposer la mise a jour `SR_INBOX.yaml` ou `SR_LOTS.yaml` avant de coder.
 
-Si tu codes ensuite, applique la boucle SR : knowledge gate, evidence gate, patch, tests, self evaluation gate, gate report, tests E2E utilisateur a faire.
+Si tu codes ensuite, applique la boucle SR : knowledge gate, evidence gate, Propagation Gate si un symbole ou contrat partage change, patch, tests, self evaluation gate, gate report, tests E2E utilisateur a faire.
 
 Pour toute tache non triviale, cree ou mets a jour `sr_contract.json` et `loop_contract.json` dans la memoire de tache, puis valide-les avec `validate_sr_contract.py` et `validate_loop_contract.py`.
 

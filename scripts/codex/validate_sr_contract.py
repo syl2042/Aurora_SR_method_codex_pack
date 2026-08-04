@@ -16,6 +16,14 @@ VALID_COMPLETION_STATUSES = {"fait", "partiel", "non fait", "bloque", "hors peri
 BLOCKING_COMPLETION_STATUSES = {"partiel", "non fait", "bloque", "requires_e2e"}
 VALID_CONTEXT_STATUSES = {"green", "yellow", "orange", "red", "unknown", "stale", "ambiguous", "not_checked"}
 VALID_TRANSITIONS = {"continue_current", "recommend_new_conversation", "stop_for_new_conversation", "not_applicable"}
+VALID_PROPAGATION_RISK_LEVELS = {"low", "medium", "high", "critical", "not_applicable"}
+VALID_PROPAGATION_COMPATIBILITY = {
+    "full_propagation",
+    "compatibility_shim",
+    "two_step_migration",
+    "not_required",
+}
+VALID_PROPAGATION_DECISIONS = {"pass", "repair", "blocked", "not_applicable"}
 
 
 def load_contract(path: Path) -> dict:
@@ -232,6 +240,94 @@ def validate_lot_completion_gate(data: dict, requests: list, errors: list[str]) 
     return gate
 
 
+def validate_propagation(data: dict, errors: list[str], warnings: list[str]) -> dict:
+    propagation = data.get("propagation")
+    gates = data.get("gates") if isinstance(data.get("gates"), dict) else {}
+    if propagation is None:
+        if "propagation" in gates and gates.get("propagation") != "not_applicable":
+            errors.append("gates.propagation requires propagation object")
+        else:
+            warnings.append("propagation missing; accepted as legacy contract")
+        return {}
+    if not isinstance(propagation, dict):
+        errors.append("propagation must be an object")
+        return {}
+
+    required = propagation.get("required")
+    if not isinstance(required, bool):
+        errors.append("propagation.required must be boolean")
+        required = False
+    status = propagation.get("status")
+    if status not in VALID_GATE_STATUSES:
+        errors.append(f"propagation.status must be one of {sorted(VALID_GATE_STATUSES)}")
+    risk_level = propagation.get("risk_level")
+    if risk_level not in VALID_PROPAGATION_RISK_LEVELS:
+        errors.append(f"propagation.risk_level must be one of {sorted(VALID_PROPAGATION_RISK_LEVELS)}")
+    compatibility = propagation.get("compatibility_strategy")
+    if compatibility not in VALID_PROPAGATION_COMPATIBILITY:
+        errors.append(f"propagation.compatibility_strategy must be one of {sorted(VALID_PROPAGATION_COMPATIBILITY)}")
+    decision = propagation.get("decision")
+    if decision not in VALID_PROPAGATION_DECISIONS:
+        errors.append(f"propagation.decision must be one of {sorted(VALID_PROPAGATION_DECISIONS)}")
+
+    preflight = propagation.get("preflight")
+    if not isinstance(preflight, dict):
+        errors.append("propagation.preflight must be an object")
+        preflight = {}
+    else:
+        if not isinstance(preflight.get("done"), bool):
+            errors.append("propagation.preflight.done must be boolean")
+        if not non_empty_string(preflight.get("summary")):
+            errors.append("propagation.preflight.summary must be a non-empty string")
+        for key in ("human_validation_required", "human_validation_received"):
+            if not isinstance(preflight.get(key), bool):
+                errors.append(f"propagation.preflight.{key} must be boolean")
+
+    for key in (
+        "changed_symbols",
+        "affected_surfaces",
+        "consumers_checked",
+        "reference_searches",
+        "remaining_references",
+        "ignored_references",
+        "verification",
+    ):
+        if not isinstance(propagation.get(key), list):
+            errors.append(f"propagation.{key} must be a list")
+
+    if required is True and status == "not_applicable":
+        errors.append("propagation.status cannot be not_applicable when required is true")
+    if required is not True:
+        return propagation
+
+    is_done_or_pass = data.get("status") == "done" or status == "pass" or decision == "pass"
+    if not is_done_or_pass:
+        return propagation
+
+    if status != "pass":
+        errors.append("status done requires propagation.status pass when propagation is required")
+    if decision != "pass":
+        errors.append("status done requires propagation.decision pass when propagation is required")
+    if preflight.get("done") is not True:
+        errors.append("propagation.preflight.done must be true when propagation is required")
+    if preflight.get("human_validation_required") is True and preflight.get("human_validation_received") is not True:
+        errors.append("propagation human validation required but not received")
+    if not propagation.get("changed_symbols"):
+        errors.append("propagation.changed_symbols must not be empty when propagation is required")
+    if not propagation.get("reference_searches"):
+        errors.append("propagation.reference_searches must not be empty when propagation is required")
+    if propagation.get("remaining_references") and not propagation.get("ignored_references"):
+        errors.append("propagation.remaining_references require ignored_references justification")
+    if risk_level in {"high", "critical"}:
+        if not propagation.get("affected_surfaces"):
+            errors.append("high/critical propagation requires propagation.affected_surfaces")
+        if not propagation.get("consumers_checked"):
+            errors.append("high/critical propagation requires propagation.consumers_checked")
+        if not propagation.get("verification"):
+            errors.append("high/critical propagation requires propagation.verification")
+    return propagation
+
+
 def validate(data: dict) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -275,6 +371,7 @@ def validate(data: dict) -> tuple[list[str], list[str]]:
 
     requests = validate_requests(data, errors)
     validate_lot_completion_gate(data, requests, errors)
+    propagation = validate_propagation(data, errors, warnings)
     if data.get("task_type") != "analysis" and not requests:
         errors.append("validated_requests must not be empty for non-analysis tasks")
     if status == "done":
@@ -378,6 +475,8 @@ def validate(data: dict) -> tuple[list[str], list[str]]:
                     errors.append(f"status done is incompatible with gates.{key}=fail")
             if gates.get("lot_completion") != "pass":
                 errors.append("status done requires gates.lot_completion pass")
+            if isinstance(propagation, dict) and propagation.get("required") is True and gates.get("propagation") != "pass":
+                errors.append("status done requires gates.propagation pass when propagation is required")
 
     e2e = require_object(data, "e2e", errors)
     if e2e:

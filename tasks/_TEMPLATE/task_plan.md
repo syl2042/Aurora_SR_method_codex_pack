@@ -87,6 +87,21 @@
 - Exigence UI/UX explicite : oui/non
 - Verification visuelle ou E2E prevue :
 
+## Propagation Gate
+- Requis : oui/non
+- Declencheur : symbole / signature / type / schema / endpoint / champ DB / config / import-export / composant / agent runtime / non applicable
+- Niveau de risque : low / medium / high / critical / not_applicable
+- Changement prevu :
+- Ancien contrat :
+- Nouveau contrat :
+- Consommateurs detectes avant mutation :
+- Surfaces a risque :
+- Strategie : full_propagation / compatibility_shim / two_step_migration / not_required
+- Recherches de references prevues :
+- Verifications consommateurs prevues :
+- Validation humaine requise : oui/non
+- Validation humaine recue : oui/non/non applicable
+
 ## Context budget
 - `context_budget_report.py --root . --compact` execute : oui/non/non disponible
 - Statut contexte hybride : green/yellow/orange/red/unknown/stale/ambiguous

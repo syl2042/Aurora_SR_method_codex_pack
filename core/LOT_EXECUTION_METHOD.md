@@ -186,6 +186,28 @@ unaffected, impacted, blocked_by, reopened, superseded, split_required, depends_
 
 Mettre a jour `depends_on`, `blocked_by`, `impacts`, `impacted_by`, `supersedes`, `superseded_by` ou le statut du lot si necessaire. Les lots non verifies ne doivent pas etre declares `unaffected` sans source.
 
+### 3f. Propagation Gate preflight
+
+Avant codage significatif, determiner si le changement prevu modifie un symbole ou contrat partage :
+
+- fonction, methode, classe, hook, composant exporte, helper reutilise ;
+- signature, parametre, type, interface ou schema ;
+- endpoint, payload API, route, evenement, message ou champ DB ;
+- cle de configuration, variable d'environnement, import/export public ;
+- contrat agent runtime, prompt, tool/action, output schema ou binding controle.
+
+Si oui, produire un preflight court :
+
+- symboles ou contrats touches, ancien et nouveau comportement ;
+- portee estimee : local, module, cross-module, API, DB ou runtime ;
+- consommateurs detectes avec RepoMap/KG, `rg`, lecture code reel ou tests ;
+- surfaces a risque et niveau `low`, `medium`, `high` ou `critical` ;
+- strategie : propagation complete, shim de compatibilite, migration en deux temps ou non requis ;
+- verifications prevues : recherches de references, typecheck/build/lint, tests consommateurs, smoke, E2E ;
+- validation humaine requise et recue.
+
+Stopper avant mutation si le risque est `high` ou `critical` et que la validation humaine n'est pas recue. En mode validation humaine stricte, stopper aussi pour un risque `medium`.
+
 ### 4. Plan court
 
 Produire un plan de lot limite :
@@ -233,9 +255,18 @@ Respecter :
 - design gate si UI ;
 - architecture gate si DB/RAG/service/runtime agent.
 
+Si le Propagation Gate est requis, propager explicitement les appels, imports/exports, signatures, schemas et tests consommateurs identifies. Si une propagation complete n'est pas souhaitable, ajouter une compatibilite temporaire seulement avec justification, expiration ou lot de retrait.
+
 ### 6. Verification
 
 Executer les commandes `verification_commands` du lot.
+
+Si le Propagation Gate est requis, executer aussi le postcheck :
+
+- recherches sur ancien et nouveau symbole ou contrat ;
+- controle des references restantes et justification des exceptions ;
+- verification des consommateurs directs ;
+- typecheck/build/lint/tests/smoke/E2E proportionnes au risque.
 
 Si une commande est impossible :
 
@@ -264,6 +295,7 @@ Completer `gate_report.md` :
 - backlog mutation gate ;
 - global impact gate si fonction structurante ;
 - lot dependency reconciliation si applicable ;
+- propagation gate si symbole ou contrat partage modifie ;
 - knowledge gate ;
 - scope gate ;
 - spec gate ;
@@ -289,6 +321,7 @@ Le contrat doit rester court et ne pas dupliquer les logs. Il doit declarer :
 - `fact_gate.status` si le contrat local le declare ;
 - `backlog_mutation_gate` si le contrat local le declare ;
 - `global_impact_gate` si le contrat local le declare ;
+- `propagation_gate` si le contrat local le declare ;
 - `implementation.changed_files` ;
 - `verification.commands_run` ou `verification.not_run_reason` ;
 - `e2e_user_tests.items` si test reel requis ;
@@ -344,6 +377,8 @@ Pour une exigence UI/UX, le gate exige une preuve visuelle ou E2E ciblee : captu
 
 Si une intention validee est sortie du lot courant, utiliser `moved_to_new_lot` et renseigner le lot cible, l'entree inbox ou la raison de blocage dans la couverture, les notes ou `backlog_mutation`.
 
+Le contrat doit aussi renseigner `propagation` quand un symbole ou contrat partage est modifie. Si `propagation.required` vaut `true`, `status` doit etre `pass` avant `done`, avec preflight, validation humaine si requise, recherches de references, consommateurs verifies et verification proportionnee.
+
 Valider :
 
 ```bash
@@ -386,6 +421,7 @@ Continuer uniquement si :
 
 - tous les gates critiques sont verts ;
 - le Lot Completion Gate confirme que toutes les exigences validees du lot courant sont couvertes ou explicitement sorties avec validation ;
+- le Propagation Gate est `pass` si un symbole ou contrat partage a ete modifie ;
 - le niveau d'autonomie autorise un lot suivant ;
 - le contexte reste sain ;
 - aucune validation humaine n'est requise.
@@ -417,6 +453,7 @@ Documenter :
 - mutation backlog requise ou non ;
 - impacts globaux non traites ;
 - lots a verifier, rouvrir, bloquer ou creer.
+- propagation incomplete possible : anciens appels, imports/exports, signatures, schemas, tests consommateurs ou smokes oublies.
 
 ## Design gate minimal
 

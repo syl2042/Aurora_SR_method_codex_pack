@@ -70,6 +70,18 @@ sr_harness:
   require_loop_contract: true
   loop_contract_file: docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json
   require_conversation_transition_decision: true
+  require_propagation_gate_for_reference_changes: true
+  propagation_gate_policy:
+    require_preflight_before_mutation: true
+    require_postcheck_before_done: true
+    human_validation_required_for:
+      - high
+      - critical
+    human_validation_required_for_strict_mode:
+      - medium
+      - high
+      - critical
+    legacy_contract_policy: "warn_not_block"
   nexus_context_gate: optional
   lot_naming:
     pattern: "{{PROJECT_KEY}}-<AREA>-<SEQ>"

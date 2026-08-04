@@ -110,6 +110,7 @@ lots:
       backlog_mutation_gate: true
       global_impact_gate: false
       lot_dependency_reconciliation: false
+      propagation_gate: true
       self_evaluation_gate: true
       design_gate: true
       context_budget_gate: true

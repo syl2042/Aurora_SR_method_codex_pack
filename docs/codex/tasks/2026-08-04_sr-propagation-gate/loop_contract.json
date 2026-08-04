@@ -1,0 +1,176 @@
+{
+  "schema_version": "1.0",
+  "task_id": "2026-08-04_sr-propagation-gate",
+  "task_type": "method",
+  "status_decision": "done",
+  "evidence_gate": {
+    "done": true,
+    "sources_read": [
+      "core/SR_HARNESS_METHOD.md",
+      "core/LOT_EXECUTION_METHOD.md",
+      "tasks/_TEMPLATE",
+      "scripts/codex/validate_sr_contract.py",
+      "scripts/codex/validate_loop_contract.py"
+    ]
+  },
+  "fact_gate": {
+    "status": "pass",
+    "classification": "fait_verifiable",
+    "facts_verified": [
+      "Le pack 3.2.2 ne contenait pas encore de Propagation Gate explicite.",
+      "Les validateurs 3.3.0 valident maintenant les champs propagation_gate et propagation."
+    ],
+    "sources_checked": [
+      "core/SR_HARNESS_METHOD.md",
+      "tasks/_TEMPLATE",
+      "scripts/codex/validate_sr_contract.py",
+      "scripts/codex/validate_loop_contract.py"
+    ],
+    "unverified_hypotheses": []
+  },
+  "backlog_mutation_gate": {
+    "status": "not_applicable",
+    "structural_change_detected": false,
+    "mutation_required": false,
+    "sr_inbox_updated": false,
+    "sr_lots_updated": false,
+    "affected_lots": [],
+    "created_lots": [],
+    "reopened_lots": [],
+    "blocked_lots": [],
+    "superseded_lots": [],
+    "not_updated_reason": "Depot source du pack sans SR_LOTS.yaml actif.",
+    "decision": "no_backlog_mutation_required"
+  },
+  "global_impact_gate": {
+    "required": true,
+    "status": "pass",
+    "surfaces_reviewed": [
+      "docs methode",
+      "templates",
+      "validateurs",
+      "audits",
+      "prompts upgrade",
+      "projets SR existants"
+    ],
+    "impacted_lots": [
+      "SR-METHOD-322-LOT-COMPLETION-GATE"
+    ],
+    "new_lots_to_create": [],
+    "lots_to_reopen_or_block": [],
+    "assumptions": [
+      "L'historique SR doit rester legacy-compatible."
+    ],
+    "open_questions": [],
+    "sequencing_recommendation": "Implementer en un lot methode additif."
+  },
+  "lot_completion_gate": {
+    "status": "pass",
+    "validated_scope_source": "Utilisateur 2026-08-04 : je valide",
+    "scope_reduction_requested": false,
+    "scope_reduction_validated_by_user": false,
+    "coverage_table": [
+      {
+        "requirement_id": "REQ-001",
+        "requirement": "Propagation Gate complet",
+        "status": "fait",
+        "proof": [
+          "core/SR_HARNESS_METHOD.md",
+          "core/LOT_EXECUTION_METHOD.md",
+          "tasks/_TEMPLATE/loop_contract.json",
+          "tasks/_TEMPLATE/sr_contract.json",
+          "scripts/codex/validate_loop_contract.py",
+          "scripts/codex/validate_sr_contract.py"
+        ],
+        "comment": "Gate integre dans methode, templates, validateurs, audits, prompts, installation et version 3.3.0."
+      }
+    ],
+    "ui_ux_required": false,
+    "visual_evidence": [],
+    "decision": "done"
+  },
+  "propagation_gate": {
+    "required": true,
+    "status": "pass",
+    "trigger": "Changement de contrats SR partages: propagation_gate, propagation et require_propagation_gate_for_reference_changes.",
+    "risk_level": "high",
+    "preflight_done": true,
+    "human_validation_required": true,
+    "human_validation_received": true,
+    "changed_symbols": ["propagation_gate", "propagation", "require_propagation_gate_for_reference_changes", "Propagation Gate"],
+    "affected_surfaces": ["core methode", "AGENTS template", "task templates", "validators", "audit scripts", "post-install check", "install upgrade block", "prompts", "project profile", "pack version"],
+    "consumers_identified": ["scripts/codex/validate_loop_contract.py", "scripts/codex/validate_sr_contract.py", "scripts/codex/audit_sr_task_contracts.py", "scripts/codex/audit_codex_pack.py", "scripts/codex/verify_codex_pack.py", "scripts/codex/sr_post_install_check.py", "scripts/install_codex_pack.py", "scripts/codex/test_validate_loop_contract.py", "scripts/codex/test_validate_sr_contract.py", "scripts/codex/test_audit_sr_task_contracts.py"],
+    "reference_searches": ["rg -n \"3\\.2\\.2|TARGET_VERSION|EXPECTED_VERSION|Propagation Gate|propagation_gate\" core prompts tasks blueprints profiles scripts MANIFEST.json"],
+    "remaining_references": [],
+    "ignored_references": [],
+    "compatibility_strategy": "full_propagation",
+    "verification": ["python3 scripts/codex/validate_loop_contract.py --file tasks/_TEMPLATE/loop_contract.json", "python3 scripts/codex/validate_sr_contract.py --file tasks/_TEMPLATE/sr_contract.json", "cd scripts/codex && python3 -m unittest test_validate_sr_contract.py test_validate_loop_contract.py test_audit_sr_task_contracts.py", "python3 scripts/codex/audit_codex_pack.py --root .", "python3 scripts/codex/verify_codex_pack.py", "fresh temp install + sr_post_install_check --no-report"],
+    "decision": "pass"
+  },
+  "implementation": {
+    "app_code_changed": false,
+    "changed_files": [
+      "blueprints/sr_lots.template.yaml",
+      "core/AGENTS.template.md",
+      "core/LOT_EXECUTION_METHOD.md",
+      "core/PROJECT_PROFILE.template.yaml",
+      "core/SR_BOOTSTRAP.md",
+      "core/SR_HARNESS_METHOD.md",
+      "core/SR_METHOD.md",
+      "core/SR_PACK_VERSION.json",
+      "profiles/default/PROJECT_PROFILE.yaml",
+      "prompts/01_start_sr_session.md",
+      "prompts/05_upgrade_codex_environment.md",
+      "prompts/06_verify_sr_installation.md",
+      "prompts/60_review_diff_before_close.md",
+      "scripts/install_codex_pack.py",
+      "scripts/codex/audit_codex_pack.py",
+      "scripts/codex/audit_sr_task_contracts.py",
+      "scripts/codex/sr_post_install_check.py",
+      "scripts/codex/validate_loop_contract.py",
+      "scripts/codex/validate_sr_contract.py",
+      "scripts/codex/verify_codex_pack.py",
+      "scripts/codex/test_audit_sr_task_contracts.py",
+      "scripts/codex/test_validate_loop_contract.py",
+      "scripts/codex/test_validate_sr_contract.py",
+      "tasks/_TEMPLATE/gate_report.md",
+      "tasks/_TEMPLATE/loop_contract.json",
+      "tasks/_TEMPLATE/sr_contract.json",
+      "tasks/_TEMPLATE/task_plan.md",
+      "docs/codex/tasks/2026-08-04_sr-propagation-gate/**"
+    ]
+  },
+  "verification": {
+    "commands_run": ["python3 -m unittest test_validate_sr_contract.py test_validate_loop_contract.py test_audit_sr_task_contracts.py (cwd scripts/codex)", "python3 scripts/codex/validate_loop_contract.py --file tasks/_TEMPLATE/loop_contract.json", "python3 scripts/codex/validate_sr_contract.py --file tasks/_TEMPLATE/sr_contract.json", "python3 scripts/codex/audit_codex_pack.py --root .", "python3 scripts/codex/verify_codex_pack.py", "fresh temp install with scripts/install_codex_pack.py then sr_post_install_check.py --no-report", "rg -n \"3\\.2\\.2|TARGET_VERSION|EXPECTED_VERSION|Propagation Gate|propagation_gate\" core prompts tasks blueprints profiles scripts MANIFEST.json"],
+    "commands_failed": [],
+    "not_run_reason": null
+  },
+  "e2e_user_tests": {
+    "required": false,
+    "items": []
+  },
+  "memory_updates": {
+    "sr_lots_updated": false,
+    "current_state_updated": false,
+    "task_memory_updated": true,
+    "gate_report_updated": true
+  },
+  "context_budget": {
+    "checked": true,
+    "status": "green",
+    "next_session_prompt": "not_required"
+  },
+  "conversation_transition": {
+    "decision": "continue_current",
+    "reason": "Lot termine dans la conversation courante, contexte suffisant.",
+    "next_session_prompt_path": null,
+    "user_message_required": false
+  },
+  "resume_protocol": {
+    "required": false,
+    "mode": "not_required",
+    "next_user_prompt": null,
+    "default_on_plain_resume": "strict_resume",
+    "must_not_code_before_user_validation": false
+  }
+}

@@ -51,6 +51,24 @@
     "visual_evidence": [],
     "decision": "not_applicable"
   },
+  "propagation_gate": {
+    "required": false,
+    "status": "not_applicable",
+    "trigger": "not_applicable",
+    "risk_level": "not_applicable",
+    "preflight_done": false,
+    "human_validation_required": false,
+    "human_validation_received": false,
+    "changed_symbols": [],
+    "affected_surfaces": [],
+    "consumers_identified": [],
+    "reference_searches": [],
+    "remaining_references": [],
+    "ignored_references": [],
+    "compatibility_strategy": "not_required",
+    "verification": [],
+    "decision": "not_applicable"
+  },
   "implementation": {
     "app_code_changed": false,
     "changed_files": []

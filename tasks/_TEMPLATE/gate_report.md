@@ -67,6 +67,29 @@
 - Lots `depends_on` :
 - Champs backlog mis a jour :
 
+## Propagation Gate
+
+- Statut : OK / KO / N/A
+- Requis : oui/non
+- Declencheur :
+- Niveau de risque : low / medium / high / critical / not_applicable
+- Changement annonce avant mutation : oui/non/N/A
+- Validation humaine requise : oui/non
+- Validation humaine recue : oui/non/N/A
+- Symboles ou contrats modifies :
+- Ancien contrat :
+- Nouveau contrat :
+- Consommateurs detectes avant mutation :
+- Surfaces a risque :
+- Strategie de compatibilite :
+- Recherches de references executees :
+- References restantes :
+- References ignorees avec justification :
+- Consommateurs verifies :
+- Verifications executees :
+- Decision : pass / repair / blocked / not_applicable
+- Cloture `done` autorisee : oui/non
+
 ## Pass Planning Gate
 
 - Statut : OK / KO / N/A

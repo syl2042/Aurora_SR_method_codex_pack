@@ -1,8 +1,13 @@
 {
   "pack": "auroramind_codex_operating_pack",
-  "version": "3.2.2",
-  "released_at": "2026-07-22",
+  "version": "3.3.0",
+  "released_at": "2026-08-04",
   "patch_notes": [
+    {
+      "date": "2026-08-04",
+      "scope": "propagation_gate",
+      "change": "Add a Propagation Gate / Reference Integrity Gate for shared symbols and contracts, with pre-mutation impact notice, human validation when risk is non-local, post-mutation reference checks, and legacy-compatible warnings for historical contracts."
+    },
     {
       "date": "2026-07-22",
       "scope": "lot_completion_gate",
@@ -63,6 +68,11 @@
     "grouped_pass_e2e",
     "pass_contract_validator",
     "lot_completion_gate",
+    "propagation_gate",
+    "reference_integrity_gate",
+    "propagation_preflight",
+    "propagation_postcheck",
+    "legacy_contract_propagation_warning",
     "product_bound_runtime_agents",
     "runtime_agent_shapes",
     "runtime_agent_contract_template",

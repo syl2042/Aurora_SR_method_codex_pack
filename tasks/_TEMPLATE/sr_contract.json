@@ -87,6 +87,27 @@
     "stop_conditions": [],
     "decision": "not_required"
   },
+  "propagation": {
+    "required": false,
+    "status": "not_applicable",
+    "trigger": "not_applicable",
+    "risk_level": "not_applicable",
+    "preflight": {
+      "done": false,
+      "summary": "Template non execute.",
+      "human_validation_required": false,
+      "human_validation_received": false
+    },
+    "changed_symbols": [],
+    "affected_surfaces": [],
+    "consumers_checked": [],
+    "reference_searches": [],
+    "remaining_references": [],
+    "ignored_references": [],
+    "compatibility_strategy": "not_required",
+    "verification": [],
+    "decision": "not_applicable"
+  },
   "evidence": {
     "sources_read": [],
     "code_files_read": [],
@@ -118,6 +139,7 @@
     "pass_planning": "pending",
     "lot_completion": "pending",
     "lot_dependency_reconciliation": "pending",
+    "propagation": "pending",
     "verification": "pending",
     "self_evaluation": "pending",
     "context_budget": "pending"

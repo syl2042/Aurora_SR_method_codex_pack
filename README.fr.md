@@ -149,6 +149,12 @@ Les scripts de lancement Windows/MobaXterm sont disponibles dans [tools/sr-cockp
 
 ---
 
+## Ce qui change en 3.5.1
+
+La version `3.5.1` renforce le prompt d'upgrade `05_upgrade_codex_environment.md`.
+
+La mise a jour d'un projet existant est maintenant traitee comme un cas heterogene par defaut : la version SR Method installee peut etre ancienne, partielle, inconnue ou adaptee localement. Codex doit diagnostiquer l'installation courante, classer le flux d'upgrade, preserver les fichiers projet, presenter un plan avant mutation, appliquer l'upgrade de facon additive, lancer les controles disponibles, puis realigner `CURRENT_STATE.md` avant toute reprise de developpement applicatif.
+
 ## Ce qui change en 3.5.0
 
 La version `3.5.0` ajoute le **Lot Design Evidence Gate**.

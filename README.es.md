@@ -164,6 +164,14 @@ Así, SR sigue siendo agnóstica al proyecto y evita que impactos transversales 
 
 ---
 
+## Qué cambia en 3.5.1
+
+La version `3.5.1` refuerza el prompt de upgrade `05_upgrade_codex_environment.md`.
+
+Actualizar un proyecto existente ahora se trata por defecto como un caso heterogeneo: la version SR Method instalada puede ser antigua, parcial, desconocida o adaptada localmente. Codex debe diagnosticar la instalacion actual, clasificar el flujo de upgrade, preservar los archivos del proyecto, presentar un plan antes de cualquier mutacion, aplicar el upgrade de forma aditiva, ejecutar los checks disponibles y realinear `CURRENT_STATE.md` antes de reanudar el desarrollo de aplicacion.
+
+---
+
 ## Workflow completo
 
 ```mermaid

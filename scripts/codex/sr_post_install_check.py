@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-EXPECTED_VERSION = "3.5.0"
+EXPECTED_VERSION = "3.5.1"
 VALID_KNOWLEDGE_MODES = {"core", "nexus_kg"}
 
 SKILL_AGENT_TEMPLATE = """\
@@ -154,7 +154,7 @@ def check_markers(root: Path) -> tuple[list[str], list[str]]:
         "docs/codex/prompts/07_realign_sr_state_after_upgrade.md": ["audit SR de reprise", "audit_sr_task_contracts.py", "sr_contract.json"],
         "docs/codex/prompts/08_define_sr_passes_from_lots.md": ["SR_PASSES.yaml", "Lot Design Evidence Gate", "validate_pass_contract.py"],
         "docs/codex/prompts/09_define_sr_lots_from_scope.md": ["SR_LOTS.yaml", "Lot Design Evidence Gate", "validate_lot_contract.py"],
-        "docs/codex/prompts/05_upgrade_codex_environment.md": ["https://github.com/syl2042/Aurora_SR_method_codex_pack", "commit source", "SR_PACK_SOURCE", "validate_sr_contract.py", "audit_sr_task_contracts.py", "Propagation Gate"],
+        "docs/codex/prompts/05_upgrade_codex_environment.md": ["https://github.com/syl2042/Aurora_SR_method_codex_pack", "commit source", "SR_PACK_SOURCE", "upgrade_legacy_unknown", "Lot Design Evidence Gate", "validate_sr_contract.py", "audit_sr_task_contracts.py", "Propagation Gate"],
         "docs/codex/prompts/01_start_sr_session.md": ["find_next_session_prompt.py", "NEXT_SESSION_PROMPT.md", "Reprise SR stricte", "SR Contract 3.0.0", "validate_sr_contract.py", "Propagation Gate"],
         "docs/codex/prompts/60_review_diff_before_close.md": ["SR Contract 3.0.0", "validate_sr_contract.py", "validated_requests", "Lot Completion Gate", "Propagation Gate"],
         "docs/codex/SR_HARNESS_METHOD.md": ["SR_PASSES.yaml", "Pass Planning Gate", "Pass Runtime Goal", "Goal Length Gate", "Lot Completion Gate", "Propagation Gate", "validate_pass_contract.py", "build_pass_runtime_goal.py"],

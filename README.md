@@ -151,6 +151,12 @@ Windows/MobaXterm launcher scripts are available in [tools/sr-cockpit/scripts/wi
 
 ---
 
+## What changed in 3.5.1
+
+Version `3.5.1` hardens the upgrade prompt `05_upgrade_codex_environment.md`.
+
+Upgrading an existing project is now treated as a heterogeneous case by default: the installed SR Method version can be old, partial, unknown, or locally adapted. Codex must diagnose the current install, classify the upgrade path, preserve project-owned files, present a plan before mutation, apply the upgrade additively, run available checks, and realign `CURRENT_STATE.md` before any application development resumes.
+
 ## What changed in 3.5.0
 
 Version `3.5.0` adds the **Lot Design Evidence Gate**.

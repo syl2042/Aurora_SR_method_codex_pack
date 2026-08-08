@@ -1,8 +1,13 @@
 {
   "pack": "auroramind_codex_operating_pack",
-  "version": "3.5.0",
+  "version": "3.5.1",
   "released_at": "2026-08-08",
   "patch_notes": [
+    {
+      "date": "2026-08-08",
+      "scope": "upgrade_prompt_hardening",
+      "change": "Harden prompt 05 for recurring upgrades from heterogeneous SR Method installs: old, partial, locally adapted, or unknown versions now follow a diagnostic, classification, preservation, validation, additive-upgrade, verification, and mandatory realignment flow."
+    },
     {
       "date": "2026-08-08",
       "scope": "lot_design_evidence_gate",
@@ -87,6 +92,7 @@
     "lot_design_evidence_gate",
     "code_evidence_before_lot_planning",
     "scope_to_lots_prompt",
+    "robust_heterogeneous_upgrade_prompt",
     "pass_goal_builder",
     "lot_completion_gate",
     "propagation_gate",

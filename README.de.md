@@ -164,6 +164,14 @@ So bleibt SR projektagnostisch und verhindert zugleich, dass wichtige Querschnit
 
 ---
 
+## Was sich in 3.5.1 aendert
+
+Version `3.5.1` haertet den Upgrade-Prompt `05_upgrade_codex_environment.md`.
+
+Das Upgrade eines bestehenden Projekts wird jetzt standardmaessig als heterogener Fall behandelt: Die installierte SR Method Version kann alt, unvollstaendig, unbekannt oder lokal angepasst sein. Codex muss die aktuelle Installation diagnostizieren, den Upgrade-Flow klassifizieren, projektspezifische Dateien erhalten, vor jeder Mutation einen Plan vorlegen, das Upgrade additiv anwenden, verfuegbare Checks ausfuehren und `CURRENT_STATE.md` neu ausrichten, bevor die Anwendungsentwicklung fortgesetzt wird.
+
+---
+
 ## Der vollständige Workflow
 
 ```mermaid

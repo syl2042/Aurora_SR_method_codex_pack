@@ -61,6 +61,19 @@
 - fichiers verifies :
 - RepoMap a mettre a jour : oui/non
 
+## Lot Design Evidence Gate
+- Requis pour statut executable : oui/non
+- Statut : pending/pass/fail/not_applicable
+- Lecture code requise : oui/non
+- Fichiers candidats :
+- Fichiers confirmes lus :
+- Symboles/routes/services/schemas/verifications :
+- Tests/logs consultes :
+- Hypotheses restantes :
+- Questions bloquantes :
+- Raison si not_applicable :
+- Statut maximal si gate non passe : proposed
+
 ## Knowledge mode
 - Mode : `core` / `nexus_kg`
 - Nexus KG consulte : oui/non/non disponible

@@ -92,6 +92,16 @@ Avant une recommandation technique engageante, appliquer le knowledge gate :
 RepoMap/KG -> fichiers candidats -> lecture code reel -> tests/logs
 ```
 
+Avant de creer ou promouvoir un lot en `planned`, `validated`, `in_progress` ou `reopened`, appliquer aussi le Lot Design Evidence Gate :
+
+- identifier les fichiers candidats ;
+- lire les fichiers qui peuvent confirmer ou infirmer le cadrage ;
+- declarer les routes, composants, services, schemas, tests ou logs verifies ;
+- lister les hypotheses restantes et questions bloquantes ;
+- garder le lot au statut `proposed` si cette evidence manque, sauf cas `not_applicable` justifie.
+
+Un lot `proposed` peut documenter une piste exploratoire sans lecture exhaustive. Un lot pret a executer ne doit pas reposer sur une supposition verifiable non lue.
+
 ## Fact Gate
 
 Avant toute reponse non triviale, appliquer un gate deterministe sur les faits utilises dans la reponse.

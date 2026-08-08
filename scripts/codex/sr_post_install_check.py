@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-EXPECTED_VERSION = "3.4.0"
+EXPECTED_VERSION = "3.5.0"
 VALID_KNOWLEDGE_MODES = {"core", "nexus_kg"}
 
 SKILL_AGENT_TEMPLATE = """\
@@ -115,6 +115,7 @@ def check_required(root: Path) -> tuple[list[str], list[str]]:
         "docs/codex/prompts/06_verify_sr_installation.md",
         "docs/codex/prompts/07_realign_sr_state_after_upgrade.md",
         "docs/codex/prompts/08_define_sr_passes_from_lots.md",
+        "docs/codex/prompts/09_define_sr_lots_from_scope.md",
         "docs/codex/prompts/05_upgrade_codex_environment.md",
         "scripts/codex/sr_post_install_check.py",
         "scripts/codex/find_next_session_prompt.py",
@@ -138,26 +139,27 @@ def check_markers(root: Path) -> tuple[list[str], list[str]]:
     errors = []
     warnings = []
     marker_checks = {
-        "AGENTS.md": ["Context budget gate", "Self Evaluation Gate", "Fact Gate", "Backlog Mutation Gate", "Global Impact Gate", "Pass Planning Gate", "Pass Runtime Goal", "Goal Length Gate", "Lot Completion Gate", "Propagation Gate", "SR Core = RepoMap", "find_next_session_prompt.py", "Loop Contract", "SKILL_DIGEST.md", "Validation humaine stricte"],
+        "AGENTS.md": ["Context budget gate", "Self Evaluation Gate", "Fact Gate", "Backlog Mutation Gate", "Lot Design Evidence Gate", "Global Impact Gate", "Pass Planning Gate", "Pass Runtime Goal", "Goal Length Gate", "Lot Completion Gate", "Propagation Gate", "SR Core = RepoMap", "find_next_session_prompt.py", "Loop Contract", "SKILL_DIGEST.md", "Validation humaine stricte"],
         "docs/codex/SR_METHOD.md": ["Specification Runtime", "SR Development Method", "SR Agent Method", "sr_contract.json", "Validation humaine stricte", "Regle de completude", "Regle de propagation"],
         "docs/codex/SR_DEVELOPMENT_METHOD.md": ["loop_contract.json", "validate_loop_contract.py"],
         "docs/codex/SR_AGENT_METHOD.md": ["AI_AGENT_RUNTIME_METHOD.md", "output JSON schema"],
         "docs/codex/SKILL_MAP.md": ["Knowledge mode", "SKILL_DIGEST.md"],
         "docs/codex/SKILL_DIGEST.md": ["Skills methode globales", "Skills metier Codex locales", "Skills runtime applicatives"],
         "docs/codex/V3_UPGRADE_TEST_PLAN.md": ["SR 3.0.0", "Prompt initial pour projet pilote", "validate_sr_contract.py", "audit_sr_task_contracts.py"],
-        "docs/codex/tasks/_TEMPLATE/gate_report.md": ["Knowledge Gate", "Fact Gate", "Backlog Mutation Gate", "Global Impact Gate", "Lot Dependency Reconciliation", "Propagation Gate", "Pass Runtime Goal", "Goal Length Gate", "Lot Completion Gate", "Self Evaluation Gate", "Context Budget Gate", "Loop Contract"],
+        "docs/codex/tasks/_TEMPLATE/gate_report.md": ["Knowledge Gate", "Fact Gate", "Backlog Mutation Gate", "Lot Design Evidence Gate", "Global Impact Gate", "Lot Dependency Reconciliation", "Propagation Gate", "Pass Runtime Goal", "Goal Length Gate", "Lot Completion Gate", "Self Evaluation Gate", "Context Budget Gate", "Loop Contract"],
         "docs/codex/tasks/_TEMPLATE/pass_runtime_goal.md": ["Pass Runtime Goal", "max_goal_command_chars: 1000", "hard_limit: 4000", "Pass Completion Gate"],
-        "docs/codex/tasks/_TEMPLATE/loop_contract.json": ["schema_version", "status_decision", "backlog_mutation_gate", "global_impact_gate", "propagation_gate", "lot_completion_gate", "e2e_user_tests", "resume_protocol"],
-        "docs/codex/tasks/_TEMPLATE/sr_contract.json": ["schema_version", "validated_requests", "lot_completion_gate", "backlog_mutation", "global_impact", "propagation", "transition"],
+        "docs/codex/tasks/_TEMPLATE/loop_contract.json": ["schema_version", "status_decision", "lot_design_evidence_gate", "backlog_mutation_gate", "global_impact_gate", "propagation_gate", "lot_completion_gate", "e2e_user_tests", "resume_protocol"],
+        "docs/codex/tasks/_TEMPLATE/sr_contract.json": ["schema_version", "validated_requests", "lot_completion_gate", "design_evidence", "backlog_mutation", "global_impact", "propagation", "transition"],
         "docs/codex/prompts/06_verify_sr_installation.md": ["sr_post_install_check.py", "--fix-safe", "SR Contract 3.0.0", "audit_sr_task_contracts.py", "Propagation Gate"],
         "docs/codex/prompts/07_realign_sr_state_after_upgrade.md": ["audit SR de reprise", "audit_sr_task_contracts.py", "sr_contract.json"],
-        "docs/codex/prompts/08_define_sr_passes_from_lots.md": ["SR_PASSES.yaml", "validate_pass_contract.py"],
+        "docs/codex/prompts/08_define_sr_passes_from_lots.md": ["SR_PASSES.yaml", "Lot Design Evidence Gate", "validate_pass_contract.py"],
+        "docs/codex/prompts/09_define_sr_lots_from_scope.md": ["SR_LOTS.yaml", "Lot Design Evidence Gate", "validate_lot_contract.py"],
         "docs/codex/prompts/05_upgrade_codex_environment.md": ["https://github.com/syl2042/Aurora_SR_method_codex_pack", "commit source", "SR_PACK_SOURCE", "validate_sr_contract.py", "audit_sr_task_contracts.py", "Propagation Gate"],
         "docs/codex/prompts/01_start_sr_session.md": ["find_next_session_prompt.py", "NEXT_SESSION_PROMPT.md", "Reprise SR stricte", "SR Contract 3.0.0", "validate_sr_contract.py", "Propagation Gate"],
         "docs/codex/prompts/60_review_diff_before_close.md": ["SR Contract 3.0.0", "validate_sr_contract.py", "validated_requests", "Lot Completion Gate", "Propagation Gate"],
         "docs/codex/SR_HARNESS_METHOD.md": ["SR_PASSES.yaml", "Pass Planning Gate", "Pass Runtime Goal", "Goal Length Gate", "Lot Completion Gate", "Propagation Gate", "validate_pass_contract.py", "build_pass_runtime_goal.py"],
         "docs/codex/LOT_EXECUTION_METHOD.md": ["Pass Planning Gate", "Pass Runtime Goal", "Goal Length Gate", "Lot Completion Gate", "Propagation Gate", "validate_pass_contract.py", "build_pass_runtime_goal.py"],
-        "docs/codex/SR_BOOTSTRAP.md": ["find_next_session_prompt.py", "Auto-reprise obligatoire", "Reprise SR stricte", "Validation humaine stricte", "Pass Runtime Goal", "Goal Length Gate", "Lot Completion Gate", "Propagation Gate"],
+        "docs/codex/SR_BOOTSTRAP.md": ["find_next_session_prompt.py", "Auto-reprise obligatoire", "Reprise SR stricte", "Validation humaine stricte", "Lot Design Evidence Gate", "Pass Runtime Goal", "Goal Length Gate", "Lot Completion Gate", "Propagation Gate"],
         "scripts/codex/find_next_session_prompt.py": ["NEXT_SESSION_PROMPT.md"],
         "scripts/codex/validate_loop_contract.py": ["SR loop contract", "lot_completion_gate", "propagation_gate"],
         "scripts/codex/validate_pass_contract.py": ["SR_PASSES.yaml"],
@@ -329,8 +331,8 @@ def lot_legacy_warnings(root: Path) -> list[str]:
     warnings = []
     data = load_yaml(root / "docs/codex/SR_LOTS.yaml")
     version_value = data.get("version")
-    if version_value and str(version_value) != "0.2":
-        warnings.append(f"SR_LOTS.yaml uses legacy version {version_value!r}; keep existing lot IDs, use 2.3 naming for new lots")
+    if version_value and str(version_value) not in {"0.2", "0.3"}:
+        warnings.append(f"SR_LOTS.yaml uses legacy version {version_value!r}; keep existing lot IDs, use current naming for new lots")
     if "project_key" not in data:
         warnings.append("SR_LOTS.yaml has no project_key; not blocking for legacy lots")
     if "lot_naming" not in data:

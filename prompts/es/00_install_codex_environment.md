@@ -17,7 +17,7 @@ Instrucciones:
 3. Explicar el alcance de instalación y esperar validación explícita del usuario si hay mutación.
 4. Ejecutar el instalador con el perfil `default` después de la validación.
 5. Ejecutar scripts de verificación después de la instalación, incluido `validate_pass_contract.py` para `SR_PASSES.yaml`.
-6. Verificar que `SR_PASSES.yaml` esté instalado y recomendar `prompts/es/08_define_sr_passes_from_lots.md` después de definir los lotes.
+6. Verificar que `SR_PASSES.yaml` esté instalado y recomendar primero `prompts/es/09_define_sr_lots_from_scope.md`, luego `prompts/es/08_define_sr_passes_from_lots.md`.
 7. Reportar archivos añadidos, verificaciones ejecutadas, warnings y próximos pasos.
 
 No modifiques código de aplicación. No crees migraciones. No toques secretos. No inventes reglas del proyecto.

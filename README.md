@@ -151,6 +151,12 @@ Windows/MobaXterm launcher scripts are available in [tools/sr-cockpit/scripts/wi
 
 ---
 
+## What changed in 3.5.0
+
+Version `3.5.0` adds the **Lot Design Evidence Gate**.
+
+Codex may still capture exploratory work as `proposed`, but a lot cannot become `planned`, `validated`, `in_progress`, or `reopened` until its `design_evidence` proves that candidate code files were identified and the relevant files were actually read, or explains why code reading is not applicable. The new `09_define_sr_lots_from_scope.md` prompt makes this step explicit before pass planning.
+
 ## What changed in 3.4.0
 
 Version `3.4.0` adds **Pass Runtime Goal** support for Codex CLI `/goal`.
@@ -226,6 +232,7 @@ SR 3.2.1 adds:
 
 - `docs/codex/SR_PASSES.yaml` for bounded multi-lot execution;
 - `scripts/codex/validate_pass_contract.py` to verify lot references and dependency order;
+- `prompts/09_define_sr_lots_from_scope.md` to create or promote lots with Lot Design Evidence Gate;
 - `prompts/08_define_sr_passes_from_lots.md` and localized variants to propose passes from existing lots;
 - installation and upgrade rules that preserve `SR_LOTS.yaml` and add passes without converting historical task memories;
 - a Pass Planning Gate before any significant multi-lot execution.
@@ -325,6 +332,7 @@ Recommended prompt:
 | Upgrade the SR Method | [05_upgrade_codex_environment.md](prompts/en/05_upgrade_codex_environment.md) |
 | Verify the installation | [06_verify_sr_installation.md](prompts/en/06_verify_sr_installation.md) |
 | Realign state after upgrade | [07_realign_sr_state_after_upgrade.md](prompts/07_realign_sr_state_after_upgrade.md) |
+| Define SR lots from scope | [09_define_sr_lots_from_scope.md](prompts/en/09_define_sr_lots_from_scope.md) |
 | Define runtime AI agents | [15_define_runtime_agents.md](prompts/en/15_define_runtime_agents.md) |
 
 ---

@@ -96,6 +96,12 @@ Evidence gate obligatoire avant recommandation :
 - distinguer `verifie`, `hypotheses restantes` et `questions bloquantes` ;
 - si une verification locale est possible, la faire avant de repondre.
 
+Lot Design Evidence Gate obligatoire avant lot executable :
+- un lot peut etre `proposed` avec hypotheses et fichiers candidats ;
+- un lot `planned`, `validated`, `in_progress` ou `reopened` doit declarer `design_evidence.status: pass` ou `not_applicable` justifie ;
+- si `code_read_required: true`, le lot doit lister `confirmed_files_read` ;
+- sans preuve suffisante, garder le lot en `proposed` et ne pas le mettre dans une passe executable.
+
 Fact Gate obligatoire avant conclusion factuelle :
 - classer la reponse attendue : `opinion/methode`, `fait_verifiable` ou `hypothese_non_verifiee` ;
 - pour tout `fait_verifiable` sur un repo, produit, API, migration, flux UI, donnee, configuration ou comportement existant, lire la source disponible avant de repondre ;

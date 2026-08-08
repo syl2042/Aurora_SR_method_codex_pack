@@ -25,15 +25,17 @@ Method:
 
 1. Validate `SR_LOTS.yaml`.
 2. Classify lots by status and dependencies.
-3. Build the `depends_on`, `blocked_by`, `impacts`, `impacted_by` graph.
-4. Propose passes with order, rationale, preflight, human validations, migrations/external actions, shared sources, grouped E2E, and stop conditions.
-5. Create or update `SR_PASSES.yaml` only after validation if the project enforces strict validation.
-6. Validate with `python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml`.
+3. Check the Lot Design Evidence Gate: exclude from executable passes any `planned`, `validated`, `in_progress`, or `reopened` lot without `design_evidence.status: pass` or a justified `not_applicable`. A `proposed` lot may remain exploratory.
+4. Build the `depends_on`, `blocked_by`, `impacts`, `impacted_by` graph.
+5. Propose passes with order, rationale, preflight, human validations, migrations/external actions, shared sources, grouped E2E, and stop conditions.
+6. Create or update `SR_PASSES.yaml` only after validation if the project enforces strict validation.
+7. Validate with `python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml`.
 
 Expected output:
 
 - proposed passes;
 - excluded lots and reason;
+- lots excluded because the Lot Design Evidence Gate is missing or incomplete;
 - blocking questions;
 - preflight per pass;
 - recommended grouped E2E;

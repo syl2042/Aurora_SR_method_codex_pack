@@ -41,7 +41,7 @@ python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml
 
 ## Definir SR Passes
 
-Despues de crear los lotes o tras actualizar un proyecto existente, pega [prompts/es/08_define_sr_passes_from_lots.md](prompts/es/08_define_sr_passes_from_lots.md). Este paso solo actualiza la memoria SR y no debe modificar codigo de aplicacion.
+Despues de encuadrar una funcion, usa primero [prompts/es/09_define_sr_lots_from_scope.md](prompts/es/09_define_sr_lots_from_scope.md) para definir lotes con Lot Design Evidence Gate. Luego pega [prompts/es/08_define_sr_passes_from_lots.md](prompts/es/08_define_sr_passes_from_lots.md). Estos pasos solo actualizan la memoria SR y no deben modificar codigo de aplicacion.
 
 ## Iniciar sesión
 

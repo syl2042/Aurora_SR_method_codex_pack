@@ -29,6 +29,7 @@ Regles :
 - Preserve les `docs/codex/tasks/`, handoffs, decisions et project-skills existants.
 - Preserve les fichiers legacy de task memory ; ne cree pas de contrats retroactifs en batch sans validation explicite.
 - Preserve `SR_LOTS.yaml`. Ajouter `SR_PASSES.yaml` de facon additive si absent, mais ne pas convertir automatiquement les anciens lots ou task memories en passes validees.
+- Ne pas convertir massivement les anciens lots pour ajouter `design_evidence`; ajouter le Lot Design Evidence Gate seulement aux lots crees, promus ou repris apres upgrade.
 - Ajouter l'outillage Pass Runtime Goal de facon additive (`build_pass_runtime_goal.py`, template `pass_runtime_goal.md`, options `sr_passes.pass_runtime_goal`) sans generer de goal tant qu'une passe n'est pas validee.
 - Ne jamais lancer `/goal` pendant l'upgrade. L'upgrade prepare la methode ; l'execution par goal ne vient qu'apres realignement, pass planning et validation utilisateur.
 - Preserve les task memories historiques sans `propagation_gate` : les signaler comme legacy warnings, pas comme erreurs bloquantes. Les nouveaux templates et contrats crees apres upgrade doivent inclure le Propagation Gate.
@@ -96,9 +97,10 @@ Etapes :
    - statut Propagation Gate : present dans methode/templates/validateurs, contrats historiques sans gate classes legacy warnings, nouveaux contrats stricts.
    - decision sur les prompts suivants :
      - `06` requis si les verifications ci-dessus n'ont pas toutes ete executees ou si le flux est standard/legacy ;
-      - `07` requis apres tout changement de version SR ; il peut rester court pour un upgrade mineur, mais doit realigner `CURRENT_STATE.md`, confirmer les prochains lots et proposer les passes avant tout code applicatif long ;
-      - `08` recommande si le projet contient deja plusieurs lots et aucun `SR_PASSES.yaml` valide ;
-      - `build_pass_runtime_goal.py` recommande uniquement apres `07`/`08`, pour la prochaine passe `validated` ou `in_progress` ;
+     - `07` requis apres tout changement de version SR ; il peut rester court pour un upgrade mineur, mais doit realigner `CURRENT_STATE.md`, confirmer les prochains lots et proposer les passes avant tout code applicatif long ;
+     - `09` recommande pour creer ou promouvoir des lots avec Lot Design Evidence Gate avant execution ;
+     - `08` recommande si le projet contient deja plusieurs lots et aucun `SR_PASSES.yaml` valide ;
+     - `build_pass_runtime_goal.py` recommande uniquement apres `07`/`08`, pour la prochaine passe `validated` ou `in_progress` ;
       - `15` recommande si le projet contient ou prevoit des agents IA runtime.
 
 Fin obligatoire : attendre validation avant toute modification applicative.

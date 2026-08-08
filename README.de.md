@@ -140,6 +140,7 @@ SR 3.2.1 fuegt hinzu:
 
 - `docs/codex/SR_PASSES.yaml` fuer begrenzte Multi-Los-Ausfuehrung;
 - `scripts/codex/validate_pass_contract.py` zur Pruefung von Losreferenzen und Abhaengigkeitsreihenfolge;
+- `prompts/09_define_sr_lots_from_scope.md`, um Lose mit Lot Design Evidence Gate zu erstellen oder zu promoten;
 - `prompts/08_define_sr_passes_from_lots.md` und lokalisierte Varianten, um Passes aus bestehenden Losen vorzuschlagen;
 - Installations- und Upgrade-Regeln, die `SR_LOTS.yaml` erhalten und Passes hinzufuegen, ohne historische Task Memories zu konvertieren;
 - ein Pass Planning Gate vor jeder wesentlichen Multi-Los-Ausfuehrung.
@@ -235,6 +236,7 @@ Empfohlener Prompt:
 | SR Method aktualisieren | [05_upgrade_codex_environment.md](prompts/de/05_upgrade_codex_environment.md) |
 | Installation prüfen | [06_verify_sr_installation.md](prompts/de/06_verify_sr_installation.md) |
 | Zustand nach Upgrade neu ausrichten | [07_realign_sr_state_after_upgrade.md](prompts/07_realign_sr_state_after_upgrade.md) |
+| SR-Lose aus Scope definieren | [09_define_sr_lots_from_scope.md](prompts/de/09_define_sr_lots_from_scope.md) |
 | Runtime-KI-Agenten definieren | [15_define_runtime_agents.md](prompts/de/15_define_runtime_agents.md) |
 
 ---

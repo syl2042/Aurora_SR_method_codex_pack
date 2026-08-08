@@ -22,6 +22,7 @@ demande utilisateur
 -> bootstrap SR
 -> objectif verifiable
 -> classification backlog
+-> lot design evidence gate si creation ou promotion de lot
 -> pass planning gate si multi-lots
 -> knowledge gate : RepoMap/KG -> fichiers candidats -> code reel
 -> evidence gate

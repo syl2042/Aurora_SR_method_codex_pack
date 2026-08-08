@@ -149,6 +149,12 @@ Les scripts de lancement Windows/MobaXterm sont disponibles dans [tools/sr-cockp
 
 ---
 
+## Ce qui change en 3.5.0
+
+La version `3.5.0` ajoute le **Lot Design Evidence Gate**.
+
+Codex peut toujours capturer un travail exploratoire en `proposed`, mais un lot ne peut pas devenir `planned`, `validated`, `in_progress` ou `reopened` tant que son `design_evidence` ne prouve pas que les fichiers candidats ont ete identifies et que les fichiers pertinents ont reellement ete lus, ou n'explique pas pourquoi la lecture code n'est pas applicable. Le nouveau prompt `09_define_sr_lots_from_scope.md` rend cette etape explicite avant la planification des passes.
+
 ## Ce qui change en 3.4.0
 
 La version `3.4.0` ajoute le **Pass Runtime Goal** pour Codex CLI `/goal`.
@@ -224,6 +230,7 @@ SR 3.2.1 ajoute :
 
 - `docs/codex/SR_PASSES.yaml` pour encadrer l'execution multi-lots ;
 - `scripts/codex/validate_pass_contract.py` pour verifier les references de lots et l'ordre de dependances ;
+- `prompts/09_define_sr_lots_from_scope.md` pour creer ou promouvoir des lots avec Lot Design Evidence Gate ;
 - `prompts/08_define_sr_passes_from_lots.md` et ses variantes localisees pour proposer des passes depuis les lots existants ;
 - des regles d'installation et d'upgrade qui preservent `SR_LOTS.yaml` et ajoutent les passes sans convertir les anciennes task memories ;
 - un Pass Planning Gate avant toute execution multi-lots significative.
@@ -321,6 +328,7 @@ Prompt recommandé :
 | Mettre à jour la SR Method | [05_upgrade_codex_environment.md](prompts/fr/05_upgrade_codex_environment.md) |
 | Vérifier l'installation | [06_verify_sr_installation.md](prompts/fr/06_verify_sr_installation.md) |
 | Réaligner l'état après upgrade | [07_realign_sr_state_after_upgrade.md](prompts/07_realign_sr_state_after_upgrade.md) |
+| Définir les lots SR depuis le cadrage | [09_define_sr_lots_from_scope.md](prompts/fr/09_define_sr_lots_from_scope.md) |
 | Définir des agents IA runtime | [15_define_runtime_agents.md](prompts/fr/15_define_runtime_agents.md) |
 
 ---

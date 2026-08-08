@@ -392,6 +392,37 @@ Backlog Mutation Gate:
 
 Un changement significatif ne doit pas etre code comme extension silencieuse du lot courant. Si le perimetre change, Codex doit enregistrer la decision dans la memoire de tache et proposer ou appliquer le delta backlog selon le niveau de risque.
 
+### Lot Design Evidence Gate
+
+Le Lot Design Evidence Gate empeche qu'un lot pret a executer soit defini sur une supposition non verifiee.
+
+Il est obligatoire avant de creer ou promouvoir un lot en `planned`, `validated`, `in_progress` ou `reopened`.
+
+Un lot peut rester `proposed` sans preuve complete s'il sert a capturer une intention, une piste exploratoire ou une question a investiguer. Dans ce cas, il doit garder ses hypotheses et ne doit pas etre mis dans une passe executable.
+
+Sortie attendue dans `SR_LOTS.yaml` :
+
+```text
+design_evidence:
+- status: pending / pass / fail / not_applicable
+- code_read_required: oui/non
+- candidate_files: [...]
+- confirmed_files_read: [...]
+- symbols_or_routes_checked: [...]
+- tests_or_logs_checked: [...]
+- assumptions_remaining: [...]
+- open_questions: [...]
+- not_applicable_reason: ...
+- status_ceiling_if_not_pass: proposed
+```
+
+Regles :
+
+- `planned`, `validated`, `in_progress` et `reopened` exigent `design_evidence.status: pass` ou `not_applicable` avec raison ;
+- si `code_read_required: true`, `confirmed_files_read` ne doit pas etre vide ;
+- si des fichiers existent et peuvent trancher le cadrage, Codex doit les lire avant de proposer un plan engageant ;
+- pour un lot greenfield, Codex doit lire les patterns adjacents quand ils existent ou justifier l'absence de surface code.
+
 ### Global Impact Gate
 
 Le Global Impact Gate force le recul produit et technique avant de cadrer ou coder une fonction structurante.
@@ -522,6 +553,7 @@ But : eviter qu'une passe commence avec un ordre incomplet, un prerequis cache o
 Codex doit verifier :
 
 - les lots candidats et leur statut ;
+- le Lot Design Evidence Gate des lots candidats executables ;
 - les dependances directes et indirectes ;
 - les lots requis mais places plus tard ;
 - les questions bloquantes communes ;
@@ -557,6 +589,7 @@ Si `pass_runtime_goal.enabled` est actif dans `PROJECT_PROFILE.yaml`, Codex doit
 
 Stopper avant codage si :
 
+- un lot inclus dans une passe executable n'a pas de Lot Design Evidence Gate `pass` ou `not_applicable` justifie ;
 - un lot depend d'un lot non termine et non inclus plus tot dans la passe ;
 - une passe `validated` ou `in_progress` depend d'un lot place dans une passe anterieure mais non `done` ou `user_testing` ;
 - un lot depend d'un lot place dans une passe posterieure ;

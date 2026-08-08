@@ -59,46 +59,51 @@ Methode :
    - routes, endpoints, services, composants ou tests attendus ;
    - preuves de fonctionnement ;
    - ecarts entre documentation et implementation.
-5. Classer chaque lot :
+5. Appliquer le Lot Design Evidence Gate avant tout statut executable :
+   - `proposed` autorise les hypotheses et fichiers candidats ;
+   - `planned`, `validated`, `in_progress` et `reopened` exigent `design_evidence.status: pass` ou `not_applicable` justifie ;
+   - si `code_read_required: true`, renseigner `confirmed_files_read` ;
+   - sans preuve suffisante, garder le lot en `proposed`.
+6. Classer chaque lot :
    - `done` : implemente et verifiable ;
    - `partial` : implemente en partie ;
    - `reopened` : annonce termine mais incomplet ou incoherent ;
    - `validated` : pret a developper ;
    - `blocked` : decision humaine, dependance ou information manquante.
-6. Si plusieurs lots restent executables ou proches de l'etre, proposer des passes :
+7. Si plusieurs lots restent executables ou proches de l'etre, proposer des passes :
    - lots inclus et ordre ;
    - dependances terminees, incluses ou bloquees ;
    - prerequis communs : secrets, identifiants, assets, services, comptes de test ;
    - validations humaines, migrations et actions externes ;
    - E2E groupe ou par lot ;
    - statut initial `planned` sauf validation explicite.
-7. Si une passe existe deja ou vient d'etre proposee, verifier le statut Pass Runtime Goal :
+8. Si une passe existe deja ou vient d'etre proposee, verifier le statut Pass Runtime Goal :
    - `scripts/codex/build_pass_runtime_goal.py` present ;
    - `docs/codex/tasks/_TEMPLATE/pass_runtime_goal.md` present ;
    - `PROJECT_PROFILE.yaml` contient `sr_passes.pass_runtime_goal` ;
    - Goal Length Gate documente : `max_goal_command_chars: 1000`, `hard_limit: 4000` ;
    - aucun `/goal` ne doit etre lance pendant le realignement.
-8. Recommander la generation de `pass_runtime_goal.md` uniquement apres validation d'une passe executable :
+9. Recommander la generation de `pass_runtime_goal.md` uniquement apres validation d'une passe executable :
    - passe `validated` ou `in_progress` pour execution ;
    - `--allow-planned` seulement pour dry-run ;
    - jamais pour une passe `proposed`.
-9. Rappeler la regle de cloture de passe : `done` seulement si aucun E2E utilisateur ou validation humaine ne reste requis ; sinon `user_testing`, `repair` ou `blocked`.
-10. Auditer les task memories avec `audit_sr_task_contracts.py` :
+10. Rappeler la regle de cloture de passe : `done` seulement si aucun E2E utilisateur ou validation humaine ne reste requis ; sinon `user_testing`, `repair` ou `blocked`.
+11. Auditer les task memories avec `audit_sr_task_contracts.py` :
    - par defaut, rester en lecture seule ;
    - lister les taches legacy sans `sr_contract.json` ;
    - lister les contrats existants invalides ;
    - ne pas assimiler "contrat absent" a "lot incomplet".
-11. Si une ancienne task doit etre reprise, proposer avant execution :
+12. Si une ancienne task doit etre reprise, proposer avant execution :
    - soit une reprise legacy sans creer de contrat retroactif ;
    - soit une creation controlee pour une tache ciblee avec `python3 scripts/codex/audit_sr_task_contracts.py --root . --task docs/codex/tasks/<task> --write` ;
    - soit une migration batch, uniquement apres validation explicite.
-12. Si un `sr_contract.json` est cree :
+13. Si un `sr_contract.json` est cree :
    - conserver tous les fichiers legacy ;
    - marquer les intentions comme `todo` tant qu'elles n'ont pas ete relues ;
    - valider avec `python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/<task>/sr_contract.json`.
-13. Mettre a jour `docs/CURRENT_STATE.md` pour tout changement de version SR et mettre a jour les autres memoires SR uniquement si l'audit prouve un ecart.
-14. Creer un `loop_contract.json` et, pour la passe de realignement elle-meme, un `sr_contract.json` si le projet exige SR 3.0.0.
-15. Produire un plan net :
+14. Mettre a jour `docs/CURRENT_STATE.md` pour tout changement de version SR et mettre a jour les autres memoires SR uniquement si l'audit prouve un ecart.
+15. Creer un `loop_contract.json` et, pour la passe de realignement elle-meme, un `sr_contract.json` si le projet exige SR 3.0.0.
+16. Produire un plan net :
    - fait ;
    - partiel ;
    - restant ;
@@ -113,6 +118,7 @@ Sortie attendue :
 - fichiers SR mis a jour ;
 - entree `docs/CURRENT_STATE.md` ajoutee ou actualisee ;
 - preuves consultees dans le code ;
+- etat du Lot Design Evidence Gate pour les lots executables ;
 - mode connaissance et etat RepoMap/KG ;
 - etat budget contexte ;
 - audit des `sr_contract.json` existants ou manquants ;

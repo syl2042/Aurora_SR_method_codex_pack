@@ -113,6 +113,18 @@
     "code_files_read": [],
     "tests_or_logs": []
   },
+  "design_evidence": {
+    "status": "pending",
+    "code_read_required": true,
+    "candidate_files": [],
+    "confirmed_files_read": [],
+    "symbols_or_routes_checked": [],
+    "tests_or_logs_checked": [],
+    "assumptions_remaining": [],
+    "open_questions": [],
+    "not_applicable_reason": null,
+    "status_ceiling_if_not_pass": "proposed"
+  },
   "skills": {
     "method": [],
     "domain": []
@@ -132,6 +144,7 @@
   "gates": {
     "fact": "pending",
     "evidence": "pending",
+    "lot_design_evidence": "pending",
     "scope": "pending",
     "product_truth": "pending",
     "backlog_mutation": "pending",

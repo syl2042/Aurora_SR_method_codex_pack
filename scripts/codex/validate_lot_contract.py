@@ -28,6 +28,8 @@ VALID_STATUSES = {
 }
 VALID_GATE_STATUSES = {"pending", "pass", "fail", "not_applicable"}
 VALID_RECONCILIATION_STATUSES = {"not_required", "pending", "completed", "blocked"}
+EXECUTABLE_LOT_STATUSES = {"planned", "validated", "in_progress", "reopened"}
+DESIGN_EVIDENCE_READY_STATUSES = {"pass", "not_applicable"}
 
 
 def parse_simple_yaml(path: Path) -> dict:
@@ -49,6 +51,7 @@ def parse_template_subset(path: Path) -> dict:
     scalar/list fields so the validator can run without PyYAML.
     """
     lots = []
+    version = None
     current = None
     current_list_key = None
     current_object_key = None
@@ -58,6 +61,9 @@ def parse_template_subset(path: Path) -> dict:
         if not line.strip():
             continue
         stripped = line.strip()
+        if current is None and stripped.startswith("version:"):
+            version = value_after_colon(stripped)
+            continue
         if stripped.startswith("- lot_id:"):
             if current:
                 lots.append(current)
@@ -78,7 +84,7 @@ def parse_template_subset(path: Path) -> dict:
                 current_object_key = None
                 current_object_list_key = None
             else:
-                if key in {"dependency_reconciliation", "global_impact"}:
+                if key in {"dependency_reconciliation", "global_impact", "design_evidence"}:
                     current[key] = {}
                     current_object_key = key
                     current_object_list_key = None
@@ -109,7 +115,10 @@ def parse_template_subset(path: Path) -> dict:
             current.setdefault(current_list_key, []).append(parse_scalar(stripped[2:].strip()))
     if current:
         lots.append(current)
-    return {"lots": lots}
+    result = {"lots": lots}
+    if version is not None:
+        result["version"] = version
+    return result
 
 
 def strip_quotes(value: str) -> str:
@@ -136,7 +145,25 @@ def value_after_colon(value: str) -> str:
     return parse_scalar(value.split(":", 1)[1].strip())
 
 
-def validate_lot(lot: dict, index: int) -> list[str]:
+def version_at_least(value: str, minimum: str) -> bool:
+    def parts(raw: str) -> list[int]:
+        result = []
+        for item in str(raw).split("."):
+            try:
+                result.append(int(item))
+            except ValueError:
+                result.append(0)
+        return result
+
+    left = parts(value)
+    right = parts(minimum)
+    size = max(len(left), len(right))
+    left.extend([0] * (size - len(left)))
+    right.extend([0] * (size - len(right)))
+    return left >= right
+
+
+def validate_lot(lot: dict, index: int, enforce_design_evidence: bool = False) -> list[str]:
     errors = []
     prefix = f"lot[{index}]"
     for field in REQUIRED_LOT_FIELDS:
@@ -189,6 +216,67 @@ def validate_lot(lot: dict, index: int) -> list[str]:
                     errors.append(f"{prefix}: global_impact.status cannot be not_applicable when required is true")
                 if not global_impact.get("surfaces_reviewed"):
                     errors.append(f"{prefix}: global_impact.surfaces_reviewed must not be empty when required is true")
+    errors.extend(validate_design_evidence(lot, index, enforce_design_evidence=enforce_design_evidence))
+    return errors
+
+
+def validate_design_evidence(lot: dict, index: int, enforce_design_evidence: bool = False) -> list[str]:
+    errors = []
+    prefix = f"lot[{index}]"
+    status = lot.get("status")
+    evidence = lot.get("design_evidence")
+    is_executable = status in EXECUTABLE_LOT_STATUSES
+
+    if evidence is None:
+        if is_executable and enforce_design_evidence:
+            errors.append(f"{prefix}: design_evidence is required for executable lot status {status!r}")
+        return errors
+
+    if not isinstance(evidence, dict):
+        errors.append(f"{prefix}: design_evidence must be an object")
+        return errors
+
+    evidence_status = evidence.get("status")
+    if evidence_status not in VALID_GATE_STATUSES:
+        errors.append(f"{prefix}: design_evidence.status must be one of {sorted(VALID_GATE_STATUSES)}")
+
+    code_read_required = evidence.get("code_read_required")
+    if code_read_required is not None and not isinstance(code_read_required, bool):
+        errors.append(f"{prefix}: design_evidence.code_read_required must be boolean when present")
+
+    for list_field in (
+        "candidate_files",
+        "confirmed_files_read",
+        "symbols_or_routes_checked",
+        "tests_or_logs_checked",
+        "assumptions_remaining",
+        "open_questions",
+    ):
+        if list_field in evidence and not isinstance(evidence[list_field], list):
+            errors.append(f"{prefix}: design_evidence.{list_field} must be a list")
+
+    ceiling = evidence.get("status_ceiling_if_not_pass")
+    if ceiling is not None and ceiling not in VALID_STATUSES:
+        errors.append(f"{prefix}: design_evidence.status_ceiling_if_not_pass must be a valid lot status")
+
+    if not is_executable:
+        return errors
+
+    if evidence_status not in DESIGN_EVIDENCE_READY_STATUSES:
+        errors.append(
+            f"{prefix}: executable lot status {status!r} requires design_evidence.status "
+            f"to be one of {sorted(DESIGN_EVIDENCE_READY_STATUSES)}"
+        )
+
+    if evidence_status == "not_applicable":
+        reason = evidence.get("not_applicable_reason")
+        if not isinstance(reason, str) or not reason.strip():
+            errors.append(f"{prefix}: design_evidence.not_applicable_reason is required when status is not_applicable")
+
+    if code_read_required is True and evidence_status == "pass" and not evidence.get("confirmed_files_read"):
+        errors.append(
+            f"{prefix}: design_evidence.confirmed_files_read must not be empty when code_read_required is true"
+        )
     return errors
 
 
@@ -201,6 +289,8 @@ def main() -> int:
         print(f"missing file: {path}", file=sys.stderr)
         return 1
     data = parse_simple_yaml(path)
+    version = str(data.get("version") or "")
+    enforce_design_evidence = version_at_least(version, "0.3")
     lots = data.get("lots")
     if not isinstance(lots, list) or not lots:
         print("SR_LOTS must contain a non-empty `lots` list", file=sys.stderr)
@@ -215,7 +305,7 @@ def main() -> int:
         if lot_id in seen:
             errors.append(f"lot[{i}]: duplicate lot_id {lot_id!r}")
         seen.add(lot_id)
-        errors.extend(validate_lot(lot, i))
+        errors.extend(validate_lot(lot, i, enforce_design_evidence=enforce_design_evidence))
     for i, lot in enumerate(lots):
         if not isinstance(lot, dict):
             continue

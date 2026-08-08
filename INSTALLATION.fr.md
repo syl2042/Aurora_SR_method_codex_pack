@@ -68,6 +68,16 @@ Codex doit aussi valider les passes si le fichier existe :
 python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml
 ```
 
+## Definir les lots SR
+
+Apres cadrage d'une fonction ou collecte dans l'inbox, demander a Codex de definir ou promouvoir les lots avec evidence code :
+
+```text
+prompts/fr/09_define_sr_lots_from_scope.md
+```
+
+Cette etape met uniquement a jour la memoire SR et ne doit pas modifier le code applicatif.
+
 ## Definir les passes SR
 
 Apres creation des lots ou apres upgrade d'un projet existant, coller [prompts/fr/08_define_sr_passes_from_lots.md](prompts/fr/08_define_sr_passes_from_lots.md). Cette etape met uniquement a jour la memoire SR et ne doit pas modifier le code applicatif.

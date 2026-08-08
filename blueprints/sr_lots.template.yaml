@@ -1,6 +1,6 @@
 # SR_LOTS.yaml - backlog vivant SR-Harness
 
-version: "0.2"
+version: "0.3"
 project: "{{PROJECT_NAME}}"
 project_key: "{{PROJECT_KEY}}"
 updated_at: null
@@ -81,6 +81,18 @@ lots:
       lots_to_reopen_or_block: []
       sequencing_recommendation: "not_required"
       open_questions: []
+    design_evidence:
+      status: "pending" # pending | pass | fail | not_applicable
+      code_read_required: true
+      candidate_files:
+        - "docs/codex/CODEBASE_MAP.md"
+      confirmed_files_read: []
+      symbols_or_routes_checked: []
+      tests_or_logs_checked: []
+      assumptions_remaining: []
+      open_questions: []
+      not_applicable_reason: null
+      status_ceiling_if_not_pass: "proposed"
     objective: "Afficher les documents autorises avec un tri par derniere mise a jour fiable et des dates valides."
     required_sources:
       - "docs/CURRENT_STATE.md"
@@ -103,6 +115,7 @@ lots:
       - "git diff --check"
     gates:
       evidence_gate: true
+      lot_design_evidence_gate: true
       knowledge_gate: true
       scope_gate: true
       spec_gate: true

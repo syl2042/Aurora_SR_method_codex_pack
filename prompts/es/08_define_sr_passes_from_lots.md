@@ -25,15 +25,17 @@ Metodo:
 
 1. Validar `SR_LOTS.yaml`.
 2. Clasificar lotes por estado y dependencias.
-3. Construir el grafo `depends_on`, `blocked_by`, `impacts`, `impacted_by`.
-4. Proponer pasadas con orden, rationale, preflight, validaciones humanas, migraciones/acciones externas, fuentes compartidas, E2E agrupado y stop conditions.
-5. Crear o actualizar `SR_PASSES.yaml` solo despues de validacion si el proyecto impone validacion estricta.
-6. Validar con `python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml`.
+3. Verificar el Lot Design Evidence Gate: excluir de pasadas ejecutables cualquier lote `planned`, `validated`, `in_progress` o `reopened` sin `design_evidence.status: pass` o `not_applicable` justificado. Un lote `proposed` puede seguir exploratorio.
+4. Construir el grafo `depends_on`, `blocked_by`, `impacts`, `impacted_by`.
+5. Proponer pasadas con orden, rationale, preflight, validaciones humanas, migraciones/acciones externas, fuentes compartidas, E2E agrupado y stop conditions.
+6. Crear o actualizar `SR_PASSES.yaml` solo despues de validacion si el proyecto impone validacion estricta.
+7. Validar con `python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml`.
 
 Salida esperada:
 
 - pasadas propuestas;
 - lotes excluidos y razon;
+- lotes excluidos por Lot Design Evidence Gate ausente o incompleto;
 - preguntas bloqueantes;
 - preflight por pasada;
 - E2E agrupado recomendado;

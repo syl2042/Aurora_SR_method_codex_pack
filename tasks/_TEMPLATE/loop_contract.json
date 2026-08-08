@@ -16,6 +16,19 @@
     "sources_checked": [],
     "unverified_hypotheses": []
   },
+  "lot_design_evidence_gate": {
+    "status": "not_applicable",
+    "required_for_executable_lot": false,
+    "code_read_required": false,
+    "candidate_files": [],
+    "confirmed_files_read": [],
+    "symbols_or_routes_checked": [],
+    "tests_or_logs_checked": [],
+    "assumptions_remaining": [],
+    "open_questions": [],
+    "not_applicable_reason": "Template non execute.",
+    "status_ceiling_if_not_pass": "proposed"
+  },
   "backlog_mutation_gate": {
     "status": "not_applicable",
     "structural_change_detected": false,

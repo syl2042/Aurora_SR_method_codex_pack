@@ -140,6 +140,7 @@ SR 3.2.1 agrega:
 
 - `docs/codex/SR_PASSES.yaml` para ejecucion multi-lote acotada;
 - `scripts/codex/validate_pass_contract.py` para verificar referencias de lotes y orden de dependencias;
+- `prompts/09_define_sr_lots_from_scope.md` para crear o promover lotes con Lot Design Evidence Gate;
 - `prompts/08_define_sr_passes_from_lots.md` y variantes localizadas para proponer pasadas desde lotes existentes;
 - reglas de instalacion y upgrade que preservan `SR_LOTS.yaml` y agregan pasadas sin convertir task memories historicas;
 - un Pass Planning Gate antes de cualquier ejecucion multi-lote significativa.
@@ -235,6 +236,7 @@ Prompt recomendado:
 | Actualizar la SR Method | [05_upgrade_codex_environment.md](prompts/es/05_upgrade_codex_environment.md) |
 | Verificar la instalación | [06_verify_sr_installation.md](prompts/es/06_verify_sr_installation.md) |
 | Realinear el estado tras upgrade | [07_realign_sr_state_after_upgrade.md](prompts/07_realign_sr_state_after_upgrade.md) |
+| Definir lotes SR desde alcance | [09_define_sr_lots_from_scope.md](prompts/es/09_define_sr_lots_from_scope.md) |
 | Definir agentes IA runtime | [15_define_runtime_agents.md](prompts/es/15_define_runtime_agents.md) |
 
 ---

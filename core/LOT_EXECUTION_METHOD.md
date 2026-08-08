@@ -119,6 +119,18 @@ En mode `core`, RepoMap suffit pour orienter.
 
 En mode `nexus_kg`, interroger le KG avant de figer le scope et verifier la fraicheur si l'outil existe.
 
+### 2c. Lot Design Evidence Gate
+
+Avant de creer ou promouvoir un lot en `planned`, `validated`, `in_progress` ou `reopened`, prouver que le cadrage repose sur le code reel :
+
+- fichiers candidats identifies depuis RepoMap/KG, recherche locale ou sources SR ;
+- fichiers reellement lus avant plan engageant ;
+- routes, composants, services, schemas, contrats, tests ou logs verifies quand ils existent ;
+- hypotheses restantes et questions bloquantes listees ;
+- justification explicite si le lot est greenfield ou pure documentation et que la lecture code est `not_applicable`.
+
+Sans gate `pass` ou `not_applicable` justifie, le statut maximal est `proposed`.
+
 ### 3. Evidence gate
 
 Avant de planifier ou coder, noter :
@@ -235,6 +247,7 @@ Produire un plan de lot limite :
 
 - modifications prevues ;
 - fichiers candidats ;
+- fichiers deja verifies par le Lot Design Evidence Gate ;
 - tests ;
 - risques ;
 - stop conditions.

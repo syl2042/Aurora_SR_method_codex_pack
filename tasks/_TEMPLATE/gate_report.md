@@ -27,6 +27,20 @@
 - Verification minimale si hypothese :
 - Conclusion factuelle autorisee : oui/non
 
+## Lot Design Evidence Gate
+
+- Statut : OK / KO / N/A
+- Requis pour statut executable : oui/non
+- Lecture code requise : oui/non
+- Fichiers candidats :
+- Fichiers reellement lus :
+- Symboles, routes, services ou schemas verifies :
+- Tests ou logs consultes :
+- Hypotheses restantes :
+- Questions bloquantes :
+- Raison si N/A :
+- Statut maximal autorise si KO : `proposed`
+
 ## Backlog Mutation Gate
 
 - Statut : OK / KO / N/A

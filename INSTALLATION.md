@@ -125,6 +125,16 @@ python3 scripts/codex/validate_loop_contract.py --file docs/codex/tasks/_TEMPLAT
 python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/_TEMPLATE/sr_contract.json
 ```
 
+## Define SR Lots
+
+After framing a feature or collecting inbox items, ask Codex to define or promote lots with code evidence:
+
+```text
+prompts/en/09_define_sr_lots_from_scope.md
+```
+
+This step updates SR memory only. It must not modify application code.
+
 ## Define SR Passes
 
 After lots have been created or after upgrading an existing project, ask Codex to propose passes:

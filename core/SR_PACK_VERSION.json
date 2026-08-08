@@ -1,8 +1,13 @@
 {
   "pack": "auroramind_codex_operating_pack",
-  "version": "3.4.0",
+  "version": "3.5.0",
   "released_at": "2026-08-08",
   "patch_notes": [
+    {
+      "date": "2026-08-08",
+      "scope": "lot_design_evidence_gate",
+      "change": "Add Lot Design Evidence Gate to prevent executable lot planning before Codex has identified candidate files and read the relevant code, while preserving proposed lots as exploratory and legacy terminal lots as non-regressive."
+    },
     {
       "date": "2026-08-08",
       "scope": "pass_runtime_goal",
@@ -79,6 +84,9 @@
     "pass_contract_validator",
     "pass_runtime_goal",
     "goal_length_gate",
+    "lot_design_evidence_gate",
+    "code_evidence_before_lot_planning",
+    "scope_to_lots_prompt",
     "pass_goal_builder",
     "lot_completion_gate",
     "propagation_gate",

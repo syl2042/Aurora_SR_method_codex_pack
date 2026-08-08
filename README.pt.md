@@ -164,6 +164,12 @@ Assim, a SR permanece agnóstica ao projeto enquanto evita que impactos transver
 
 ---
 
+## O que muda na 3.5.2
+
+A versao `3.5.2` incorpora o primeiro feedback de upgrade vindo de projetos SR reais mais antigos.
+
+Contratos historicos de tarefa datados antes de `2026-08-08` sem `lot_completion_gate` agora sao tratados como legacy warnings por `audit_sr_task_contracts.py`, enquanto contratos mais recentes continuam estritos. O prompt `05_upgrade_codex_environment.md` tambem deixa claro que um upgrade SR nao deve fechar, promover nem reclassificar lotes ou passes de aplicacao como efeito colateral implicito. Se o usuario pedir explicitamente um fechamento no mesmo trabalho, ele deve ser executado como subfase separada validada, com seu proprio contrato SR e evidencias.
+
 ## O que muda na 3.5.1
 
 A versao `3.5.1` reforca o prompt de upgrade `05_upgrade_codex_environment.md`.

@@ -151,6 +151,12 @@ Windows/MobaXterm launcher scripts are available in [tools/sr-cockpit/scripts/wi
 
 ---
 
+## What changed in 3.5.2
+
+Version `3.5.2` incorporates first upgrade feedback from older live SR projects.
+
+Historical task contracts dated before `2026-08-08` that miss `lot_completion_gate` are now treated as legacy warnings by `audit_sr_task_contracts.py`, while newer contracts remain strict. Prompt `05_upgrade_codex_environment.md` also makes explicit that an SR upgrade must not close, promote, or reclassify application lots or passes as an implicit side effect. If the user explicitly requests closure in the same work, it must run as a separate validated sub-phase with its own SR contract and evidence.
+
 ## What changed in 3.5.1
 
 Version `3.5.1` hardens the upgrade prompt `05_upgrade_codex_environment.md`.

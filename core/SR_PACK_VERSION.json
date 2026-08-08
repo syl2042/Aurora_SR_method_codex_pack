@@ -1,8 +1,18 @@
 {
   "pack": "auroramind_codex_operating_pack",
-  "version": "3.5.1",
+  "version": "3.5.2",
   "released_at": "2026-08-08",
   "patch_notes": [
+    {
+      "date": "2026-08-08",
+      "scope": "upgrade_legacy_contract_compatibility",
+      "change": "Treat pre-2026-08-08 task contracts missing lot_completion_gate as legacy warnings during audit_sr_task_contracts, while keeping newer contracts strict."
+    },
+    {
+      "date": "2026-08-08",
+      "scope": "upgrade_pass_lot_closure_subphase_guard",
+      "change": "Clarify in prompt 05 that SR upgrades must not close, promote, or reclassify application lots or passes as an implicit side effect; explicitly requested closure is allowed only as a separate validated sub-phase with its own SR contract and evidence."
+    },
     {
       "date": "2026-08-08",
       "scope": "upgrade_prompt_hardening",
@@ -93,6 +103,8 @@
     "code_evidence_before_lot_planning",
     "scope_to_lots_prompt",
     "robust_heterogeneous_upgrade_prompt",
+    "legacy_lot_completion_gate_warning",
+    "upgrade_pass_or_lot_closure_subphase_guard",
     "pass_goal_builder",
     "lot_completion_gate",
     "propagation_gate",

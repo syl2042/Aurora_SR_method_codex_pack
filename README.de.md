@@ -164,6 +164,12 @@ So bleibt SR projektagnostisch und verhindert zugleich, dass wichtige Querschnit
 
 ---
 
+## Was sich in 3.5.2 aendert
+
+Version `3.5.2` integriert erstes Upgrade-Feedback aus aelteren produktiven SR-Projekten.
+
+Historische Task-Contracts mit Datum vor `2026-08-08`, denen `lot_completion_gate` fehlt, werden von `audit_sr_task_contracts.py` jetzt als Legacy Warnings behandelt, waehrend neuere Contracts strikt bleiben. Der Prompt `05_upgrade_codex_environment.md` stellt ausserdem klar, dass ein SR-Upgrade keine Anwendungs-Lose oder -Passes als impliziten Nebeneffekt schliessen, promoten oder reklassifizieren darf. Wenn der Benutzer eine Schliessung im selben Auftrag ausdruecklich verlangt, muss sie als separate validierte Unterphase mit eigenem SR-Contract und Nachweisen laufen.
+
 ## Was sich in 3.5.1 aendert
 
 Version `3.5.1` haertet den Upgrade-Prompt `05_upgrade_codex_environment.md`.

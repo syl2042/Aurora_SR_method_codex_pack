@@ -33,6 +33,7 @@ Regras estritas:
 - Nao converta lotes antigos em massa para adicionar `design_evidence`; adicione Lot Design Evidence Gate somente a lotes criados, promovidos ou retomados apos o upgrade.
 - Adicione Pass Runtime Goal tooling de forma aditiva (`build_pass_runtime_goal.py`, template `pass_runtime_goal.md`, opcoes `sr_passes.pass_runtime_goal`) sem gerar um goal ate que uma pass esteja validada.
 - Nunca lance `/goal` durante o upgrade. O upgrade prepara o metodo; a execucao por goal vem somente depois do realinhamento, pass planning e validacao do usuario.
+- Nao feche, promova nem reclassifique nenhum lote ou pass de aplicacao como efeito colateral implicito do upgrade. Se o usuario pedir explicitamente para fechar um lote ou pass no mesmo trabalho, trate esse fechamento como uma subfase separada depois do upgrade, com escopo validado, contrato SR proprio, evidencias e relatorio distinto.
 - Preserve task memories historicas sem `propagation_gate`: reporte-as como legacy warnings, nao como erros bloqueantes. Novos templates e contratos criados depois do upgrade devem incluir o Propagation Gate.
 - Em regime SR completo, toda alteracao de versao SR deve atualizar `docs/CURRENT_STATE.md` com versao instalada, data de revisao, checks executados, ultimo `NEXT_SESSION_PROMPT.md`, lotes significativos e proximo passo.
 - Um `loop_contract.json` do tipo `upgrade` nao pode fechar como `done` com `memory_updates.current_state_updated=false`.
@@ -82,6 +83,7 @@ Compare a instalacao atual com a ultima versao do pack e identifique:
 - presenca ou ausencia do tooling Pass Runtime Goal;
 - presenca ou ausencia do Lot Design Evidence Gate;
 - riscos de sobrescrita;
+- lotes ou passes de aplicacao que possam precisar de retomada ou fechamento, a tratar somente como subfase separada se o usuario pediu explicitamente;
 - contratos antigos ou task memories a manter como legacy warnings.
 
 Importante: lotes antigos sem `design_evidence` nao devem ser modificados em lote. `design_evidence` deve ser adicionado somente a lotes criados, promovidos ou retomados apos o upgrade.
@@ -98,6 +100,7 @@ Antes de qualquer modificacao, apresente um plano curto com:
 - riscos identificados;
 - comandos de verificacao previstos;
 - impacto esperado em `SR_LOTS.yaml`, `SR_PASSES.yaml`, `AGENTS.md`, `CURRENT_STATE.md` e `docs/codex/tasks/`.
+- confirmacao de que nenhum lote ou pass de aplicacao sera fechado implicitamente pelo upgrade; qualquer fechamento pedido deve ser isolado como subfase validada.
 
 Aguarde validacao explicita do usuario antes de modificar.
 
@@ -176,6 +179,7 @@ Relatorio final esperado:
 - validacoes bem-sucedidas;
 - validacoes falhas ou nao aplicaveis;
 - legacy warnings;
+- lotes ou passes de aplicacao detectados como candidatos a fechamento ou retomada, e status de qualquer subfase de fechamento pedida explicitamente;
 - proxima acao proposta.
 
 Fim obrigatorio: aguarde validacao antes de qualquer modificacao da aplicacao ou execucao de pass.

@@ -149,6 +149,12 @@ Les scripts de lancement Windows/MobaXterm sont disponibles dans [tools/sr-cockp
 
 ---
 
+## Ce qui change en 3.5.2
+
+La version `3.5.2` integre le premier retour d'upgrade de projets SR reels plus anciens.
+
+Les contrats de tache historiques dates avant le `2026-08-08` sans `lot_completion_gate` sont maintenant traites comme warnings legacy par `audit_sr_task_contracts.py`, tout en gardant les contrats plus recents stricts. Le prompt `05_upgrade_codex_environment.md` precise aussi qu'un upgrade SR ne doit pas fermer, promouvoir ou requalifier des lots ou passes applicatifs comme effet secondaire implicite. Si l'utilisateur demande explicitement une cloture dans le meme travail, elle doit etre executee comme sous-phase separee validee, avec son propre contrat SR et ses preuves.
+
 ## Ce qui change en 3.5.1
 
 La version `3.5.1` renforce le prompt d'upgrade `05_upgrade_codex_environment.md`.

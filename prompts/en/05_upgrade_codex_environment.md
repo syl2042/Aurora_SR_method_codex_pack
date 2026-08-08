@@ -33,6 +33,7 @@ Strict rules:
 - Do not mass-convert old lots to add `design_evidence`; add the Lot Design Evidence Gate only to lots created, promoted, or resumed after upgrade.
 - Add Pass Runtime Goal tooling additively (`build_pass_runtime_goal.py`, `pass_runtime_goal.md` template, `sr_passes.pass_runtime_goal` options) without generating a goal until a pass is validated.
 - Never launch `/goal` during upgrade. The upgrade prepares the method; goal execution comes only after realignment, pass planning, and user validation.
+- Do not close, promote, or reclassify any application lot or pass as an implicit side effect of the upgrade. If the user explicitly asks to close a lot or pass in the same work, treat that closure as a separate sub-phase after the upgrade, with validated scope, its own SR contract, evidence, and a distinct report.
 - Preserve historical task memories without `propagation_gate`: report them as legacy warnings, not blocking errors. New templates and contracts created after upgrade must include the Propagation Gate.
 - In full SR regime, every SR version change must update `docs/CURRENT_STATE.md` with installed version, review date, checks run, latest `NEXT_SESSION_PROMPT.md`, significant lots, and next step.
 - An `upgrade` `loop_contract.json` cannot close as `done` with `memory_updates.current_state_updated=false`.
@@ -82,6 +83,7 @@ Compare the current installation with the latest pack version and identify:
 - presence or absence of Pass Runtime Goal tooling;
 - presence or absence of the Lot Design Evidence Gate;
 - overwrite risks;
+- application lots or passes that may need resumption or closure, to be handled only as a separate sub-phase when explicitly requested by the user;
 - old contracts or task memories to keep as legacy warnings.
 
 Important: old lots without `design_evidence` must not be modified in batch. `design_evidence` must be added only to lots created, promoted, or resumed after upgrade.
@@ -98,6 +100,7 @@ Before any modification, present a short plan with:
 - identified risks;
 - planned verification commands;
 - expected impact on `SR_LOTS.yaml`, `SR_PASSES.yaml`, `AGENTS.md`, `CURRENT_STATE.md`, and `docs/codex/tasks/`.
+- confirmation that no application lot or pass will be closed implicitly by the upgrade; any requested closure must be isolated as a validated sub-phase.
 
 Wait for explicit user validation before modifying.
 
@@ -176,6 +179,7 @@ Expected final report:
 - successful validations;
 - failed or non-applicable validations;
 - legacy warnings;
+- application lots or passes detected as candidates for closure or resumption, and status of any explicitly requested closure sub-phase;
 - proposed next action.
 
 Mandatory end: wait for validation before any application modification or pass execution.

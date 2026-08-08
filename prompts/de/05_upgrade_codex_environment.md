@@ -33,6 +33,7 @@ Strikte Regeln:
 - Konvertiere alte Lose nicht massenhaft, um `design_evidence` hinzuzufuegen; fuege das Lot Design Evidence Gate nur fuer Lose hinzu, die nach dem Upgrade erstellt, promoted oder wiederaufgenommen werden.
 - Fuege Pass Runtime Goal Tooling additiv hinzu (`build_pass_runtime_goal.py`, Template `pass_runtime_goal.md`, Optionen `sr_passes.pass_runtime_goal`), ohne ein Goal zu generieren, solange keine Pass validiert ist.
 - Starte niemals `/goal` waehrend des Upgrades. Das Upgrade bereitet die Methode vor; Goal-Ausfuehrung kommt erst nach Realignment, Pass Planning und Benutzerfreigabe.
+- Schliesse, promote oder reklassifiziere kein Anwendungs-Los und keine Anwendungs-Pass als impliziten Nebeneffekt des Upgrades. Wenn der Benutzer ausdruecklich verlangt, im selben Auftrag ein Los oder eine Pass zu schliessen, behandle diese Schliessung als separate Unterphase nach dem Upgrade, mit validiertem Scope, eigenem SR-Contract, Nachweisen und separatem Bericht.
 - Erhalte historische Task Memories ohne `propagation_gate`: melde sie als Legacy Warnings, nicht als blockierende Fehler. Neue Templates und Contracts nach dem Upgrade muessen das Propagation Gate enthalten.
 - Im vollen SR-Betrieb muss jede SR-Versionsaenderung `docs/CURRENT_STATE.md` mit installierter Version, Review-Datum, ausgefuehrten Checks, letztem `NEXT_SESSION_PROMPT.md`, wichtigen Losen und naechstem Schritt aktualisieren.
 - Ein `loop_contract.json` vom Typ `upgrade` darf nicht als `done` geschlossen werden, wenn `memory_updates.current_state_updated=false` ist.
@@ -82,6 +83,7 @@ Vergleiche die aktuelle Installation mit der neuesten Pack-Version und identifiz
 - Vorhandensein oder Fehlen des Pass Runtime Goal Toolings;
 - Vorhandensein oder Fehlen des Lot Design Evidence Gate;
 - Ueberschreibungsrisiken;
+- Anwendungs-Lose oder -Passes, die eventuell wiederaufgenommen oder geschlossen werden muessen, aber nur bei ausdruecklicher Benutzeranforderung als separate Unterphase zu behandeln sind;
 - alte Contracts oder Task Memories, die als Legacy Warnings erhalten bleiben.
 
 Wichtig: Alte Lose ohne `design_evidence` duerfen nicht im Batch geaendert werden. `design_evidence` darf nur zu Losen hinzugefuegt werden, die nach dem Upgrade erstellt, promoted oder wiederaufgenommen werden.
@@ -98,6 +100,7 @@ Vor jeder Aenderung einen kurzen Plan vorlegen mit:
 - identifizierten Risiken;
 - geplanten Verifikationsbefehlen;
 - erwarteter Auswirkung auf `SR_LOTS.yaml`, `SR_PASSES.yaml`, `AGENTS.md`, `CURRENT_STATE.md` und `docs/codex/tasks/`.
+- Bestaetigung, dass kein Anwendungs-Los und keine Anwendungs-Pass implizit durch das Upgrade geschlossen wird; jede angeforderte Schliessung muss als validierte Unterphase isoliert werden.
 
 Warte auf explizite Benutzerfreigabe, bevor du Dateien aenderst.
 
@@ -176,6 +179,7 @@ Erwarteter Abschlussbericht:
 - erfolgreiche Validierungen;
 - fehlgeschlagene oder nicht anwendbare Validierungen;
 - Legacy Warnings;
+- Anwendungs-Lose oder -Passes, die als Kandidaten fuer Schliessung oder Wiederaufnahme erkannt wurden, sowie Status jeder ausdruecklich angeforderten Schliessungs-Unterphase;
 - vorgeschlagene naechste Aktion.
 
 Pflichtabschluss: vor jeder Anwendungsaenderung oder Pass-Ausfuehrung auf Validierung warten.

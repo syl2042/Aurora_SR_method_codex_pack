@@ -33,6 +33,7 @@ Regles strictes :
 - Ne pas convertir massivement les anciens lots pour ajouter `design_evidence`; ajouter le Lot Design Evidence Gate seulement aux lots crees, promus ou repris apres upgrade.
 - Ajouter l'outillage Pass Runtime Goal de facon additive (`build_pass_runtime_goal.py`, template `pass_runtime_goal.md`, options `sr_passes.pass_runtime_goal`) sans generer de goal tant qu'une passe n'est pas validee.
 - Ne jamais lancer `/goal` pendant l'upgrade. L'upgrade prepare la methode ; l'execution par goal ne vient qu'apres realignement, pass planning et validation utilisateur.
+- Ne ferme, ne promeus et ne requalifie aucun lot ou passe applicatif comme effet secondaire implicite de l'upgrade. Si l'utilisateur demande explicitement de cloturer un lot ou une passe dans le meme travail, traite cette cloture comme une sous-phase separee apres l'upgrade, avec perimetre valide, contrat SR propre, preuves et rapport distinct.
 - Preserve les task memories historiques sans `propagation_gate` : les signaler comme legacy warnings, pas comme erreurs bloquantes. Les nouveaux templates et contrats crees apres upgrade doivent inclure le Propagation Gate.
 - En SR plein regime, tout changement de version SR doit mettre a jour `docs/CURRENT_STATE.md` avec la version installee, la date de revue, les controles executes, le dernier `NEXT_SESSION_PROMPT.md`, les lots significatifs et la prochaine etape.
 - Un `loop_contract.json` de type `upgrade` ne peut pas se cloturer en `done` avec `memory_updates.current_state_updated=false`.
@@ -82,6 +83,7 @@ Compare l'installation actuelle avec la derniere version du pack et identifie :
 - presence ou absence de l'outillage Pass Runtime Goal ;
 - presence ou absence du Lot Design Evidence Gate ;
 - risques d'ecrasement ;
+- lots ou passes applicatifs candidats a reprise/cloture, a traiter seulement en sous-phase separee si l'utilisateur l'a explicitement demande ;
 - anciens contrats ou task memories a laisser en legacy warnings.
 
 Important : les anciens lots sans `design_evidence` ne doivent pas etre modifies en masse. Le `design_evidence` doit etre ajoute seulement aux lots crees, promus ou repris apres upgrade.
@@ -98,6 +100,7 @@ Avant toute modification, presente un plan court avec :
 - risques identifies ;
 - commandes de verification prevues ;
 - impact attendu sur `SR_LOTS.yaml`, `SR_PASSES.yaml`, `AGENTS.md`, `CURRENT_STATE.md` et `docs/codex/tasks/`.
+- confirmation qu'aucun lot ou passe applicatif ne sera ferme implicitement par l'upgrade ; toute cloture demandee doit etre isolee comme sous-phase validee.
 
 Attends la validation explicite de l'utilisateur avant de modifier.
 
@@ -176,6 +179,7 @@ Rapport final attendu :
 - validations reussies ;
 - validations echouees ou non applicables ;
 - warnings legacy ;
+- lots ou passes applicatifs detectes comme candidats a cloture ou reprise, et statut de toute sous-phase de cloture explicitement demandee ;
 - action suivante proposee.
 
 Fin obligatoire : attends la validation avant toute modification applicative ou toute execution de passe.

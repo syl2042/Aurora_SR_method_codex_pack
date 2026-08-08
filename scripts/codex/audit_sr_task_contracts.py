@@ -22,6 +22,12 @@ LEGACY_FILES = (
     "loop_contract.json",
 )
 
+LEGACY_LOT_COMPLETION_GATE_CUTOFF = date(2026, 8, 8)
+LEGACY_LOT_COMPLETION_GATE_ERRORS = {
+    "missing required key: lot_completion_gate",
+    "status done requires gates.lot_completion pass",
+}
+
 
 def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="ignore") if path.exists() else ""
@@ -69,6 +75,21 @@ def infer_objective(path: Path) -> str:
 
 def legacy_files(path: Path) -> list[str]:
     return [name for name in LEGACY_FILES if (path / name).exists()]
+
+
+def task_date(path: Path) -> date | None:
+    prefix = path.name[:10]
+    try:
+        return date.fromisoformat(prefix)
+    except ValueError:
+        return None
+
+
+def is_pre_lot_completion_gate_legacy(path: Path, errors: list[str]) -> bool:
+    parsed = task_date(path)
+    if parsed is None or parsed >= LEGACY_LOT_COMPLETION_GATE_CUTOFF:
+        return False
+    return bool(errors) and set(errors).issubset(LEGACY_LOT_COMPLETION_GATE_ERRORS)
 
 
 def contract_template(path: Path) -> dict:
@@ -226,6 +247,7 @@ def inspect_task(path: Path, write: bool, overwrite: bool) -> dict:
         "has_legacy_memory": bool(legacy),
         "has_sr_contract": contract.exists(),
         "created": False,
+        "legacy_compat": False,
         "valid": None,
         "errors": [],
         "warnings": [],
@@ -242,6 +264,18 @@ def inspect_task(path: Path, write: bool, overwrite: bool) -> dict:
         item["has_sr_contract"] = True
     if contract.exists():
         valid, errors, warnings = validate_contract(contract)
+        if not valid and is_pre_lot_completion_gate_legacy(path, errors):
+            item["legacy_compat"] = True
+            item["valid"] = True
+            item["warnings"].extend(
+                [
+                    "legacy contract accepted before Lot Completion Gate cutoff; "
+                    "missing lot_completion_gate is downgraded to warning for upgrade compatibility"
+                ]
+                + errors
+                + warnings
+            )
+            return item
         item["valid"] = valid
         item["errors"].extend(errors)
         item["warnings"].extend(warnings)

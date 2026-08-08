@@ -16,10 +16,15 @@ Instructions:
 2. Verify or clone the official source package.
 3. Identify project-owned files to preserve: `AGENTS.md`, `DESIGN.md`, `docs/CURRENT_STATE.md`, `docs/codex/tasks/`, project skills, and local decisions.
 4. Preserve `SR_LOTS.yaml` and add `SR_PASSES.yaml` additively when missing, without automatically converting old lots or task memories.
-5. Explain the upgrade plan and wait for explicit validation before mutation.
-6. Apply the upgrade with the installer only after validation.
-7. Run audit and validation scripts, including `validate_pass_contract.py` when `SR_PASSES.yaml` exists.
-8. Report source commit, files upgraded, files preserved, backups, warnings, `SR_PASSES.yaml` status, and next steps.
-9. Recommend `prompts/en/08_define_sr_passes_from_lots.md` when the project has multiple lots and no valid passes.
+5. Add Pass Runtime Goal tooling additively (`build_pass_runtime_goal.py`, `pass_runtime_goal.md` template, `sr_passes.pass_runtime_goal` options) without generating or launching `/goal` during upgrade.
+6. Explain the upgrade plan and wait for explicit validation before mutation.
+7. Apply the upgrade with the installer only after validation.
+8. Run audit and validation scripts, including `validate_pass_contract.py` when `SR_PASSES.yaml` exists.
+9. Verify the installed Goal Length Gate: `max_goal_command_chars: 1000`, `hard_limit: 4000`.
+10. Update or recommend updating `docs/CURRENT_STATE.md` with before/after version, source commit, warnings, pass status, and next action.
+11. Report source commit, files upgraded, files preserved, backups, warnings, `SR_PASSES.yaml` status, Pass Runtime Goal status, and next steps.
+12. Recommend `prompts/07_realign_sr_state_after_upgrade.md` before any application development resumes.
+13. Recommend `prompts/en/08_define_sr_passes_from_lots.md` when the project has multiple lots and no valid passes.
+14. Recommend `build_pass_runtime_goal.py` only after realignment and validation of a `validated` or `in_progress` pass.
 
 Do not modify application code, dependencies, migrations, or secrets.

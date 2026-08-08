@@ -63,6 +63,27 @@ python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml
 
 Si le gate est rouge, stopper avant codage significatif et proposer le delta `SR_PASSES.yaml` ou `SR_LOTS.yaml`.
 
+### 1c. Pass Runtime Goal
+
+Si la passe est `validated` ou `in_progress` et que `PROJECT_PROFILE.yaml` active `sr_passes.pass_runtime_goal.enabled`, generer un artefact runtime avant l'execution :
+
+```bash
+python3 scripts/codex/build_pass_runtime_goal.py --pass-id <PASS_ID> --output docs/codex/tasks/YYYY-MM-DD_<pass-id>/pass_runtime_goal.md
+```
+
+Le goal est derive de `SR_PASSES.yaml` et `SR_LOTS.yaml`. Il ne remplace jamais les contrats SR.
+
+Goal Length Gate obligatoire :
+
+- `max_goal_command_chars: 1000` ;
+- `hard_limit: 4000` ;
+- si la commande `/goal` depasse `1000` caracteres apres regeneration compacte, stopper ;
+- si elle depasse `4000` caracteres, stopper obligatoirement ;
+- ne pas lancer un goal pour une passe `proposed` ;
+- ne pas executer une passe `planned` sauf validation utilisateur explicite et changement de statut SR.
+
+Si `e2e_strategy.mode` vaut `grouped_at_pass_end`, le goal doit interdire la demande d'E2E utilisateur lot par lot. Codex accumule les preuves automatisees puis produit une checklist E2E groupee en fin de passe.
+
 ### 2. Intake
 
 Lire uniquement les sources requises :
@@ -410,6 +431,8 @@ Si `SR_PASSES.yaml` a ete modifie ou utilise pour une execution multi-lots, vali
 ```bash
 python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml
 ```
+
+Si un `pass_runtime_goal.md` a ete utilise, verifier que le Goal Length Gate a ete documente et que la commande `/goal` ne depasse pas `max_goal_command_chars`. La passe ne doit pas etre marquee `done` si des E2E utilisateur ou une validation humaine restent requis ; utiliser `user_testing` avec checklist E2E concrete.
 
 Cette validation est obligatoire meme si `git diff --check` est vert. `git diff --check` ne valide pas les champs obligatoires du contrat de lot et peut manquer un fichier non suivi.
 

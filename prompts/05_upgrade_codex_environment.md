@@ -29,6 +29,8 @@ Regles :
 - Preserve les `docs/codex/tasks/`, handoffs, decisions et project-skills existants.
 - Preserve les fichiers legacy de task memory ; ne cree pas de contrats retroactifs en batch sans validation explicite.
 - Preserve `SR_LOTS.yaml`. Ajouter `SR_PASSES.yaml` de facon additive si absent, mais ne pas convertir automatiquement les anciens lots ou task memories en passes validees.
+- Ajouter l'outillage Pass Runtime Goal de facon additive (`build_pass_runtime_goal.py`, template `pass_runtime_goal.md`, options `sr_passes.pass_runtime_goal`) sans generer de goal tant qu'une passe n'est pas validee.
+- Ne jamais lancer `/goal` pendant l'upgrade. L'upgrade prepare la methode ; l'execution par goal ne vient qu'apres realignement, pass planning et validation utilisateur.
 - Preserve les task memories historiques sans `propagation_gate` : les signaler comme legacy warnings, pas comme erreurs bloquantes. Les nouveaux templates et contrats crees apres upgrade doivent inclure le Propagation Gate.
 - En SR plein regime, tout changement de version SR doit mettre a jour `docs/CURRENT_STATE.md` avec la version installee, la date de revue, les controles executes, le dernier `NEXT_SESSION_PROMPT.md`, les lots significatifs et la prochaine etape.
 - Un `loop_contract.json` de type `upgrade` ne peut pas se cloturer en `done` avec `memory_updates.current_state_updated=false`.
@@ -55,6 +57,7 @@ Etapes :
    - fichiers projet a fusionner manuellement ;
    - risques d'ecrasement.
    - absence ou obsolescence de `SR_PASSES.yaml`.
+   - absence ou obsolescence de l'outillage Pass Runtime Goal.
 6. Proposer un plan d'upgrade adapte au flux detecte.
 7. Appliquer uniquement les fichiers methode/scripts/templates validés.
 8. Installer ou verifier les skills methode globales.
@@ -66,6 +69,7 @@ Etapes :
    - `python3 scripts/codex/audit_sr_project.py --root .`
    - `python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml`
    - `python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml` si `SR_PASSES.yaml` existe
+   - `python3 scripts/codex/build_pass_runtime_goal.py --pass-id <PASS_ID> --output docs/codex/tasks/YYYY-MM-DD_<pass-id>/pass_runtime_goal.md --allow-planned` seulement en dry-run si une passe `planned` reelle existe et si cela aide a verifier le Goal Length Gate
    - `python3 scripts/codex/context_budget_report.py --root . --compact`
    - `python3 scripts/codex/validate_skills.py --path ~/.codex/skills`
    - `python3 scripts/codex/validate_loop_contract.py --file docs/codex/tasks/_TEMPLATE/loop_contract.json`
@@ -88,11 +92,13 @@ Etapes :
    - presence et validation du template `sr_contract.json` SR 3.0.0.
    - resultat de l'audit `audit_sr_task_contracts.py`, en distinguant legacy acceptable, contrat invalide et migration a valider.
    - statut `SR_PASSES.yaml` : absent acceptable avant migration, ajoute, valide, ou a realigner.
+   - statut Pass Runtime Goal : outillage present, options profil presentes, Goal Length Gate `max_goal_command_chars: 1000` / `hard_limit: 4000`, aucun goal lance pendant l'upgrade.
    - statut Propagation Gate : present dans methode/templates/validateurs, contrats historiques sans gate classes legacy warnings, nouveaux contrats stricts.
    - decision sur les prompts suivants :
      - `06` requis si les verifications ci-dessus n'ont pas toutes ete executees ou si le flux est standard/legacy ;
       - `07` requis apres tout changement de version SR ; il peut rester court pour un upgrade mineur, mais doit realigner `CURRENT_STATE.md`, confirmer les prochains lots et proposer les passes avant tout code applicatif long ;
       - `08` recommande si le projet contient deja plusieurs lots et aucun `SR_PASSES.yaml` valide ;
+      - `build_pass_runtime_goal.py` recommande uniquement apres `07`/`08`, pour la prochaine passe `validated` ou `in_progress` ;
       - `15` recommande si le projet contient ou prevoit des agents IA runtime.
 
 Fin obligatoire : attendre validation avant toute modification applicative.

@@ -18,6 +18,18 @@ pass_policy:
   require_preflight_before_pass: true
   allow_grouped_e2e: true
   require_pass_contract: false
+  pass_runtime_goal:
+    enabled: true
+    builder_script: "scripts/codex/build_pass_runtime_goal.py"
+    template_file: "docs/codex/tasks/_TEMPLATE/pass_runtime_goal.md"
+    max_goal_command_chars: 1000
+    hard_limit: 4000
+    allow_planned_dry_run: true
+    executable_statuses:
+      - "validated"
+      - "in_progress"
+    forbid_silent_next_pass_chain: true
+    done_requires_user_validation_when_e2e_required: true
   dependency_rules:
     - "Une dependance vers un lot inclus dans une passe strictement anterieure est valide pour une passe proposed/planned."
     - "Une passe validated/in_progress exige que les dependances des passes anterieures soient done ou user_testing."

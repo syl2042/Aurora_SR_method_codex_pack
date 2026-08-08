@@ -111,6 +111,18 @@ sr_passes:
   allow_grouped_e2e: true
   require_pass_contract: false
   migration_policy: "non_breaking_additive"
+  pass_runtime_goal:
+    enabled: true
+    builder_script: scripts/codex/build_pass_runtime_goal.py
+    template_file: docs/codex/tasks/_TEMPLATE/pass_runtime_goal.md
+    max_goal_command_chars: 1000
+    hard_limit: 4000
+    allow_planned_dry_run: true
+    executable_statuses:
+      - validated
+      - in_progress
+    forbid_silent_next_pass_chain: true
+    done_requires_user_validation_when_e2e_required: true
 
 context_budget:
   context_window_tokens: 258400

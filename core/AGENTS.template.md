@@ -74,6 +74,7 @@ Politique par defaut :
 - enchainer jusqu'a 3 lots par passe si les gates restent verts ;
 - appliquer le Pass Planning Gate avant de coder une passe ;
 - valider `SR_PASSES.yaml` avec `validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml` si le fichier existe ou vient d'etre cree ;
+- Pass Runtime Goal : si `sr_passes.pass_runtime_goal.enabled` est actif et qu'une passe `validated`/`in_progress` est executee avec `/goal`, generer `pass_runtime_goal.md` avec `build_pass_runtime_goal.py`, appliquer le Goal Length Gate (`max_goal_command_chars: 1000`, `hard_limit: 4000`) et ne pas enchainer la passe suivante sans validation utilisateur ;
 - stopper sur gate rouge, migration ambigue, dependance, regle metier absente, action sensible, test bloquant ou contexte a risque ;
 - mettre a jour `SR_LOTS.yaml` apres chaque decision de statut ;
 - valider `SR_LOTS.yaml` avec `validate_lot_contract.py` apres toute modification du backlog ;

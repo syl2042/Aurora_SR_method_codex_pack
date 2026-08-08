@@ -107,6 +107,20 @@
 - Validation `validate_pass_contract.py` :
 - Decision :
 
+## Pass Runtime Goal
+
+- Requis : oui/non
+- Fichier : `docs/codex/tasks/YYYY-MM-DD_slug/pass_runtime_goal.md`
+- Generation `build_pass_runtime_goal.py` :
+- Goal Length Gate :
+- `max_goal_command_chars` : 1000
+- `hard_limit` : 4000
+- `goal_command_chars` :
+- Commande `/goal` lancee/proposee :
+- E2E groupe protege : oui/non/N/A
+- Enchainement de passe suivante bloque sans validation : oui/non/N/A
+- Decision : pass / fail / not_applicable
+
 ## Lot Completion Gate
 
 - Statut : OK / KO / N/A

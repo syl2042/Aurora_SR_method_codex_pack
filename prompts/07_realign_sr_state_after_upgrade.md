@@ -72,22 +72,33 @@ Methode :
    - validations humaines, migrations et actions externes ;
    - E2E groupe ou par lot ;
    - statut initial `planned` sauf validation explicite.
-7. Auditer les task memories avec `audit_sr_task_contracts.py` :
+7. Si une passe existe deja ou vient d'etre proposee, verifier le statut Pass Runtime Goal :
+   - `scripts/codex/build_pass_runtime_goal.py` present ;
+   - `docs/codex/tasks/_TEMPLATE/pass_runtime_goal.md` present ;
+   - `PROJECT_PROFILE.yaml` contient `sr_passes.pass_runtime_goal` ;
+   - Goal Length Gate documente : `max_goal_command_chars: 1000`, `hard_limit: 4000` ;
+   - aucun `/goal` ne doit etre lance pendant le realignement.
+8. Recommander la generation de `pass_runtime_goal.md` uniquement apres validation d'une passe executable :
+   - passe `validated` ou `in_progress` pour execution ;
+   - `--allow-planned` seulement pour dry-run ;
+   - jamais pour une passe `proposed`.
+9. Rappeler la regle de cloture de passe : `done` seulement si aucun E2E utilisateur ou validation humaine ne reste requis ; sinon `user_testing`, `repair` ou `blocked`.
+10. Auditer les task memories avec `audit_sr_task_contracts.py` :
    - par defaut, rester en lecture seule ;
    - lister les taches legacy sans `sr_contract.json` ;
    - lister les contrats existants invalides ;
    - ne pas assimiler "contrat absent" a "lot incomplet".
-8. Si une ancienne task doit etre reprise, proposer avant execution :
+11. Si une ancienne task doit etre reprise, proposer avant execution :
    - soit une reprise legacy sans creer de contrat retroactif ;
    - soit une creation controlee pour une tache ciblee avec `python3 scripts/codex/audit_sr_task_contracts.py --root . --task docs/codex/tasks/<task> --write` ;
    - soit une migration batch, uniquement apres validation explicite.
-9. Si un `sr_contract.json` est cree :
+12. Si un `sr_contract.json` est cree :
    - conserver tous les fichiers legacy ;
    - marquer les intentions comme `todo` tant qu'elles n'ont pas ete relues ;
    - valider avec `python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/<task>/sr_contract.json`.
-10. Mettre a jour `docs/CURRENT_STATE.md` pour tout changement de version SR et mettre a jour les autres memoires SR uniquement si l'audit prouve un ecart.
-11. Creer un `loop_contract.json` et, pour la passe de realignement elle-meme, un `sr_contract.json` si le projet exige SR 3.0.0.
-12. Produire un plan net :
+13. Mettre a jour `docs/CURRENT_STATE.md` pour tout changement de version SR et mettre a jour les autres memoires SR uniquement si l'audit prouve un ecart.
+14. Creer un `loop_contract.json` et, pour la passe de realignement elle-meme, un `sr_contract.json` si le projet exige SR 3.0.0.
+15. Produire un plan net :
    - fait ;
    - partiel ;
    - restant ;
@@ -106,6 +117,7 @@ Sortie attendue :
 - etat budget contexte ;
 - audit des `sr_contract.json` existants ou manquants ;
 - statut `SR_PASSES.yaml`, passes proposees ou raison de non-proposition ;
+- statut Pass Runtime Goal : outillage present/absent, Goal Length Gate, prochaine passe eligible ou raison de non-generation ;
 - Loop Contract de realignement avec decision `conversation_transition` ;
 - SR Contract 3.0.0 de la passe de realignement si requis par le projet ;
 - plan de reprise priorise ;

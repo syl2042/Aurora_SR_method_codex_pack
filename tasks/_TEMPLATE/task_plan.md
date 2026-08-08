@@ -102,6 +102,18 @@
 - Validation humaine requise : oui/non
 - Validation humaine recue : oui/non/non applicable
 
+## Pass Runtime Goal
+- Requis : oui/non
+- Passe :
+- Statut de passe :
+- Fichier prevu : `docs/codex/tasks/YYYY-MM-DD_slug/pass_runtime_goal.md`
+- Generation prevue : `python3 scripts/codex/build_pass_runtime_goal.py --pass-id <PASS_ID> --output <fichier>`
+- `max_goal_command_chars` : 1000
+- `hard_limit` : 4000
+- Goal Length Gate prevu : oui/non
+- E2E groupe protege : oui/non/non applicable
+- Enchainement de passe suivante interdit sans validation : oui/non/non applicable
+
 ## Context budget
 - `context_budget_report.py --root . --compact` execute : oui/non/non disponible
 - Statut contexte hybride : green/yellow/orange/red/unknown/stale/ambiguous

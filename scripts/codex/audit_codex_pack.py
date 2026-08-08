@@ -3,7 +3,7 @@ import argparse
 import json
 from pathlib import Path
 
-TARGET_VERSION = "3.3.0"
+TARGET_VERSION = "3.4.0"
 
 REQUIRED = {
     "AGENTS.md": [
@@ -29,8 +29,8 @@ REQUIRED = {
     "docs/codex/SR_AGENT_METHOD.md": ["AI_AGENT_RUNTIME_METHOD.md", "output JSON schema", "Pydantic Output Contract"],
     "docs/codex/prompts/01_start_sr_session.md": ["find_next_session_prompt.py", "NEXT_SESSION_PROMPT.md", "Reprise SR stricte", "SR Contract 3.0.0", "validate_sr_contract.py", "Propagation Gate"],
     "docs/codex/prompts/05_upgrade_codex_environment.md": ["https://github.com/syl2042/Aurora_SR_method_codex_pack", "commit source", "SR_PACK_SOURCE", "validate_sr_contract.py", "audit_sr_task_contracts.py", "Propagation Gate"],
-    "docs/codex/SR_HARNESS_METHOD.md": ["SR Development Method", "SR_INBOX.yaml", "SR_LOTS.yaml", "SR_PASSES.yaml", "Fact gate", "Backlog Mutation Gate", "Global Impact Gate", "Lot Dependency Reconciliation", "Pass Planning Gate", "Lot Completion Gate", "Propagation Gate", "Execution multi-lots par defaut", "Visibilite utilisateur obligatoire", "Modes de connaissance codebase", "Self evaluation gate", "Loop Contract", "SR Contract 3.0.0", "validate_lot_contract.py", "validate_pass_contract.py"],
-    "docs/codex/LOT_EXECUTION_METHOD.md": ["Boucle lot", "Evidence gate", "Pass Planning Gate", "Backlog Mutation Gate", "Global Impact Gate", "Lot Completion Gate", "Propagation Gate", "Self evaluation gate", "tests E2E utilisateur", "loop_contract.json", "sr_contract.json", "validate_lot_contract.py", "validate_pass_contract.py"],
+    "docs/codex/SR_HARNESS_METHOD.md": ["SR Development Method", "SR_INBOX.yaml", "SR_LOTS.yaml", "SR_PASSES.yaml", "Fact gate", "Backlog Mutation Gate", "Global Impact Gate", "Lot Dependency Reconciliation", "Pass Planning Gate", "Pass Runtime Goal", "Goal Length Gate", "Lot Completion Gate", "Propagation Gate", "Execution multi-lots par defaut", "Visibilite utilisateur obligatoire", "Modes de connaissance codebase", "Self evaluation gate", "Loop Contract", "SR Contract 3.0.0", "validate_lot_contract.py", "validate_pass_contract.py", "build_pass_runtime_goal.py"],
+    "docs/codex/LOT_EXECUTION_METHOD.md": ["Boucle lot", "Evidence gate", "Pass Planning Gate", "Pass Runtime Goal", "Goal Length Gate", "Backlog Mutation Gate", "Global Impact Gate", "Lot Completion Gate", "Propagation Gate", "Self evaluation gate", "tests E2E utilisateur", "loop_contract.json", "sr_contract.json", "validate_lot_contract.py", "validate_pass_contract.py", "build_pass_runtime_goal.py"],
     "docs/codex/SR_LOTS.yaml": ["lots:"],
     "docs/codex/SR_PASSES.yaml": ["passes:"],
     "docs/codex/SR_INBOX.yaml": ["items:"],
@@ -42,13 +42,15 @@ REQUIRED = {
     "docs/codex/prompts/15_define_runtime_agents.md": ["Pydantic obligatoire", "politique d'echec", "tests de sortie typee"],
     "docs/codex/DOMAIN_EXPERTISE_BOOTSTRAP.md": ["DOMAIN_PROFILE"],
     "docs/codex/PROJECT_SKILLS_POLICY.md": ["docs/codex/project-skills"],
-    "docs/codex/tasks/_TEMPLATE/gate_report.md": ["Gate Report", "Tests E2E utilisateur a faire", "Backlog Mutation Gate", "Global Impact Gate", "Lot Dependency Reconciliation", "Propagation Gate", "Lot Completion Gate", "Context Budget Gate", "Self Evaluation Gate", "Fact Gate", "Knowledge Gate", "Loop Contract"],
+    "docs/codex/tasks/_TEMPLATE/gate_report.md": ["Gate Report", "Tests E2E utilisateur a faire", "Backlog Mutation Gate", "Global Impact Gate", "Lot Dependency Reconciliation", "Propagation Gate", "Pass Runtime Goal", "Goal Length Gate", "Lot Completion Gate", "Context Budget Gate", "Self Evaluation Gate", "Fact Gate", "Knowledge Gate", "Loop Contract"],
+    "docs/codex/tasks/_TEMPLATE/pass_runtime_goal.md": ["Pass Runtime Goal", "max_goal_command_chars: 1000", "hard_limit: 4000", "Pass Completion Gate"],
     "docs/codex/tasks/_TEMPLATE/loop_contract.json": ["schema_version", "status_decision", "backlog_mutation_gate", "global_impact_gate", "propagation_gate", "lot_completion_gate", "e2e_user_tests", "conversation_transition", "resume_protocol"],
     "docs/codex/tasks/_TEMPLATE/sr_contract.json": ["schema_version", "validated_requests", "lot_completion_gate", "backlog_mutation", "global_impact", "propagation", "transition"],
     "docs/codex/tasks/_TEMPLATE/context_pack.md": ["SR Context Pack"],
     "docs/codex/tasks/_TEMPLATE/NEXT_SESSION_PROMPT.md": ["NEXT_SESSION_PROMPT", "Reprise SR stricte"],
     "scripts/codex/validate_lot_contract.py": ["REQUIRED_LOT_FIELDS"],
     "scripts/codex/validate_pass_contract.py": ["SR_PASSES.yaml"],
+    "scripts/codex/build_pass_runtime_goal.py": ["Pass Runtime Goal", "DEFAULT_MAX_GOAL_COMMAND_CHARS", "DEFAULT_HARD_LIMIT"],
     "scripts/codex/validate_scope.py": ["Scope gate failed"],
     "scripts/codex/context_budget_report.py": ["Context budget"],
     "scripts/codex/audit_sr_project.py": ["SR project audit"],
@@ -71,9 +73,9 @@ SOURCE_REQUIRED = {
     "blueprints/runtime_agent_contract.template/README.md": ["framework-agnostic", "bounded product action", "runtime contract"],
     "core/SR_BOOTSTRAP.md": ["Memoire de tache", "Auto-reprise obligatoire", "Validation humaine stricte", "Lot Completion Gate", "Propagation Gate"],
     "core/SR_METHOD.md": ["Specification Runtime", "SR Development Method", "SR Agent Method", "Regle de completude", "Regle de propagation"],
-    "core/SR_HARNESS_METHOD.md": ["SR Development Method", "SR_INBOX.yaml", "SR_LOTS.yaml", "SR_PASSES.yaml", "Backlog Mutation Gate", "Global Impact Gate", "Lot Dependency Reconciliation", "Pass Planning Gate", "Lot Completion Gate", "Propagation Gate"],
-    "core/LOT_EXECUTION_METHOD.md": ["Boucle lot", "Pass Planning Gate", "Backlog Mutation Gate", "Global Impact Gate", "Lot Completion Gate", "Propagation Gate", "loop_contract.json", "sr_contract.json"],
-    "core/SR_PACK_VERSION.json": ["3.3.0"],
+    "core/SR_HARNESS_METHOD.md": ["SR Development Method", "SR_INBOX.yaml", "SR_LOTS.yaml", "SR_PASSES.yaml", "Backlog Mutation Gate", "Global Impact Gate", "Lot Dependency Reconciliation", "Pass Planning Gate", "Pass Runtime Goal", "Goal Length Gate", "Lot Completion Gate", "Propagation Gate", "build_pass_runtime_goal.py"],
+    "core/LOT_EXECUTION_METHOD.md": ["Boucle lot", "Pass Planning Gate", "Pass Runtime Goal", "Goal Length Gate", "Backlog Mutation Gate", "Global Impact Gate", "Lot Completion Gate", "Propagation Gate", "loop_contract.json", "sr_contract.json", "build_pass_runtime_goal.py"],
+    "core/SR_PACK_VERSION.json": ["3.4.0"],
     "core/V3_UPGRADE_TEST_PLAN.md": ["SR 3.0.0", "Prompt initial pour projet pilote"],
     "prompts/05_upgrade_codex_environment.md": ["SR_PACK_SOURCE", "commit source", "Propagation Gate"],
     "prompts/06_verify_sr_installation.md": ["sr_post_install_check.py", "Propagation Gate"],
@@ -88,6 +90,7 @@ SOURCE_REQUIRED = {
     "scripts/codex/verify_codex_pack.py": ["source_mode"],
     "scripts/codex/sr_post_install_check.py": ["SR post-install check", "Propagation Gate"],
     "scripts/codex/validate_pass_contract.py": ["SR_PASSES.yaml"],
+    "scripts/codex/build_pass_runtime_goal.py": ["Pass Runtime Goal", "DEFAULT_MAX_GOAL_COMMAND_CHARS", "DEFAULT_HARD_LIMIT"],
     "scripts/codex/validate_loop_contract.py": ["SR loop contract", "propagation_gate"],
     "scripts/codex/validate_sr_contract.py": ["SR 3.0.0", "validated_requests", "propagation"],
     "profiles/default/PROJECT_PROFILE.yaml": ["default-project", "knowledge:", "context_budget:", "require_propagation_gate_for_reference_changes"],

@@ -55,8 +55,12 @@ Methode :
    - sources partagees ;
    - E2E groupe ou par lot ;
    - stop conditions.
-6. Creer ou mettre a jour `docs/codex/SR_PASSES.yaml` uniquement apres validation utilisateur si le projet impose la validation stricte.
-7. Valider :
+6. Preparer la suite d'execution sans la lancer :
+   - si une passe est proposee pour execution avec Codex CLI `/goal`, indiquer que `pass_runtime_goal.md` devra etre genere apres validation ;
+   - rappeler le Goal Length Gate : `max_goal_command_chars: 1000`, `hard_limit: 4000` ;
+   - rappeler qu'une passe suivante ne doit pas etre enchainee sans validation utilisateur.
+7. Creer ou mettre a jour `docs/codex/SR_PASSES.yaml` uniquement apres validation utilisateur si le projet impose la validation stricte.
+8. Valider :
    - `python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml`
 
 Sortie attendue :
@@ -66,6 +70,7 @@ Sortie attendue :
 - questions bloquantes ;
 - preflight a regler avant chaque passe ;
 - E2E groupe recommande ;
+- Pass Runtime Goal a generer apres validation, si applicable ;
 - fichiers SR modifies ;
 - resultat de validation ;
 - prochain lot ou prochaine passe recommande.

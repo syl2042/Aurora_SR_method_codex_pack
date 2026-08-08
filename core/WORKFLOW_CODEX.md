@@ -30,6 +30,7 @@ Si la tache concerne une roadmap, un gros brief, une reprise longue, plusieurs l
 - maintenir `SR_INBOX.yaml` et `SR_LOTS.yaml` ;
 - verifier ou proposer `SR_PASSES.yaml` avant toute execution multi-lots ;
 - appliquer le Pass Planning Gate : ordre, dependances, preflight, validations humaines et E2E groupe ;
+- generer `pass_runtime_goal.md` avec `build_pass_runtime_goal.py` pour une passe validee executee avec `/goal`, puis appliquer le Goal Length Gate (`max_goal_command_chars: 1000`, `hard_limit: 4000`) ;
 - appliquer knowledge_gate puis evidence_gate avant plan/faisabilite ;
 - appliquer fact_gate avant toute conclusion factuelle sur l'existant ;
 - produire `gate_report.md` apres execution d'un lot ;

@@ -11,7 +11,7 @@ test("scanProjects lists apps and reads SR version, lots, passes and task gates"
     const app = path.join(root, "Demo_App");
     await mkdir(path.join(app, "docs/codex/tasks/2026-08-04_demo"), { recursive: true });
     await writeFile(path.join(app, "docs/codex/SR_METHOD.md"), "# SR\n");
-    await writeFile(path.join(app, "docs/codex/SR_PACK_VERSION.json"), JSON.stringify({ version: "3.3.0" }));
+    await writeFile(path.join(app, "docs/codex/SR_PACK_VERSION.json"), JSON.stringify({ version: "3.4.0" }));
     await writeFile(path.join(app, "docs/codex/SR_LOTS.yaml"), `
 lots:
   - lot_id: DEMO-001
@@ -47,7 +47,7 @@ items:
     assert.equal(result.totals.total, 1);
     assert.equal(result.totals.srInstalled, 1);
     assert.equal(result.totals.codexOpen, 1);
-    assert.equal(result.projects[0].srVersion, "3.3.0");
+    assert.equal(result.projects[0].srVersion, "3.4.0");
     assert.equal(result.projects[0].statusCounts.reopened, 1);
     assert.equal(result.projects[0].passes[0].id, "DEMO-PASS-001");
     assert.equal(result.projects[0].passes[0].lotDetails[0].title, "Demo lot");

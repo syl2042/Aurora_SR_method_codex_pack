@@ -84,6 +84,8 @@ Si la demande modifie un backlog de lots, Codex doit classer la demande et propo
 
 Si la demande lance ou valide plusieurs lots, Codex doit verifier ou proposer une passe SR dans `SR_PASSES.yaml` avant codage significatif. Le Pass Planning Gate verifie l'ordre, les dependances, le preflight commun, les validations humaines et l'E2E groupe.
 
+Pass Runtime Goal : si une passe validee doit etre executee avec Codex CLI `/goal`, Codex doit generer `pass_runtime_goal.md` avec `scripts/codex/build_pass_runtime_goal.py`, appliquer le Goal Length Gate (`max_goal_command_chars: 1000`, `hard_limit: 4000`), puis utiliser la commande courte produite. Le goal ne remplace jamais les fichiers SR et ne doit pas enchainer une passe suivante sans validation utilisateur.
+
 Avant une recommandation technique engageante, appliquer le knowledge gate :
 
 ```text

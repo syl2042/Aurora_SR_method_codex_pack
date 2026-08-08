@@ -72,7 +72,7 @@ export async function scanProject(projectPath, realPath, appsRoot, codexSessions
     srVersion: srVersion || null,
     srCompatibility: describeSrCompatibility(srInfo, srFiles, srInstalled),
     srFiles: summarizeSrFiles(srFiles),
-    needsSrUpgrade: srInstalled && srVersion !== "3.3.0",
+    needsSrUpgrade: srInstalled && srVersion !== "3.4.0",
     codexOpen: sessions.length > 0,
     codexSessions: sessions,
     git,

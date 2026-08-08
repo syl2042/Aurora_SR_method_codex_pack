@@ -151,6 +151,69 @@ Windows/MobaXterm launcher scripts are available in [tools/sr-cockpit/scripts/wi
 
 ---
 
+## What changed in 3.4.0
+
+Version `3.4.0` adds **Pass Runtime Goal** support for Codex CLI `/goal`.
+
+SR Passes already define which lots should run together, in which order, with which preflight and E2E strategy. Pass Runtime Goal turns a validated pass into a bounded Codex runtime objective so Codex does not stop after a single lot or ask for user E2E too early.
+
+The source of truth does not change:
+
+```text
+SR_PASSES.yaml / SR_LOTS.yaml / sr_contract.json = source of truth
+pass_runtime_goal.md + /goal = runtime execution helper
+```
+
+New files and rules:
+
+- `scripts/codex/build_pass_runtime_goal.py` generates `pass_runtime_goal.md` and a short `/goal` command.
+- `docs/codex/tasks/_TEMPLATE/pass_runtime_goal.md` documents the runtime goal shape.
+- Goal Length Gate enforces `max_goal_command_chars: 1000` and `hard_limit: 4000`.
+- A `planned` pass can be prepared with `--allow-planned`, but execution still requires user validation and a SR status change.
+- A `proposed` pass must never be executed by goal.
+- If `e2e_strategy.mode` is `grouped_at_pass_end`, Codex must accumulate evidence by lot and ask for user E2E only at pass end.
+- A pass reaches its correct SR final status: `done`, `user_testing`, `repair`, or `blocked`. It must not be marked `done` while user E2E or human validation is still required.
+- Codex must stop at the end of the pass and propose the next pass without chaining it silently.
+
+Generate a goal for a validated pass:
+
+```bash
+python3 scripts/codex/build_pass_runtime_goal.py \
+  --pass-id <PASS_ID> \
+  --output docs/codex/tasks/YYYY-MM-DD_<pass-id>/pass_runtime_goal.md
+```
+
+Dry-run for a planned pass:
+
+```bash
+python3 scripts/codex/build_pass_runtime_goal.py \
+  --pass-id <PASS_ID> \
+  --output docs/codex/tasks/YYYY-MM-DD_<pass-id>/pass_runtime_goal.md \
+  --allow-planned
+```
+
+Use the `/goal` command printed by the script. Do not rewrite it by hand unless you rerun the length check.
+
+### First install vs upgrade
+
+For a first installation in a blank project, Codex should install SR files, verify the pack, then stop before application development. `SR_PASSES.yaml` and the Pass Runtime Goal tooling are installed, but pass goals are normally generated only after lots and passes exist.
+
+For an existing project with an older SR Method already used in real work, Codex must preserve project-owned files, task memories, `SR_LOTS.yaml`, decisions, handoffs, and local skills. The upgrade is additive: it adds or refreshes SR method files and scripts, then asks Codex to realign the project state before continuing development. Historical task memories are not converted in bulk without explicit validation.
+
+Recommended upgrade sequence:
+
+```text
+05_upgrade_codex_environment
+-> 06_verify_sr_installation
+-> 07_realign_sr_state_after_upgrade
+-> 08_define_sr_passes_from_lots if passes are absent/stale
+-> build_pass_runtime_goal.py only for the next validated pass
+```
+
+This sequence is designed to avoid regressions after update: Codex must understand what changed, preserve existing project state, reorganize passes only when evidence supports it, and stop before any application code work.
+
+---
+
 ## What changed in 3.2.1
 
 Version `3.2.1` has two distinct evolutions:

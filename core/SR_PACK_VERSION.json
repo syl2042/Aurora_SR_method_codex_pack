@@ -1,8 +1,13 @@
 {
   "pack": "auroramind_codex_operating_pack",
-  "version": "3.3.0",
-  "released_at": "2026-08-04",
+  "version": "3.4.0",
+  "released_at": "2026-08-08",
   "patch_notes": [
+    {
+      "date": "2026-08-08",
+      "scope": "pass_runtime_goal",
+      "change": "Add Pass Runtime Goal support for Codex CLI /goal: generated pass_runtime_goal.md, bounded goal command length, Goal Length Gate, grouped E2E protection, and pass closure rules that preserve user_testing/done validation semantics."
+    },
     {
       "date": "2026-08-04",
       "scope": "pack_tooling",
@@ -72,6 +77,9 @@
     "pass_preflight",
     "grouped_pass_e2e",
     "pass_contract_validator",
+    "pass_runtime_goal",
+    "goal_length_gate",
+    "pass_goal_builder",
     "lot_completion_gate",
     "propagation_gate",
     "reference_integrity_gate",

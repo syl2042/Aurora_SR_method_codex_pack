@@ -28,8 +28,11 @@ Etapes :
 12. Valider le template : `python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/_TEMPLATE/sr_contract.json`.
 13. Auditer les task memories avec `python3 scripts/codex/audit_sr_task_contracts.py --root . --json`.
 14. Verifier `docs/codex/SR_PASSES.yaml`. Pour un nouveau projet, recommander de definir les passes apres les lots : ordre logique, dependances, preflight, validations humaines, secrets/actions externes et E2E groupe.
-15. Si le projet contient ou prevoit des agents IA runtime, confirmer que `docs/codex/SR_AGENT_METHOD.md`, `docs/codex/AI_AGENT_RUNTIME_METHOD.md` et `docs/codex/prompts/15_define_runtime_agents.md` existent, puis recommander le prompt `15` apres validation.
-16. Verifier RTK avec verify_rtk.sh si le script existe.
-17. Produire rapport presents/manquants/prochaines actions.
+15. Verifier l'outillage Pass Runtime Goal : `scripts/codex/build_pass_runtime_goal.py`, `docs/codex/tasks/_TEMPLATE/pass_runtime_goal.md`, options `sr_passes.pass_runtime_goal` dans `PROJECT_PROFILE.yaml`.
+16. Pour un projet vierge, ne pas generer de goal immediatement : le goal vient seulement apres lots, passes, Pass Planning Gate et validation d'une passe `validated` ou `in_progress`.
+17. Rappeler le Goal Length Gate au prochain Codex : `max_goal_command_chars: 1000`, `hard_limit: 4000`; `/goal` reste derive, les fichiers SR restent source de verite.
+18. Si le projet contient ou prevoit des agents IA runtime, confirmer que `docs/codex/SR_AGENT_METHOD.md`, `docs/codex/AI_AGENT_RUNTIME_METHOD.md` et `docs/codex/prompts/15_define_runtime_agents.md` existent, puis recommander le prompt `15` apres validation.
+19. Verifier RTK avec verify_rtk.sh si le script existe.
+20. Produire rapport presents/manquants/prochaines actions.
 
 Fin obligatoire : J'attends validation avant toute modification applicative.

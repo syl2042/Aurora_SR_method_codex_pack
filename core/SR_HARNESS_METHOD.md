@@ -147,6 +147,49 @@ passes:
 
 avec `LOT-B.depends_on: [LOT-A]` dans `SR_LOTS.yaml`.
 
+### Pass Runtime Goal
+
+Le Pass Runtime Goal est une couche d'execution optionnelle pour Codex CLI `/goal`.
+
+Il ne remplace jamais `SR_PASSES.yaml`, `SR_LOTS.yaml` ni les `sr_contract.json`. Il est genere depuis une passe SR et sert uniquement a maintenir Codex en execution jusqu'au statut final correct de la passe.
+
+Politique :
+
+- `SR_PASSES.yaml`, `SR_LOTS.yaml` et les contrats de lots restent la source de verite ;
+- `pass_runtime_goal.md` est un artefact derive et peut etre regenere ;
+- une commande `/goal` doit rester courte et pointer vers `pass_runtime_goal.md` ;
+- `max_goal_command_chars` vaut `1000` par defaut ;
+- `hard_limit` vaut `4000` et ne doit jamais etre depasse ;
+- si la commande depasse `max_goal_command_chars`, Codex doit la regenerer en forme plus courte ;
+- si elle depasse encore `max_goal_command_chars` ou `hard_limit`, le Goal Length Gate est rouge et le goal ne doit pas etre lance ;
+- une passe `proposed` ne doit jamais etre executee par goal ;
+- une passe `planned` peut servir a un dry-run de generation, mais pas a une execution sans validation utilisateur ;
+- une passe `validated` ou `in_progress` peut recevoir un goal d'execution ;
+- le goal s'arrete a la fin de la passe et propose la suivante sans l'enchainer silencieusement.
+
+Generation recommandee :
+
+```bash
+python3 scripts/codex/build_pass_runtime_goal.py --pass-id <PASS_ID> --output docs/codex/tasks/YYYY-MM-DD_<pass-id>/pass_runtime_goal.md
+```
+
+La commande `/goal` produite doit etre copiee telle quelle depuis la sortie du script. Pour preparer une passe `planned` sans l'executer, utiliser `--allow-planned` et conserver le statut `planned` tant que l'utilisateur n'a pas valide.
+
+### Goal Length Gate
+
+Avant de lancer `/goal`, Codex doit verifier :
+
+```text
+Goal Length Gate:
+- pass_runtime_goal.md genere : oui/non
+- max_goal_command_chars: 1000
+- hard_limit: 4000
+- goal_command_chars: ...
+- decision: pass / fail
+```
+
+Si `decision = fail`, stopper avant execution et corriger le fichier ou le chemin de sortie. Le depassement du seuil n'est pas une alerte cosmetique : il bloque le lancement du goal.
+
 ### Nommage des lots
 
 Convention recommandee pour les nouveaux lots :
@@ -510,6 +553,8 @@ Une passe executable doit etre validee avec :
 python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml
 ```
 
+Si `pass_runtime_goal.enabled` est actif dans `PROJECT_PROFILE.yaml`, Codex doit ensuite generer `pass_runtime_goal.md`, verifier le Goal Length Gate, puis lancer ou proposer la commande `/goal` selon le niveau de validation humaine.
+
 Stopper avant codage si :
 
 - un lot depend d'un lot non termine et non inclus plus tot dans la passe ;
@@ -726,12 +771,13 @@ Quand le backlog contient plusieurs lots executables :
 
 1. verifier ou proposer une passe dans `SR_PASSES.yaml` ;
 2. appliquer le Pass Planning Gate ;
-3. traiter d'abord les lots `reopened`, puis `validated`, dans l'ordre valide de la passe ;
-4. executer jusqu'a `max_lots_per_session` ou `max_lots_per_pass` si les gates restent verts ;
-5. mettre a jour `SR_LOTS.yaml` apres chaque decision de statut ;
-6. mettre a jour `SR_PASSES.yaml` apres chaque decision de statut de passe ;
-7. produire un `gate_report.md` par lot significatif ou une section par lot dans un gate report de passe ;
-8. stopper si une validation humaine, migration, dependance, regle metier absente, test bloquant ou contexte a risque apparait.
+3. generer un Pass Runtime Goal si la passe est validee et que la fonctionnalite est activee ;
+4. traiter d'abord les lots `reopened`, puis `validated`, dans l'ordre valide de la passe ;
+5. executer jusqu'a `max_lots_per_session` ou `max_lots_per_pass` si les gates restent verts ;
+6. mettre a jour `SR_LOTS.yaml` apres chaque decision de statut ;
+7. mettre a jour `SR_PASSES.yaml` apres chaque decision de statut de passe ;
+8. produire un `gate_report.md` par lot significatif ou une section par lot dans un gate report de passe ;
+9. stopper si une validation humaine, migration, dependance, regle metier absente, test bloquant ou contexte a risque apparait.
 
 Si aucun `SR_PASSES.yaml` n'existe dans un projet ancien, Codex peut executer la politique multi-lots historique uniquement pour terminer la tache courante, puis doit proposer l'ajout d'une passe avant nouvelle execution longue.
 

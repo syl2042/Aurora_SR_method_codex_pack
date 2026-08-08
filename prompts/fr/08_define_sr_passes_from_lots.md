@@ -27,8 +27,9 @@ Methode :
 2. Classer les lots par statut et dependances.
 3. Construire le graphe `depends_on`, `blocked_by`, `impacts`, `impacted_by`.
 4. Proposer des passes avec ordre, rationale, preflight, validations humaines, migrations/actions externes, sources partagees, E2E groupe et stop conditions.
-5. Creer ou mettre a jour `SR_PASSES.yaml` uniquement apres validation si le projet impose la validation stricte.
-6. Valider avec `python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml`.
+5. Preparer la suite d'execution sans la lancer : si une passe est proposee pour Codex CLI `/goal`, indiquer que `pass_runtime_goal.md` devra etre genere apres validation, avec Goal Length Gate (`max_goal_command_chars: 1000`, `hard_limit: 4000`) et sans enchainement silencieux de la passe suivante.
+6. Creer ou mettre a jour `SR_PASSES.yaml` uniquement apres validation si le projet impose la validation stricte.
+7. Valider avec `python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml`.
 
 Sortie attendue :
 
@@ -37,6 +38,7 @@ Sortie attendue :
 - questions bloquantes ;
 - preflight par passe ;
 - E2E groupe recommande ;
+- Pass Runtime Goal a generer apres validation, si applicable ;
 - fichiers SR modifies ;
 - resultat de validation ;
 - prochaine passe recommandee.

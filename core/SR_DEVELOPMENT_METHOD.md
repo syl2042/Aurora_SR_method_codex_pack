@@ -28,6 +28,7 @@ demande utilisateur
 -> evidence gate
 -> plan court
 -> implementation ciblee
+-> si UI non triviale : design gate -> UI test readiness gate -> UI verification runner -> UI visual evidence gate
 -> verification
 -> repair loop si necessaire
 -> loop contract
@@ -51,6 +52,27 @@ Le validateur de reference est :
 ```bash
 python3 scripts/codex/validate_loop_contract.py --file docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json
 ```
+
+## UI Verification Harness
+
+A partir de SR 3.6.0, la SR Development Method contient un sous-systeme **UI Verification Harness** pour les lots UI/UX significatifs.
+
+Role :
+
+```text
+UI requirement
+-> determiner si preuve UI necessaire
+-> verifier que l'environnement est testable
+-> obtenir une session valide si necessaire
+-> lancer Playwright via sr_ui_verify.mjs
+-> tester routes x viewports
+-> capturer screenshots, console.error, pageerror, requestfailed et overflow
+-> produire un rapport JSON machine
+-> alimenter sr_contract.json
+-> bloquer Lot Completion Gate si la bonne interface n'a pas ete observee
+```
+
+Le harness est generique. Les regles UI produit restent dans les skills locales du projet. L'authentification reste une configuration projet dans `PROJECT_PROFILE.yaml`, jamais une logique codee en dur dans la SR Method.
 
 ## Relation avec SR_HARNESS_METHOD.md
 

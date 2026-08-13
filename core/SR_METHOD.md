@@ -26,6 +26,7 @@ La difference est que la SR Method applique ce principe a l'echelle complete d'u
 - memoire long terme ;
 - budget contexte ;
 - verification humaine et automatisee ;
+- verification UI executable via UI Verification Harness ;
 - agents runtime applicatifs.
 
 ## Validation humaine stricte
@@ -68,6 +69,8 @@ Regle centrale : un lot ne peut pas etre `done` si une intention validee reste `
 Regle de completude : avant toute cloture de lot ou de passe, Codex doit produire une table de couverture des exigences validees avec statut, preuve et commentaire. Si une exigence est `partiel`, `non fait`, `blocked` ou `requires_e2e`, le lot ne peut pas etre declare `done`; il doit rester `repair`, `user_testing` ou `blocked`.
 
 Regle de propagation : quand un lot modifie un symbole ou contrat partage (fonction, signature, type, schema, endpoint, champ DB, config, import/export, composant ou agent runtime), Codex doit annoncer avant mutation les consommateurs et surfaces a risque, obtenir la validation humaine requise selon le risque, puis prouver apres mutation que les references, appels, imports/exports, signatures, tests et smokes proportionnes ont ete verifies. Un lot ne peut pas etre `done` si le Propagation Gate requis n'est pas `pass`.
+
+Regle UI SR 3.6.0 : pour une exigence UI/UX significative, un build, un lint, des tests unitaires ou un HTTP 200 ne suffisent pas. Si `ui_validation.required` vaut `true`, `ui_validation.test_readiness.status` et `ui_validation.visual_evidence.status` doivent etre `pass` avant `done`. Une capture de page de login, un `pageerror` ou un overflow horizontal inattendu ne constituent pas une preuve UI valide.
 
 Validation :
 

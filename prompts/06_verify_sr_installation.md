@@ -31,6 +31,7 @@ Sources a lire :
 11. `docs/codex/SR_METHOD.md`
 12. `docs/codex/SR_DEVELOPMENT_METHOD.md`
 13. `docs/codex/SR_AGENT_METHOD.md`
+14. `scripts/codex/sr_ui_verify.mjs`
 
 Etapes :
 
@@ -75,6 +76,14 @@ python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml
 ```bash
 python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml
 ```
+
+1h. Verifier la presence UI Harness sans lancer d'auth :
+
+```bash
+node scripts/codex/sr_ui_verify.mjs --help
+```
+
+Pour un projet sans `ui_validation`, classer le resultat en warning legacy. Pour un projet authentifie, ne pas demander de credentials pendant la verification d'installation ; documenter simplement que `storage_state` ou `setup_command` devra etre configure avant un lot UI.
 
 2. Analyser le resultat :
    - `errors` : bloquant ;

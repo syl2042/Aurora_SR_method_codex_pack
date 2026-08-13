@@ -16,6 +16,7 @@ codex:
   require_knowledge_gate: true
   require_self_evaluation_gate: true
   require_review_diff: true
+  require_ui_visual_qa_for_ui: true
   require_current_state_update: full_regime_after_upgrade_or_significant_lot
 
 knowledge:
@@ -40,12 +41,18 @@ skills:
     - aurora-planning-with-files
     - aurora-diagnose
     - aurora-review-diff
+    - aurora-ui-visual-qa
     - aurora-architecture-check
     - aurora-repomap-maintainer
     - aurora-domain-skill-factory
     - aurora-terminal-token-optimizer
     - aurora-tdd
     - aurora-to-prd
+  optional:
+    - aurora-to-prd
+  deprecated:
+    - aurora-planning-with-files
+    - aurora-terminal-token-optimizer
   domain: []
   runtime: []
 
@@ -74,6 +81,59 @@ agent_runtime:
   require_human_validation_for_critical_actions: true
   forbid_llm_generated_sql_execution: true
 
+ui_validation:
+  enabled: true
+  migration_policy: "additive_legacy_compatible"
+  required_for_ui_lots: true
+  runner:
+    command: "node scripts/codex/sr_ui_verify.mjs"
+  base_url:
+    env: "PLAYWRIGHT_BASE_URL"
+    default: "http://localhost:3000"
+  routes: []
+  viewports:
+    - name: desktop-xl
+      width: 1440
+      height: 900
+    - name: desktop
+      width: 1280
+      height: 800
+    - name: tablet
+      width: 768
+      height: 1024
+    - name: mobile
+      width: 390
+      height: 844
+  auth:
+    required: false
+    mode: none
+    storage_state:
+      path: ".playwright/.auth/user.json"
+    setup_command: null
+    login_detection:
+      url_patterns:
+        - "/login"
+        - "/signin"
+        - "/auth"
+        - "/oauth/"
+        - "/oidc/"
+        - "/if/flow/"
+  checks:
+    screenshots: true
+    console_errors: true
+    console_error_ignore_patterns: []
+    page_errors: true
+    request_failed: "warn"
+    request_failed_ignore_patterns: []
+    horizontal_overflow: true
+    horizontal_overflow_tolerance_px: 2
+    unexpected_login_redirect: true
+    wait_until: "domcontentloaded"
+    wait_after_ms: 300
+  evidence:
+    directory: "output/playwright"
+    report_file: "output/playwright/ui-verification-report.json"
+
 sr_harness:
   public_name: "SR Development Method"
   require_sr_harness_for_multi_lot: true
@@ -82,6 +142,8 @@ sr_harness:
   require_user_visible_sr_close: true
   require_evidence_gate_before_plan: true
   require_design_gate_for_ui: true
+  require_ui_test_readiness_gate_for_ui: true
+  require_ui_visual_evidence_gate_for_ui: true
   require_context_budget_gate: true
   require_self_evaluation_gate: true
   require_sr_contract: true
@@ -155,3 +217,7 @@ context_budget:
   compact_command: "python3 scripts/codex/context_budget_report.py --root . --compact"
   hide_green_status: true
   require_transition_decision: true
+
+verification:
+  ui_verify: "node scripts/codex/sr_ui_verify.mjs"
+  ui_smoke: "node scripts/codex/playwright_auth_smoke.mjs" # legacy wrapper

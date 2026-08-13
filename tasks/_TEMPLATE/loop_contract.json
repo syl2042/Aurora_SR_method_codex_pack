@@ -64,6 +64,16 @@
     "visual_evidence": [],
     "decision": "not_applicable"
   },
+  "ui_validation_gate": {
+    "required": false,
+    "test_readiness_status": "not_applicable",
+    "visual_evidence_status": "not_applicable",
+    "routes": [],
+    "viewports": [],
+    "report_file": null,
+    "screenshots": [],
+    "decision": "not_applicable"
+  },
   "propagation_gate": {
     "required": false,
     "status": "not_applicable",

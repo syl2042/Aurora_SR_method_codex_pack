@@ -32,9 +32,12 @@ Regles strictes :
 - Preserve `SR_LOTS.yaml`. Ajouter `SR_PASSES.yaml` de facon additive si absent, mais ne pas convertir automatiquement les anciens lots ou task memories en passes validees.
 - Ne pas convertir massivement les anciens lots pour ajouter `design_evidence`; ajouter le Lot Design Evidence Gate seulement aux lots crees, promus ou repris apres upgrade.
 - Ajouter l'outillage Pass Runtime Goal de facon additive (`build_pass_runtime_goal.py`, template `pass_runtime_goal.md`, options `sr_passes.pass_runtime_goal`) sans generer de goal tant qu'une passe n'est pas validee.
+- Ajouter l'outillage UI Verification Harness de facon additive (`sr_ui_verify.mjs`, wrapper `playwright_auth_smoke.mjs`, `ui_validation`, skill `aurora-ui-visual-qa`) sans configurer une application specifique ni exiger l'auth pour les projets qui n'en ont pas.
 - Ne jamais lancer `/goal` pendant l'upgrade. L'upgrade prepare la methode ; l'execution par goal ne vient qu'apres realignement, pass planning et validation utilisateur.
 - Ne ferme, ne promeus et ne requalifie aucun lot ou passe applicatif comme effet secondaire implicite de l'upgrade. Si l'utilisateur demande explicitement de cloturer un lot ou une passe dans le meme travail, traite cette cloture comme une sous-phase separee apres l'upgrade, avec perimetre valide, contrat SR propre, preuves et rapport distinct.
 - Preserve les task memories historiques sans `propagation_gate` : les signaler comme legacy warnings, pas comme erreurs bloquantes. Les nouveaux templates et contrats crees apres upgrade doivent inclure le Propagation Gate.
+- Preserve les task memories historiques sans `ui_validation` : les signaler comme legacy warnings, pas comme erreurs bloquantes. Les nouveaux contrats UI crees apres upgrade doivent inclure le UI Test Readiness Gate et le UI Visual Evidence Gate quand requis.
+- Ne jamais ajouter, afficher ou commiter `.playwright/.auth/`, cookies, tokens ou storageState.
 - En SR plein regime, tout changement de version SR doit mettre a jour `docs/CURRENT_STATE.md` avec la version installee, la date de revue, les controles executes, le dernier `NEXT_SESSION_PROMPT.md`, les lots significatifs et la prochaine etape.
 - Un `loop_contract.json` de type `upgrade` ne peut pas se cloturer en `done` avec `memory_updates.current_state_updated=false`.
 - Avant toute modification de fichier, expose le plan d'upgrade et attends la validation explicite de l'utilisateur.
@@ -58,9 +61,20 @@ Etape 2 - Classification :
 
 Classe le projet dans un de ces flux :
 
+- `fresh_install` si le projet n'a jamais recu la SR Method ;
+- `upgrade_35x` si la version installee est `3.5.x` ;
 - `upgrade_minor_3x` si la version installee est deja `3.x` ;
 - `upgrade_standard_235_plus` si la version est `2.3.5+` ;
 - `upgrade_legacy_unknown` si la version est absente, illisible, inferieure a `2.3.5`, ou si l'installation SR est partielle.
+
+Matrice UI SR 3.6.0 :
+
+- fresh install : installer `ui_validation` complet avec auth `none` par defaut ;
+- SR 3.5.x : ajouter runner, skill et `ui_validation` sans ecraser `PROJECT_PROFILE.yaml` ;
+- SR 3.0-3.4 : migration additive, anciens contrats UI en warnings legacy ;
+- legacy/unknown/partial : audit + sauvegarde + plan avant mutation ;
+- backend-only : harness installe, gates UI `not_applicable` ;
+- application authentifiee : harness installe, readiness `blocked` tant que `storage_state` ou `setup_command` n'est pas configure.
 
 Etape 3 - Source officielle :
 
@@ -81,6 +95,8 @@ Compare l'installation actuelle avec la derniere version du pack et identifie :
 - fichiers necessitant une fusion prudente ;
 - presence ou absence de `SR_PASSES.yaml` ;
 - presence ou absence de l'outillage Pass Runtime Goal ;
+- presence ou absence de `ui_validation`, `sr_ui_verify.mjs`, `aurora-ui-visual-qa` et wrapper legacy ;
+- risques `.playwright/.auth/` trackes ou non ignores ;
 - presence ou absence du Lot Design Evidence Gate ;
 - risques d'ecrasement ;
 - lots ou passes applicatifs candidats a reprise/cloture, a traiter seulement en sous-phase separee si l'utilisateur l'a explicitement demande ;
@@ -100,6 +116,7 @@ Avant toute modification, presente un plan court avec :
 - risques identifies ;
 - commandes de verification prevues ;
 - impact attendu sur `SR_LOTS.yaml`, `SR_PASSES.yaml`, `AGENTS.md`, `CURRENT_STATE.md` et `docs/codex/tasks/`.
+- impact attendu sur `PROJECT_PROFILE.yaml.ui_validation`, scripts Playwright, skills methode et `.gitignore`.
 - confirmation qu'aucun lot ou passe applicatif ne sera ferme implicitement par l'upgrade ; toute cloture demandee doit etre isolee comme sous-phase validee.
 
 Attends la validation explicite de l'utilisateur avant de modifier.
@@ -116,10 +133,16 @@ Apres validation seulement :
    - `build_pass_runtime_goal.py`
    - template `pass_runtime_goal.md`
    - options `sr_passes.pass_runtime_goal`
-6. Verifie que le Goal Length Gate est present :
+6. Ajoute l'outillage UI Verification Harness si absent :
+   - `scripts/codex/sr_ui_verify.mjs`
+   - wrapper `scripts/codex/playwright_auth_smoke.mjs`
+   - section `ui_validation` additive
+   - skill `aurora-ui-visual-qa`
+   - templates `sr_contract.json` et `gate_report.md`
+7. Verifie que le Goal Length Gate est present :
    - `max_goal_command_chars: 1000`
    - `hard_limit: 4000`
-7. Verifie que le Lot Design Evidence Gate est documente et actif pour les nouveaux lots ou les lots repris.
+8. Verifie que le Lot Design Evidence Gate est documente et actif pour les nouveaux lots ou les lots repris.
 
 Etape 7 - Verifications :
 
@@ -134,6 +157,7 @@ Lance les verifications disponibles et adaptees :
 - `python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml` si `SR_PASSES.yaml` existe
 - `python3 scripts/codex/validate_loop_contract.py --file docs/codex/tasks/_TEMPLATE/loop_contract.json` si present
 - `python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/_TEMPLATE/sr_contract.json` si present
+- `node scripts/codex/sr_ui_verify.mjs --help` si present
 - `python3 scripts/codex/audit_sr_task_contracts.py --root .`
 - `python3 scripts/codex/context_budget_report.py --root . --compact`
 - `python3 scripts/codex/validate_skills.py --path ~/.codex/skills` si les skills methode sont installees
@@ -155,6 +179,7 @@ Apres l'upgrade, mets a jour ou propose la mise a jour de `docs/CURRENT_STATE.md
 - statut `SR_PASSES.yaml` ;
 - statut Pass Runtime Goal ;
 - statut Lot Design Evidence Gate ;
+- statut UI Verification Harness ;
 - prochaine etape recommandee.
 
 Etape 9 - Suite recommandee :

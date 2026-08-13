@@ -3,29 +3,52 @@
 ## Objectif
 Eviter que le Codex global du serveur accumule toutes les skills metier de tous les projets.
 
-La politique SR distingue trois familles :
+La politique SR distingue trois familles et un niveau d'outillage deterministe :
 
 1. Skills methode SR globales.
 2. Skills metier Codex locales au projet.
 3. Skills runtime applicatives injectees dans les agents IA.
+4. Deterministic tooling appele par la methode ou les skills.
 
 ## Politique recommandee
 
-### Skills methode SR globales
+### Skills methode SR principales
 
-Installer dans `~/.codex/skills` :
-- `aurora-planning-with-files`
+Installer ou rendre disponibles comme skills methode principales :
 - `aurora-diagnose`
 - `aurora-tdd`
 - `aurora-review-diff`
-- `aurora-to-prd`
+- `aurora-ui-visual-qa`
 - `aurora-architecture-check`
 - `aurora-repomap-maintainer`
 - `aurora-domain-skill-factory`
-- `aurora-terminal-token-optimizer`
 - `aurora-lot-runner`
 
-Ces skills sont transverses, stables et utiles dans tous les projets.
+Ces skills sont transverses, stables et utiles dans tous les projets SR 3.6.0.
+
+SR 3.6.0 introduit une politique progressive :
+
+- `aurora-to-prd` reste facultative pour un travail explicite de product discovery.
+- `aurora-planning-with-files` est deprecated progressivement, le comportement cible etant absorbe par `aurora-lot-runner`, SR Harness et `sr_contract.json`.
+- `aurora-terminal-token-optimizer` est deprecated progressivement comme skill cognitive; les outils `aurora_token_run`, RTK/TRS et la politique de token optimization restent disponibles via le harness.
+- les dossiers legacy peuvent rester installes pendant l'upgrade pour compatibilite, mais ils ne doivent plus etre traites comme selections automatiques principales sur un projet aligne SR 3.6.0.
+
+## Separation methode / projet / outillage
+
+Exemple UI :
+
+```text
+aurora-ui-visual-qa
+= method skill
+
+codex-narrelia-ui
+= project-local UI skill
+
+scripts/codex/sr_ui_verify.mjs
+= deterministic tooling
+```
+
+Une skill methode orchestre la verification. Une skill locale projet decrit les regles UI/metier du produit. Un outil deterministe execute les controles reproductibles et produit des preuves machine.
 
 ### Skills metier Codex locales
 

@@ -125,6 +125,31 @@
     "not_applicable_reason": null,
     "status_ceiling_if_not_pass": "proposed"
   },
+  "ui_validation": {
+    "required": false,
+    "routes": [],
+    "test_readiness": {
+      "status": "not_applicable",
+      "auth_required": false,
+      "auth_mode": "none",
+      "state_available": null,
+      "state_valid": null,
+      "login_redirect_detected": false,
+      "blocked_reason": null
+    },
+    "visual_evidence": {
+      "status": "not_applicable",
+      "routes": [],
+      "viewports": [],
+      "screenshots": [],
+      "report_file": null,
+      "console_errors": 0,
+      "page_errors": 0,
+      "request_failed": 0,
+      "horizontal_overflow_detected": false,
+      "unexpected_login_redirect": false
+    }
+  },
   "skills": {
     "method": [],
     "domain": []
@@ -153,6 +178,8 @@
     "lot_completion": "pending",
     "lot_dependency_reconciliation": "pending",
     "propagation": "pending",
+    "ui_test_readiness": "not_applicable",
+    "ui_visual_evidence": "not_applicable",
     "verification": "pending",
     "self_evaluation": "pending",
     "context_budget": "pending"

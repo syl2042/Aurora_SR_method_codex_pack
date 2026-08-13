@@ -409,6 +409,16 @@ Si une ligne est `partiel`, `non fait`, `bloque` ou `requires_e2e`, le lot ne pe
 
 Pour une exigence UI/UX, le gate exige une preuve visuelle ou E2E ciblee : capture Playwright, smoke visuel, checklist de composants/patterns ou justification d'impossibilite avec statut non `done`.
 
+A partir de SR 3.6.0, pour une exigence UI/UX significative, un build, un lint, un test unitaire ou un HTTP 200 ne suffisent pas. Si `ui_validation.required` vaut `true`, le contrat doit declarer :
+
+```text
+ui_validation.test_readiness.status: pass
+ui_validation.visual_evidence.status: pass
+ui_validation.visual_evidence.report_file: output/playwright/ui-verification-report.json
+```
+
+Si l'authentification, le MFA, les secrets ou des donnees de test empechent l'automatisation, utiliser `blocked` ou `user_testing` avec une checklist E2E concrete, pas `done`.
+
 Si une intention validee est sortie du lot courant, utiliser `moved_to_new_lot` et renseigner le lot cible, l'entree inbox ou la raison de blocage dans la couverture, les notes ou `backlog_mutation`.
 
 Le contrat doit aussi renseigner `propagation` quand un symbole ou contrat partage est modifie. Si `propagation.required` vaut `true`, `status` doit etre `pass` avant `done`, avec preflight, validation humaine si requise, recherches de references, consommateurs verifies et verification proportionnee.

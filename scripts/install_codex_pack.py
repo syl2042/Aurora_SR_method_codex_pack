@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 MAP={
  'core/AGENTS.template.md':'AGENTS.md','core/DESIGN.template.md':'DESIGN.md','core/CURRENT_STATE.template.md':'docs/CURRENT_STATE.md','core/PROJECT_PROFILE.template.yaml':'docs/codex/PROJECT_PROFILE.yaml','core/SKILL_MAP.template.md':'docs/codex/SKILL_MAP.md','core/SKILL_DIGEST.md':'docs/codex/SKILL_DIGEST.md','core/V3_UPGRADE_TEST_PLAN.md':'docs/codex/V3_UPGRADE_TEST_PLAN.md','core/WORKFLOW_CODEX.md':'docs/codex/WORKFLOW_CODEX.md','core/SR_BOOTSTRAP.md':'docs/codex/SR_BOOTSTRAP.md','core/SR_METHOD.md':'docs/codex/SR_METHOD.md','core/SR_DEVELOPMENT_METHOD.md':'docs/codex/SR_DEVELOPMENT_METHOD.md','core/SR_AGENT_METHOD.md':'docs/codex/SR_AGENT_METHOD.md','core/SR_HARNESS_METHOD.md':'docs/codex/SR_HARNESS_METHOD.md','core/LOT_EXECUTION_METHOD.md':'docs/codex/LOT_EXECUTION_METHOD.md','core/SR_PACK_VERSION.json':'docs/codex/SR_PACK_VERSION.json','core/AI_AGENT_RUNTIME_METHOD.md':'docs/codex/AI_AGENT_RUNTIME_METHOD.md','core/DOMAIN_EXPERTISE_BOOTSTRAP.md':'docs/codex/DOMAIN_EXPERTISE_BOOTSTRAP.md','core/PROJECT_SKILLS_POLICY.md':'docs/codex/PROJECT_SKILLS_POLICY.md','core/TOKEN_OPTIMIZATION.md':'docs/codex/TOKEN_OPTIMIZATION.md','core/REPO_MAP_POLICY.md':'docs/codex/REPO_MAP_POLICY.md','core/CODEBASE_MAP.md':'docs/codex/CODEBASE_MAP.md','core/CODEBASE_MAP.generated.md':'docs/codex/CODEBASE_MAP.generated.md','blueprints/sr_lots.template.yaml':'docs/codex/SR_LOTS.yaml','blueprints/sr_passes.template.yaml':'docs/codex/SR_PASSES.yaml','blueprints/sr_inbox.template.yaml':'docs/codex/SR_INBOX.yaml','blueprints/nexus_context_pack.template.md':'docs/codex/NEXUS_CONTEXT_PACK.template.md','adr/ADR_TEMPLATE.md':'docs/adr/ADR_TEMPLATE.md'}
-DIRS={'tasks/_TEMPLATE':'docs/codex/tasks/_TEMPLATE','prompts':'docs/codex/prompts','scripts/codex':'scripts/codex','project-skills':'docs/codex/project-skills'}
+DIRS={'tasks/_TEMPLATE':'docs/codex/tasks/_TEMPLATE','prompts':'docs/codex/prompts','scripts/codex':'scripts/codex','project-skills':'docs/codex/project-skills','skills-method':'docs/codex/skills-method'}
 PROJECT_OWNED={
     'AGENTS.md',
     'DESIGN.md',
@@ -30,6 +30,7 @@ AGENTS_SR_BLOCK = """\
 - Evidence gate obligatoire avant recommandation : lire les fichiers verifiables quand ils peuvent trancher.
 - Ne pas proposer une recommandation technique ou un plan engageant sans avoir lu les fichiers verifiables quand ils peuvent trancher.
 - Declarer les skills utilisees dans `task_plan.md`; utiliser `aurora-lot-runner` pour roadmap, gros brief, plusieurs lots, reprise longue ou phase autonome bornee.
+- Pour une UI/UX significative, utiliser `aurora-ui-visual-qa`, appliquer le Design Gate, le UI Test Readiness Gate et le UI Visual Evidence Gate, puis executer `node scripts/codex/sr_ui_verify.mjs` sur les routes et viewports requis.
 - Utiliser `docs/codex/SKILL_DIGEST.md` comme routeur court pour choisir les skills, puis lire uniquement les `SKILL.md` selectionnes.
 - Avant de creer ou modifier un agent IA applicatif, lire `docs/codex/AI_AGENT_RUNTIME_METHOD.md`.
 - SR Contract 3.0.0 : creer ou mettre a jour `docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json` quand `PROJECT_PROFILE.yaml` declare `require_sr_contract`, suivre `validated_requests`, puis verifier avec `python3 scripts/codex/validate_sr_contract.py --file <chemin>`.
@@ -65,6 +66,7 @@ Consulter `docs/codex/SKILL_DIGEST.md` pour choisir les skills sans charger tous
 - `aurora-planning-with-files`
 - `aurora-diagnose`
 - `aurora-review-diff`
+- `aurora-ui-visual-qa`
 - `aurora-architecture-check`
 - `aurora-repomap-maintainer`
 - `aurora-domain-skill-factory`
@@ -151,6 +153,21 @@ def merge_project_profile(d,defaults_path,target,rel,stamp):
     backup_existing(d,target,rel,stamp)
     d.write_text(yaml.safe_dump(merged,sort_keys=False,allow_unicode=False),encoding='utf-8')
     print('merged project profile:',d)
+def ensure_playwright_gitignore(target,stamp,upgrade=False):
+    d=target/'.gitignore'
+    entry='.playwright/.auth/'
+    if d.exists():
+        text=d.read_text(encoding='utf-8',errors='ignore')
+        if entry in text:
+            return
+        if upgrade:
+            backup_existing(d,target,'.gitignore',stamp)
+        suffix='' if text.endswith('\n') or not text else '\n'
+        d.write_text(text+suffix+'\n# Aurora SR UI auth state must never be committed\n'+entry+'\n',encoding='utf-8')
+        print('updated gitignore:',d)
+        return
+    d.write_text('# Aurora SR UI auth state must never be committed\n'+entry+'\n',encoding='utf-8')
+    print('created gitignore:',d)
 def cp_file(s,d,write,upgrade=False,target=None,rel=None,stamp=None):
     d.parent.mkdir(parents=True,exist_ok=True)
     if upgrade and rel in PROJECT_OWNED and d.exists():
@@ -189,6 +206,7 @@ def main():
     prof=source/'profiles'/a.profile/'PROJECT_PROFILE.yaml'
     if prof.exists() and not a.upgrade: cp_file(prof,target/'docs/codex/PROJECT_PROFILE.yaml',True)
     if prof.exists() and a.upgrade: merge_project_profile(target/'docs/codex/PROJECT_PROFILE.yaml',prof,target,'docs/codex/PROJECT_PROFILE.yaml',stamp)
+    ensure_playwright_gitignore(target,stamp,a.upgrade)
     (target/'docs/domain').mkdir(parents=True,exist_ok=True); (target/'docs/adr').mkdir(parents=True,exist_ok=True)
     if a.upgrade: print('backup dir:',target/'docs/codex/upgrade_backups'/stamp)
     print('done')

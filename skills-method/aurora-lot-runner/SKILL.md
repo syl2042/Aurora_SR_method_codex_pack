@@ -1,7 +1,7 @@
 ---
 name: aurora-lot-runner
 description: >-
-  utiliser quand l'utilisateur demande d'executer une roadmap, un gros brief, plusieurs lots, une reprise longue, une phase autonome bornee ou une nouvelle fonction non triviale. Orchestre SR_INBOX, SR_LOTS, CURRENT_STATE, task memory, evidence_gate, design_gate, context_budget_gate, verification, gate_report et les skills methode existantes pour classer la demande, choisir le prochain lot, limiter le scope, mettre a jour le backlog vivant et decider continuer, reparer ou stopper.
+  utiliser quand l'utilisateur demande d'executer une roadmap, un gros brief, plusieurs lots, une reprise longue, une phase autonome bornee ou une nouvelle fonction non triviale. Orchestre SR_INBOX, SR_LOTS, CURRENT_STATE, task memory, evidence_gate, design_gate, ui_test_readiness_gate, ui_visual_evidence_gate, context_budget_gate, verification, gate_report et les skills methode existantes pour classer la demande, choisir le prochain lot, limiter le scope, mettre a jour le backlog vivant et decider continuer, reparer ou stopper.
 ---
 
 # Role
@@ -65,6 +65,7 @@ Si la demande modifie le backlog, proposer ou effectuer la mise a jour de `SR_IN
    - `aurora-architecture-check` si structurant
    - `aurora-repomap-maintainer` si structure change
    - `aurora-review-diff` avant cloture
+   - `aurora-ui-visual-qa` si UI/UX significative
    - skill metier locale si domaine
    - skill design si UI et disponible
 7. Implementer dans le scope du lot ou de la passe.
@@ -88,6 +89,8 @@ Si la demande modifie le backlog, proposer ou effectuer la mise a jour de `SR_IN
 - `self_evaluation_gate` : relire diff/fichiers, verifier preuves, risques et oublis possibles.
 - `loop_contract_gate` : verifier que `loop_contract.json` declare status, preuves, fichiers modifies, verifications, E2E utilisateur, memoire, budget contexte et decision de transition conversationnelle.
 - `design_gate` : obligatoire pour UI non triviale.
+- `ui_test_readiness_gate` : obligatoire pour UI non triviale quand `ui_validation.required` vaut `true`.
+- `ui_visual_evidence_gate` : obligatoire avant cloture `done` d'un lot UI significatif.
 - `context_budget_gate` : rapport contexte, handoff ou prompt de reprise si orange/rouge, 2 lots ou 20 tours utilisateur, puis decision `conversation_transition`.
 - `nexus_context_gate` : utiliser un context pack court si Nexus/RAG est pertinent.
 

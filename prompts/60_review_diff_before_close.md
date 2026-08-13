@@ -9,6 +9,20 @@ Avant de dire `done` ou `lot termine`, produire une table de couverture :
 
 Si une exigence validee est `partiel`, `non fait`, `blocked` ou `requires_e2e`, repondre corrections requises et utiliser `repair`, `user_testing` ou `blocked`. Pour une exigence UI/UX, un build/lint/smoke HTTP ne suffit pas : fournir une preuve visuelle/E2E ciblee ou ne pas declarer le lot termine.
 
+Pour une UI/UX significative avec `ui_validation.required=true`, verifier dans `sr_contract.json` :
+
+- `ui_validation.test_readiness.status = pass` ;
+- `ui_validation.visual_evidence.status = pass` ;
+- rapport Playwright present ;
+- routes et viewports attendus testes ;
+- screenshots attendus presents ;
+- pas de redirection login inattendue ;
+- pas de `pageerror` ;
+- erreurs console/requestfailed traitees ;
+- pas d'overflow horizontal inattendu.
+
+Si l'un de ces points manque, ne pas declarer `done`.
+
 Si un changement touche un symbole ou contrat partage, produire aussi :
 
 - Propagation preflight annonce avant mutation : oui/non/N/A ;
@@ -50,6 +64,7 @@ Repondre OK cloture ou corrections requises avec :
 - validation `SR_LOTS.yaml` si le backlog a ete modifie ;
 - memoire SR mise a jour ;
 - Propagation Gate avec decision et preuves si applicable ;
+- UI Test Readiness Gate et UI Visual Evidence Gate si UI significative ;
 - Lot Completion Gate avec table de couverture et decision ;
 - SR Contract 3.0.0 valide ou raison de non-applicabilite, avec couverture `validated_requests` ;
 - Loop Contract valide ou raison de non-applicabilite, avec decision `conversation_transition` et `resume_protocol` si reprise nouvelle conversation ;

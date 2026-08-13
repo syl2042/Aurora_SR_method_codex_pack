@@ -94,13 +94,46 @@ def valid_contract() -> dict:
             "decision": "not_applicable",
         },
         "evidence": {"sources_read": ["docs/codex/SR_METHOD.md"], "code_files_read": [], "tests_or_logs": []},
+        "ui_validation": {
+            "required": False,
+            "routes": [],
+            "test_readiness": {
+                "status": "not_applicable",
+                "auth_required": False,
+                "auth_mode": "none",
+                "state_available": None,
+                "state_valid": None,
+                "login_redirect_detected": False,
+                "blocked_reason": None,
+            },
+            "visual_evidence": {
+                "status": "not_applicable",
+                "routes": [],
+                "viewports": [],
+                "screenshots": [],
+                "report_file": None,
+                "console_errors": 0,
+                "page_errors": 0,
+                "request_failed": 0,
+                "horizontal_overflow_detected": False,
+                "unexpected_login_redirect": False,
+            },
+        },
         "skills": {"method": ["aurora-lot-runner"], "domain": []},
         "plan": ["Creer le schema."],
         "findings": [],
         "decisions": [],
         "implementation": {"app_code_changed": False, "changed_files": ["scripts/codex/validate_sr_contract.py"]},
         "verification": {"commands_run": ["unit"], "commands_failed": [], "not_run_reason": None},
-        "gates": {"evidence": "pass", "lot_completion": "pass", "propagation": "not_applicable", "verification": "pass", "context_budget": "pass"},
+        "gates": {
+            "evidence": "pass",
+            "lot_completion": "pass",
+            "propagation": "not_applicable",
+            "ui_test_readiness": "not_applicable",
+            "ui_visual_evidence": "not_applicable",
+            "verification": "pass",
+            "context_budget": "pass",
+        },
         "e2e": {"required": True, "items": ["Relire le contrat et verifier les requetes couvertes."]},
         "context": {"status": "green", "report_path": None},
         "transition": {
@@ -227,6 +260,101 @@ class ValidateSrContractTest(unittest.TestCase):
         errors, warnings = validate_sr_contract.validate(data)
         self.assertEqual([], errors)
         self.assertTrue(any("legacy contract" in warning for warning in warnings), warnings)
+
+    def test_done_ui_validation_required_with_pass_evidence_is_valid(self) -> None:
+        data = valid_contract()
+        data["validated_requests"][0]["requirement_type"] = "ui_ux"
+        data["lot_completion_gate"]["ui_ux_required"] = True
+        data["lot_completion_gate"]["visual_evidence"] = ["output/playwright/dashboard/desktop.png"]
+        data["ui_validation"] = {
+            "required": True,
+            "routes": ["/dashboard"],
+            "test_readiness": {
+                "status": "pass",
+                "auth_required": False,
+                "auth_mode": "none",
+                "state_available": None,
+                "state_valid": None,
+                "login_redirect_detected": False,
+                "blocked_reason": None,
+            },
+            "visual_evidence": {
+                "status": "pass",
+                "routes": ["/dashboard"],
+                "viewports": ["desktop"],
+                "screenshots": ["output/playwright/dashboard/desktop.png"],
+                "report_file": "output/playwright/ui-verification-report.json",
+                "console_errors": 0,
+                "page_errors": 0,
+                "request_failed": 0,
+                "horizontal_overflow_detected": False,
+                "unexpected_login_redirect": False,
+            },
+        }
+        data["gates"]["ui_test_readiness"] = "pass"
+        data["gates"]["ui_visual_evidence"] = "pass"
+        errors, warnings = validate_sr_contract.validate(data)
+        self.assertEqual([], errors)
+        self.assertEqual([], warnings)
+
+    def test_done_ui_validation_required_rejects_missing_visual_evidence(self) -> None:
+        data = valid_contract()
+        data["ui_validation"]["required"] = True
+        data["ui_validation"]["test_readiness"]["status"] = "pass"
+        data["ui_validation"]["visual_evidence"]["status"] = "not_applicable"
+        data["gates"]["ui_test_readiness"] = "pass"
+        errors, _warnings = validate_sr_contract.validate(data)
+        self.assertTrue(any("visual_evidence.status pass" in error for error in errors), errors)
+        self.assertTrue(any("visual_evidence.report_file" in error for error in errors), errors)
+
+    def test_done_ui_validation_required_rejects_readiness_fail(self) -> None:
+        data = valid_contract()
+        data["ui_validation"]["required"] = True
+        data["ui_validation"]["test_readiness"]["status"] = "fail"
+        data["ui_validation"]["visual_evidence"].update(
+            {
+                "status": "pass",
+                "screenshots": ["output/playwright/dashboard/desktop.png"],
+                "report_file": "output/playwright/ui-verification-report.json",
+            }
+        )
+        data["gates"]["ui_visual_evidence"] = "pass"
+        errors, _warnings = validate_sr_contract.validate(data)
+        self.assertTrue(any("test_readiness.status pass" in error for error in errors), errors)
+
+    def test_done_ui_validation_rejects_login_redirect(self) -> None:
+        data = valid_contract()
+        data["ui_validation"]["required"] = True
+        data["ui_validation"]["test_readiness"].update({"status": "pass", "login_redirect_detected": True})
+        data["ui_validation"]["visual_evidence"].update(
+            {
+                "status": "pass",
+                "screenshots": ["output/playwright/login/desktop.png"],
+                "report_file": "output/playwright/ui-verification-report.json",
+                "unexpected_login_redirect": True,
+            }
+        )
+        data["gates"]["ui_test_readiness"] = "pass"
+        data["gates"]["ui_visual_evidence"] = "pass"
+        errors, _warnings = validate_sr_contract.validate(data)
+        self.assertTrue(any("login redirect" in error for error in errors), errors)
+
+    def test_user_testing_with_blocked_ui_requires_e2e_items(self) -> None:
+        data = valid_contract()
+        data["status"] = "user_testing"
+        data["lot_completion_gate"]["decision"] = "user_testing"
+        data["ui_validation"]["required"] = True
+        data["ui_validation"]["test_readiness"]["status"] = "blocked"
+        data["e2e"]["items"] = []
+        errors, _warnings = validate_sr_contract.validate(data)
+        self.assertTrue(any("requires e2e.items" in error for error in errors), errors)
+
+    def test_missing_ui_validation_is_legacy_warning(self) -> None:
+        data = valid_contract()
+        del data["ui_validation"]
+        errors, warnings = validate_sr_contract.validate(data)
+        self.assertEqual([], errors)
+        self.assertTrue(any("ui_validation missing" in warning for warning in warnings), warnings)
 
 
 if __name__ == "__main__":

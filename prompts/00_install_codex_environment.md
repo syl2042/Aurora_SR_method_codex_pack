@@ -30,10 +30,11 @@ Etapes :
 14. Verifier le prompt `docs/codex/prompts/09_define_sr_lots_from_scope.md`. Pour un nouveau projet, recommander de definir les lots avec ce prompt afin d'appliquer le Lot Design Evidence Gate avant tout lot executable.
 15. Verifier `docs/codex/SR_PASSES.yaml`. Pour un nouveau projet, recommander de definir les passes apres les lots : ordre logique, dependances, preflight, validations humaines, secrets/actions externes et E2E groupe.
 16. Verifier l'outillage Pass Runtime Goal : `scripts/codex/build_pass_runtime_goal.py`, `docs/codex/tasks/_TEMPLATE/pass_runtime_goal.md`, options `sr_passes.pass_runtime_goal` dans `PROJECT_PROFILE.yaml`.
-17. Pour un projet vierge, ne pas generer de goal immediatement : le goal vient seulement apres lots, Lot Design Evidence Gate, passes, Pass Planning Gate et validation d'une passe `validated` ou `in_progress`.
-18. Rappeler le Goal Length Gate au prochain Codex : `max_goal_command_chars: 1000`, `hard_limit: 4000`; `/goal` reste derive, les fichiers SR restent source de verite.
-19. Si le projet contient ou prevoit des agents IA runtime, confirmer que `docs/codex/SR_AGENT_METHOD.md`, `docs/codex/AI_AGENT_RUNTIME_METHOD.md` et `docs/codex/prompts/15_define_runtime_agents.md` existent, puis recommander le prompt `15` apres validation.
-20. Verifier RTK avec verify_rtk.sh si le script existe.
-21. Produire rapport presents/manquants/prochaines actions.
+17. Verifier l'outillage UI Verification Harness : `scripts/codex/sr_ui_verify.mjs`, wrapper `playwright_auth_smoke.mjs`, section `ui_validation`, skill `aurora-ui-visual-qa`; pour une application authentifiee, rappeler que `.playwright/.auth/` doit rester hors Git.
+18. Pour un projet vierge, ne pas generer de goal immediatement : le goal vient seulement apres lots, Lot Design Evidence Gate, passes, Pass Planning Gate et validation d'une passe `validated` ou `in_progress`.
+19. Rappeler le Goal Length Gate au prochain Codex : `max_goal_command_chars: 1000`, `hard_limit: 4000`; `/goal` reste derive, les fichiers SR restent source de verite.
+20. Si le projet contient ou prevoit des agents IA runtime, confirmer que `docs/codex/SR_AGENT_METHOD.md`, `docs/codex/AI_AGENT_RUNTIME_METHOD.md` et `docs/codex/prompts/15_define_runtime_agents.md` existent, puis recommander le prompt `15` apres validation.
+21. Verifier RTK avec verify_rtk.sh si le script existe.
+22. Produire rapport presents/manquants/prochaines actions.
 
 Fin obligatoire : J'attends validation avant toute modification applicative.

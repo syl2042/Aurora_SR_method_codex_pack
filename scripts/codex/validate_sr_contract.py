@@ -24,6 +24,8 @@ VALID_PROPAGATION_COMPATIBILITY = {
     "not_required",
 }
 VALID_PROPAGATION_DECISIONS = {"pass", "repair", "blocked", "not_applicable"}
+VALID_UI_READINESS_STATUSES = {"pending", "pass", "fail", "blocked", "not_applicable"}
+VALID_UI_VISUAL_STATUSES = {"pending", "pass", "repair", "blocked", "not_applicable"}
 
 
 def load_contract(path: Path) -> dict:
@@ -240,6 +242,90 @@ def validate_lot_completion_gate(data: dict, requests: list, errors: list[str]) 
     return gate
 
 
+def validate_ui_validation(data: dict, requests: list, errors: list[str], warnings: list[str]) -> dict:
+    ui = data.get("ui_validation")
+    gate = data.get("lot_completion_gate") if isinstance(data.get("lot_completion_gate"), dict) else {}
+    inferred_ui_required = gate.get("ui_ux_required") is True or any(
+        isinstance(request, dict) and request_requires_ui_evidence(request) for request in requests
+    )
+    e2e = data.get("e2e") if isinstance(data.get("e2e"), dict) else {}
+
+    if ui is None:
+        warnings.append("ui_validation missing; accepted as legacy contract")
+        return {}
+    if not isinstance(ui, dict):
+        errors.append("ui_validation must be an object")
+        return {}
+
+    required = ui.get("required")
+    if not isinstance(required, bool):
+        errors.append("ui_validation.required must be boolean")
+        required = False
+    if "routes" in ui and not isinstance(ui.get("routes"), list):
+        errors.append("ui_validation.routes must be a list")
+
+    readiness = ui.get("test_readiness")
+    if not isinstance(readiness, dict):
+        errors.append("ui_validation.test_readiness must be an object")
+        readiness = {}
+    else:
+        if readiness.get("status") not in VALID_UI_READINESS_STATUSES:
+            errors.append(f"ui_validation.test_readiness.status must be one of {sorted(VALID_UI_READINESS_STATUSES)}")
+        for key in ("auth_required", "login_redirect_detected"):
+            if key in readiness and not isinstance(readiness.get(key), bool):
+                errors.append(f"ui_validation.test_readiness.{key} must be boolean")
+        if not non_empty_string(readiness.get("auth_mode")):
+            errors.append("ui_validation.test_readiness.auth_mode must be a non-empty string")
+        for key in ("state_available", "state_valid"):
+            if key in readiness and readiness.get(key) is not None and not isinstance(readiness.get(key), bool):
+                errors.append(f"ui_validation.test_readiness.{key} must be boolean or null")
+        if "blocked_reason" in readiness and readiness.get("blocked_reason") is not None and not isinstance(readiness.get("blocked_reason"), str):
+            errors.append("ui_validation.test_readiness.blocked_reason must be string or null")
+
+    visual = ui.get("visual_evidence")
+    if not isinstance(visual, dict):
+        errors.append("ui_validation.visual_evidence must be an object")
+        visual = {}
+    else:
+        if visual.get("status") not in VALID_UI_VISUAL_STATUSES:
+            errors.append(f"ui_validation.visual_evidence.status must be one of {sorted(VALID_UI_VISUAL_STATUSES)}")
+        for key in ("routes", "viewports", "screenshots"):
+            if not isinstance(visual.get(key), list):
+                errors.append(f"ui_validation.visual_evidence.{key} must be a list")
+        report_file = visual.get("report_file")
+        if report_file is not None and not non_empty_string(report_file):
+            errors.append("ui_validation.visual_evidence.report_file must be null or a non-empty string")
+        for key in ("console_errors", "page_errors", "request_failed"):
+            if key in visual and not isinstance(visual.get(key), int):
+                errors.append(f"ui_validation.visual_evidence.{key} must be integer")
+        for key in ("horizontal_overflow_detected", "unexpected_login_redirect"):
+            if key in visual and not isinstance(visual.get(key), bool):
+                errors.append(f"ui_validation.visual_evidence.{key} must be boolean")
+
+    if data.get("status") == "done" and required is True:
+        if readiness.get("status") != "pass":
+            errors.append("status done with ui_validation.required true requires ui_validation.test_readiness.status pass")
+        if visual.get("status") != "pass":
+            errors.append("status done with ui_validation.required true requires ui_validation.visual_evidence.status pass")
+        if not visual.get("report_file"):
+            errors.append("status done with ui_validation.required true requires ui_validation.visual_evidence.report_file")
+        if not visual.get("screenshots") and not e2e.get("items"):
+            errors.append("status done with ui_validation.required true requires screenshots or e2e.items")
+        if readiness.get("login_redirect_detected") is True or visual.get("unexpected_login_redirect") is True:
+            errors.append("status done is incompatible with UI login redirect detection")
+        if visual.get("page_errors", 0) > 0:
+            errors.append("status done is incompatible with UI page_errors")
+        if visual.get("horizontal_overflow_detected") is True:
+            errors.append("status done is incompatible with unexpected UI horizontal overflow")
+
+    if data.get("status") == "user_testing" and (required is True or inferred_ui_required):
+        blocked_or_missing = readiness.get("status") in {"blocked", "fail", "pending"} or visual.get("status") in {"blocked", "repair", "pending"}
+        if blocked_or_missing and not e2e.get("items"):
+            errors.append("status user_testing with blocked UI automation requires e2e.items describing remaining user tests")
+
+    return ui
+
+
 def validate_propagation(data: dict, errors: list[str], warnings: list[str]) -> dict:
     propagation = data.get("propagation")
     gates = data.get("gates") if isinstance(data.get("gates"), dict) else {}
@@ -371,6 +457,7 @@ def validate(data: dict) -> tuple[list[str], list[str]]:
 
     requests = validate_requests(data, errors)
     validate_lot_completion_gate(data, requests, errors)
+    ui_validation = validate_ui_validation(data, requests, errors, warnings)
     propagation = validate_propagation(data, errors, warnings)
     if data.get("task_type") != "analysis" and not requests:
         errors.append("validated_requests must not be empty for non-analysis tasks")
@@ -477,6 +564,11 @@ def validate(data: dict) -> tuple[list[str], list[str]]:
                 errors.append("status done requires gates.lot_completion pass")
             if isinstance(propagation, dict) and propagation.get("required") is True and gates.get("propagation") != "pass":
                 errors.append("status done requires gates.propagation pass when propagation is required")
+            if isinstance(ui_validation, dict) and ui_validation.get("required") is True:
+                if gates.get("ui_test_readiness") != "pass":
+                    errors.append("status done requires gates.ui_test_readiness pass when ui_validation is required")
+                if gates.get("ui_visual_evidence") != "pass":
+                    errors.append("status done requires gates.ui_visual_evidence pass when ui_validation is required")
 
     e2e = require_object(data, "e2e", errors)
     if e2e:

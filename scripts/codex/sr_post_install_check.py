@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-EXPECTED_VERSION = "3.5.2"
+EXPECTED_VERSION = "3.6.0"
 VALID_KNOWLEDGE_MODES = {"core", "nexus_kg"}
 
 SKILL_AGENT_TEMPLATE = """\
@@ -124,6 +124,9 @@ def check_required(root: Path) -> tuple[list[str], list[str]]:
         "scripts/codex/build_pass_runtime_goal.py",
         "scripts/codex/validate_sr_contract.py",
         "scripts/codex/audit_sr_task_contracts.py",
+        "scripts/codex/sr_ui_verify.mjs",
+        "scripts/codex/playwright_auth_smoke.mjs",
+        "docs/codex/skills-method/aurora-ui-visual-qa/SKILL.md",
     ]
     errors = []
     warnings = []
@@ -144,12 +147,12 @@ def check_markers(root: Path) -> tuple[list[str], list[str]]:
         "docs/codex/SR_DEVELOPMENT_METHOD.md": ["loop_contract.json", "validate_loop_contract.py"],
         "docs/codex/SR_AGENT_METHOD.md": ["AI_AGENT_RUNTIME_METHOD.md", "output JSON schema"],
         "docs/codex/SKILL_MAP.md": ["Knowledge mode", "SKILL_DIGEST.md"],
-        "docs/codex/SKILL_DIGEST.md": ["Skills methode globales", "Skills metier Codex locales", "Skills runtime applicatives"],
+        "docs/codex/SKILL_DIGEST.md": ["Skills methode globales", "Skills metier Codex locales", "Skills runtime applicatives", "aurora-ui-visual-qa"],
         "docs/codex/V3_UPGRADE_TEST_PLAN.md": ["SR 3.0.0", "Prompt initial pour projet pilote", "validate_sr_contract.py", "audit_sr_task_contracts.py"],
-        "docs/codex/tasks/_TEMPLATE/gate_report.md": ["Knowledge Gate", "Fact Gate", "Backlog Mutation Gate", "Lot Design Evidence Gate", "Global Impact Gate", "Lot Dependency Reconciliation", "Propagation Gate", "Pass Runtime Goal", "Goal Length Gate", "Lot Completion Gate", "Self Evaluation Gate", "Context Budget Gate", "Loop Contract"],
+        "docs/codex/tasks/_TEMPLATE/gate_report.md": ["Knowledge Gate", "Fact Gate", "Backlog Mutation Gate", "Lot Design Evidence Gate", "Global Impact Gate", "Lot Dependency Reconciliation", "Propagation Gate", "UI Test Readiness Gate", "UI Visual Evidence Gate", "Pass Runtime Goal", "Goal Length Gate", "Lot Completion Gate", "Self Evaluation Gate", "Context Budget Gate", "Loop Contract"],
         "docs/codex/tasks/_TEMPLATE/pass_runtime_goal.md": ["Pass Runtime Goal", "max_goal_command_chars: 1000", "hard_limit: 4000", "Pass Completion Gate"],
         "docs/codex/tasks/_TEMPLATE/loop_contract.json": ["schema_version", "status_decision", "lot_design_evidence_gate", "backlog_mutation_gate", "global_impact_gate", "propagation_gate", "lot_completion_gate", "e2e_user_tests", "resume_protocol"],
-        "docs/codex/tasks/_TEMPLATE/sr_contract.json": ["schema_version", "validated_requests", "lot_completion_gate", "design_evidence", "backlog_mutation", "global_impact", "propagation", "transition"],
+        "docs/codex/tasks/_TEMPLATE/sr_contract.json": ["schema_version", "validated_requests", "lot_completion_gate", "design_evidence", "ui_validation", "backlog_mutation", "global_impact", "propagation", "transition"],
         "docs/codex/prompts/06_verify_sr_installation.md": ["sr_post_install_check.py", "--fix-safe", "SR Contract 3.0.0", "audit_sr_task_contracts.py", "Propagation Gate"],
         "docs/codex/prompts/07_realign_sr_state_after_upgrade.md": ["audit SR de reprise", "audit_sr_task_contracts.py", "sr_contract.json"],
         "docs/codex/prompts/08_define_sr_passes_from_lots.md": ["SR_PASSES.yaml", "Lot Design Evidence Gate", "validate_pass_contract.py"],
@@ -157,14 +160,15 @@ def check_markers(root: Path) -> tuple[list[str], list[str]]:
         "docs/codex/prompts/05_upgrade_codex_environment.md": ["https://github.com/syl2042/Aurora_SR_method_codex_pack", "commit source", "SR_PACK_SOURCE", "upgrade_legacy_unknown", "Lot Design Evidence Gate", "effet secondaire implicite", "sous-phase separee", "validate_sr_contract.py", "audit_sr_task_contracts.py", "Propagation Gate"],
         "docs/codex/prompts/01_start_sr_session.md": ["find_next_session_prompt.py", "NEXT_SESSION_PROMPT.md", "Reprise SR stricte", "SR Contract 3.0.0", "validate_sr_contract.py", "Propagation Gate"],
         "docs/codex/prompts/60_review_diff_before_close.md": ["SR Contract 3.0.0", "validate_sr_contract.py", "validated_requests", "Lot Completion Gate", "Propagation Gate"],
-        "docs/codex/SR_HARNESS_METHOD.md": ["SR_PASSES.yaml", "Pass Planning Gate", "Pass Runtime Goal", "Goal Length Gate", "Lot Completion Gate", "Propagation Gate", "validate_pass_contract.py", "build_pass_runtime_goal.py"],
-        "docs/codex/LOT_EXECUTION_METHOD.md": ["Pass Planning Gate", "Pass Runtime Goal", "Goal Length Gate", "Lot Completion Gate", "Propagation Gate", "validate_pass_contract.py", "build_pass_runtime_goal.py"],
+        "docs/codex/SR_HARNESS_METHOD.md": ["SR_PASSES.yaml", "Pass Planning Gate", "Pass Runtime Goal", "Goal Length Gate", "Lot Completion Gate", "Propagation Gate", "UI Test Readiness Gate", "UI Visual Evidence Gate", "validate_pass_contract.py", "build_pass_runtime_goal.py"],
+        "docs/codex/LOT_EXECUTION_METHOD.md": ["Pass Planning Gate", "Pass Runtime Goal", "Goal Length Gate", "Lot Completion Gate", "Propagation Gate", "ui_validation", "validate_pass_contract.py", "build_pass_runtime_goal.py"],
         "docs/codex/SR_BOOTSTRAP.md": ["find_next_session_prompt.py", "Auto-reprise obligatoire", "Reprise SR stricte", "Validation humaine stricte", "Lot Design Evidence Gate", "Pass Runtime Goal", "Goal Length Gate", "Lot Completion Gate", "Propagation Gate"],
         "scripts/codex/find_next_session_prompt.py": ["NEXT_SESSION_PROMPT.md"],
         "scripts/codex/validate_loop_contract.py": ["SR loop contract", "lot_completion_gate", "propagation_gate"],
         "scripts/codex/validate_pass_contract.py": ["SR_PASSES.yaml"],
         "scripts/codex/build_pass_runtime_goal.py": ["Pass Runtime Goal", "DEFAULT_MAX_GOAL_COMMAND_CHARS", "DEFAULT_HARD_LIMIT"],
-        "scripts/codex/validate_sr_contract.py": ["SR 3.0.0", "validated_requests", "lot_completion_gate", "propagation"],
+        "scripts/codex/validate_sr_contract.py": ["SR 3.0.0", "validated_requests", "lot_completion_gate", "propagation", "ui_validation"],
+        "scripts/codex/sr_ui_verify.mjs": ["ui_test_readiness_gate", "ui_visual_evidence_gate", "storageState"],
         "scripts/codex/audit_sr_task_contracts.py": ["SR 3.0.0", "legacy task memories", "LEGACY_LOT_COMPLETION_GATE_CUTOFF", "legacy_compat"],
     }
     for rel, markers in marker_checks.items():
@@ -276,6 +280,46 @@ def merge_profile_defaults(root: Path) -> list[str]:
             "done_requires_user_validation_when_e2e_required": True,
         }
         changed.append("sr_passes.pass_runtime_goal")
+    if "ui_validation" not in data:
+        data["ui_validation"] = {
+            "enabled": True,
+            "migration_policy": "additive_legacy_compatible",
+            "required_for_ui_lots": True,
+            "runner": {"command": "node scripts/codex/sr_ui_verify.mjs"},
+            "base_url": {"env": "PLAYWRIGHT_BASE_URL", "default": "http://localhost:3000"},
+            "routes": [],
+            "viewports": [
+                {"name": "desktop-xl", "width": 1440, "height": 900},
+                {"name": "desktop", "width": 1280, "height": 800},
+                {"name": "tablet", "width": 768, "height": 1024},
+                {"name": "mobile", "width": 390, "height": 844},
+            ],
+            "auth": {
+                "required": False,
+                "mode": "none",
+                "storage_state": {"path": ".playwright/.auth/user.json"},
+                "setup_command": None,
+                "login_detection": {"url_patterns": ["/login", "/signin", "/auth", "/oauth/", "/oidc/", "/if/flow/"]},
+            },
+            "checks": {
+                "screenshots": True,
+                "console_errors": True,
+                "console_error_ignore_patterns": [],
+                "page_errors": True,
+                "request_failed": "warn",
+                "request_failed_ignore_patterns": [],
+                "horizontal_overflow": True,
+                "horizontal_overflow_tolerance_px": 2,
+                "unexpected_login_redirect": True,
+                "wait_until": "domcontentloaded",
+                "wait_after_ms": 300,
+            },
+            "evidence": {
+                "directory": "output/playwright",
+                "report_file": "output/playwright/ui-verification-report.json",
+            },
+        }
+        changed.append("ui_validation")
     if "context_budget" not in data:
         data["context_budget"] = {"context_window_tokens": 258400}
         changed.append("context_budget")
@@ -327,6 +371,17 @@ def fix_local_skill_agents(root: Path) -> list[str]:
     return fixed
 
 
+def fix_playwright_gitignore(root: Path) -> list[str]:
+    gitignore = root / ".gitignore"
+    entry = ".playwright/.auth/"
+    text = read_text(gitignore)
+    if entry in text:
+        return []
+    suffix = "" if not text or text.endswith("\n") else "\n"
+    write_text(gitignore, text + suffix + "\n# Aurora SR UI auth state must never be committed\n" + entry + "\n")
+    return ["added .playwright/.auth/ to .gitignore"]
+
+
 def lot_legacy_warnings(root: Path) -> list[str]:
     warnings = []
     data = load_yaml(root / "docs/codex/SR_LOTS.yaml")
@@ -338,6 +393,27 @@ def lot_legacy_warnings(root: Path) -> list[str]:
     if "lot_naming" not in data:
         warnings.append("SR_LOTS.yaml has no lot_naming block; not blocking for legacy lots")
     return warnings
+
+
+def ui_validation_warnings(root: Path) -> tuple[list[str], list[str]]:
+    errors = []
+    warnings = []
+    profile = load_yaml(root / "docs/codex/PROJECT_PROFILE.yaml")
+    ui = profile.get("ui_validation") if isinstance(profile.get("ui_validation"), dict) else None
+    if ui is None:
+        warnings.append("ui_validation missing; legacy compatible, but UI lots require configuration before done")
+        return errors, warnings
+    if not (root / "scripts/codex/sr_ui_verify.mjs").exists():
+        errors.append("ui_validation enabled but scripts/codex/sr_ui_verify.mjs is missing")
+    gitignore = read_text(root / ".gitignore")
+    if ".playwright/.auth" not in gitignore:
+        warnings.append(".gitignore should exclude .playwright/.auth/ to protect Playwright storageState")
+    tracked_result = run_command(root, ["git", "ls-files"])
+    if tracked_result["returncode"] == 0:
+        tracked = tracked_result.get("stdout") or ""
+        if ".playwright/.auth/" in tracked:
+            errors.append("tracked Playwright auth state detected under .playwright/.auth/")
+    return errors, warnings
 
 
 def make_report(root: Path, result: dict, fix_safe: bool) -> Path:
@@ -379,11 +455,15 @@ def main() -> int:
     if args.fix_safe:
         fixed.extend(merge_profile_defaults(root))
         fixed.extend(fix_local_skill_agents(root))
+        fixed.extend(fix_playwright_gitignore(root))
 
     for checker in (check_required, check_markers, check_knowledge):
         e, w = checker(root)
         errors.extend(e)
         warnings.extend(w)
+    e, w = ui_validation_warnings(root)
+    errors.extend(e)
+    warnings.extend(w)
     warnings.extend(lot_legacy_warnings(root))
 
     command_specs = [

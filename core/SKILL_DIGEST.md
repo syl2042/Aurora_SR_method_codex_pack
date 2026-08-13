@@ -15,20 +15,28 @@ Ce digest ne remplace pas :
 3. Lire ce digest pour choisir les skills candidates.
 4. Lire uniquement les `SKILL.md` selectionnes avant de coder.
 
-## Skills methode globales
+## Skills methode principales
 
 | Skill | Declencheur |
 |---|---|
-| `aurora-planning-with-files` | Tache non triviale, multi-fichiers, reprise, memoire SR. |
 | `aurora-lot-runner` | Roadmap, gros brief, lot SR, reprise longue, phase autonome bornee. |
 | `aurora-diagnose` | Bug, erreur runtime, test rouge, integration ou UI a diagnostiquer. |
 | `aurora-tdd` | Fonction ou correction verifiable par test automatise raisonnable. |
 | `aurora-review-diff` | Revue obligatoire avant cloture d'une tache non triviale. |
+| `aurora-ui-visual-qa` | UI/UX significative, responsive, screenshots, Playwright, preuves visuelles. |
 | `aurora-architecture-check` | Migration, modele DB, integration, orchestration IA, dependance ou refactor structurant. |
 | `aurora-repomap-maintainer` | Route, endpoint, modele, migration, service, composant central ou script modifie. |
 | `aurora-domain-skill-factory` | Projet sans skill metier pertinente ou creation de skill locale. |
-| `aurora-terminal-token-optimizer` | Commandes longues, logs, tests, build, docker, grep ou diff volumineux. |
-| `aurora-to-prd` | Besoin produit trop vague pour coder directement. |
+
+## Skills facultatives et legacy
+
+| Skill | Statut SR 3.6.0 | Usage |
+|---|---|---|
+| `aurora-to-prd` | Facultative | Product discovery explicite quand le besoin est trop vague pour coder directement. |
+| `aurora-planning-with-files` | Deprecated progressif | Compatibilite avec anciens projets ; comportement cible absorbe par `aurora-lot-runner`, SR Harness et `sr_contract.json`. |
+| `aurora-terminal-token-optimizer` | Deprecated progressif comme skill cognitive | Tooling conserve via `aurora_token_run`, RTK/TRS et politique de token optimization. |
+
+Ne pas supprimer brutalement ces dossiers pendant une migration. Les retirer des selections automatiques par defaut lorsque le projet est aligne sur SR 3.6.0.
 
 ## Skills metier Codex locales
 Les skills metier restent locales par defaut dans :

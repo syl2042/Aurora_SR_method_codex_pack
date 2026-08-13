@@ -151,25 +151,37 @@ Windows/MobaXterm launcher scripts are available in [tools/sr-cockpit/scripts/wi
 
 ---
 
-## What changed in 3.5.2
+## What changed in 3.6.0
+
+Version `3.6.0` adds the **UI Verification Harness** for significant UI/UX work.
+
+The method now distinguishes the existing Design Gate from two executable UI gates: **UI Test Readiness Gate** and **UI Visual Evidence Gate**. Projects can configure `ui_validation` in `PROJECT_PROFILE.yaml`, use `scripts/codex/sr_ui_verify.mjs` to run Playwright over routes x viewports, and record machine-readable results in `sr_contract.json`. The legacy `playwright_auth_smoke.mjs` remains as a compatibility wrapper.
+
+Fresh installations receive the full UI harness by default. Existing SR projects upgrade additively: absence of `ui_validation` is a warning for legacy compatibility, but a significant UI lot cannot be closed as `done` until readiness and visual evidence pass when required.
+
+## Previous historical changes
+
+The sections below document older releases. They are kept for upgrade context only; the active SR Method version in this pack is declared in `core/SR_PACK_VERSION.json` and `MANIFEST.json`.
+
+### What changed in 3.5.2
 
 Version `3.5.2` incorporates first upgrade feedback from older live SR projects.
 
 Historical task contracts dated before `2026-08-08` that miss `lot_completion_gate` are now treated as legacy warnings by `audit_sr_task_contracts.py`, while newer contracts remain strict. Prompt `05_upgrade_codex_environment.md` also makes explicit that an SR upgrade must not close, promote, or reclassify application lots or passes as an implicit side effect. If the user explicitly requests closure in the same work, it must run as a separate validated sub-phase with its own SR contract and evidence.
 
-## What changed in 3.5.1
+### What changed in 3.5.1
 
 Version `3.5.1` hardens the upgrade prompt `05_upgrade_codex_environment.md`.
 
 Upgrading an existing project is now treated as a heterogeneous case by default: the installed SR Method version can be old, partial, unknown, or locally adapted. Codex must diagnose the current install, classify the upgrade path, preserve project-owned files, present a plan before mutation, apply the upgrade additively, run available checks, and realign `CURRENT_STATE.md` before any application development resumes.
 
-## What changed in 3.5.0
+### What changed in 3.5.0
 
 Version `3.5.0` adds the **Lot Design Evidence Gate**.
 
 Codex may still capture exploratory work as `proposed`, but a lot cannot become `planned`, `validated`, `in_progress`, or `reopened` until its `design_evidence` proves that candidate code files were identified and the relevant files were actually read, or explains why code reading is not applicable. The new `09_define_sr_lots_from_scope.md` prompt makes this step explicit before pass planning.
 
-## What changed in 3.4.0
+### What changed in 3.4.0
 
 Version `3.4.0` adds **Pass Runtime Goal** support for Codex CLI `/goal`.
 

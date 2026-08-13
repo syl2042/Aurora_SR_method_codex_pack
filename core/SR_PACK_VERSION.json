@@ -1,8 +1,13 @@
 {
   "pack": "auroramind_codex_operating_pack",
-  "version": "3.5.2",
-  "released_at": "2026-08-08",
+  "version": "3.6.0",
+  "released_at": "2026-08-13",
   "patch_notes": [
+    {
+      "date": "2026-08-13",
+      "scope": "ui_verification_harness",
+      "change": "Add SR UI Verification Harness: project-level ui_validation config, sr_ui_verify.mjs Playwright runner, UI Test Readiness Gate, UI Visual Evidence Gate, sr_contract validation, aurora-ui-visual-qa skill, and additive fresh-install/legacy-upgrade compatibility."
+    },
     {
       "date": "2026-08-08",
       "scope": "upgrade_legacy_contract_compatibility",
@@ -112,6 +117,14 @@
     "propagation_preflight",
     "propagation_postcheck",
     "legacy_contract_propagation_warning",
+    "ui_verification_harness",
+    "ui_test_readiness_gate",
+    "ui_visual_evidence_gate",
+    "sr_ui_verify_runner",
+    "ui_validation_project_profile",
+    "ui_validation_contract",
+    "aurora_ui_visual_qa_skill",
+    "playwright_auth_smoke_compat_wrapper",
     "sr_cockpit_tooling",
     "product_bound_runtime_agents",
     "runtime_agent_shapes",

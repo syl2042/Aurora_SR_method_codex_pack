@@ -15,6 +15,7 @@
 - SR Contract 3.0.0 : creer ou mettre a jour `docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json` quand `PROJECT_PROFILE.yaml` declare `require_sr_contract`, suivre `validated_requests`, puis verifier avec `python3 scripts/codex/validate_sr_contract.py --file <chemin>`.
 - Loop Contract obligatoire pour toute tache non triviale : creer ou mettre a jour `docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json`, declarer `conversation_transition`, puis verifier avec `python3 scripts/codex/validate_loop_contract.py --file <chemin>`.
 - Lot Completion Gate obligatoire : avant de declarer un lot ou une passe `done`, produire une table de couverture des exigences validees avec statut et preuve. `simple/chirurgical` ne reduit jamais le perimetre valide ; toute exigence partielle, non faite, bloquee ou en attente E2E interdit `done`.
+- UI Test Readiness Gate et UI Visual Evidence Gate obligatoires pour UI/UX significative quand `ui_validation.required` vaut `true` : lancer `node scripts/codex/sr_ui_verify.mjs` sur les routes/viewports requis, renseigner `sr_contract.json.ui_validation`, et ne jamais accepter une capture de login comme preuve UI.
 - Propagation Gate obligatoire : si un changement touche un symbole ou contrat partage (fonction, signature, type, schema, endpoint, champ DB, config, import/export, composant, agent runtime), annoncer avant mutation les consommateurs et surfaces a risque, demander validation humaine si le risque depasse le local, puis verifier apres mutation les references, appels, imports/exports, signatures, tests et smokes proportionnes. Un lot ne peut pas etre `done` si le gate requis n'est pas `pass`.
 - Backlog Contract obligatoire : si `docs/codex/SR_LOTS.yaml` est modifie, executer `python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml` avant cloture. `git diff --check` ne remplace jamais cette validation.
 - Backlog Mutation Gate obligatoire : si une demande, une decouverte ou une reparation introduit une fonction structurante ou un impact durable, ne pas la traiter comme un simple detail du lot courant. Classer l'evenement, analyser les implications globales, puis mettre a jour `SR_INBOX.yaml` ou `SR_LOTS.yaml`, ou documenter explicitement pourquoi aucune mutation de backlog n'est requise.
@@ -127,7 +128,7 @@ Lot Completion Gate obligatoire :
 - relire le perimetre valide juste avant validation utilisateur ;
 - couvrir chaque exigence dans `validated_requests` et dans la table de couverture ;
 - fournir une preuve par exigence : fichier, test, log, endpoint, capture, build, E2E ou justification ;
-- si une exigence UI/UX est explicite, fournir une preuve visuelle ou E2E ciblee, ou rester en `requires_e2e`/`user_testing`/`repair` ;
+- si une exigence UI/UX est explicite, fournir une preuve visuelle ou E2E ciblee ; si `ui_validation.required` vaut `true`, `ui_test_readiness` et `ui_visual_evidence` doivent etre `pass`, sinon rester en `requires_e2e`/`user_testing`/`repair`/`blocked` ;
 - ne jamais presenter un sous-ensemble comme lot complet.
 
 Loop Contract obligatoire :

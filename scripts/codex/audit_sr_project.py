@@ -2,6 +2,7 @@
 import argparse
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -93,6 +94,66 @@ def collect_allowed_skills(profile: Path, skill_map: Path) -> set[str]:
     return allowed
 
 
+def load_yaml(path: Path) -> dict:
+    if not path.exists():
+        return {}
+    try:
+        import yaml  # type: ignore
+    except Exception:
+        return {}
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def git_tracked(root: Path) -> set[str]:
+    try:
+        proc = subprocess.run(["git", "ls-files"], cwd=root, text=True, capture_output=True, timeout=20)
+    except Exception:
+        return set()
+    if proc.returncode != 0:
+        return set()
+    return {line.strip() for line in proc.stdout.splitlines() if line.strip()}
+
+
+def check_ui_validation(root: Path, profile: Path) -> tuple[list[str], list[str]]:
+    errors = []
+    warnings = []
+    data = load_yaml(profile)
+    ui = data.get("ui_validation") if isinstance(data.get("ui_validation"), dict) else None
+    if ui is None:
+        warnings.append("ui_validation missing; non-UI tasks remain compatible, UI lots require configuration before done")
+        return errors, warnings
+    runner = ui.get("runner") if isinstance(ui.get("runner"), dict) else {}
+    command = str(runner.get("command") or "")
+    if "sr_ui_verify.mjs" not in command:
+        warnings.append("ui_validation.runner.command should use node scripts/codex/sr_ui_verify.mjs")
+    if command and "sr_ui_verify.mjs" in command and not (root / "scripts/codex/sr_ui_verify.mjs").exists():
+        errors.append("ui_validation enabled but scripts/codex/sr_ui_verify.mjs is missing")
+    auth = ui.get("auth") if isinstance(ui.get("auth"), dict) else {}
+    mode = auth.get("mode", "none")
+    if mode not in {"none", "storage_state", "setup_command", "manual", "api_session", "cookie", "custom"}:
+        errors.append(f"ui_validation.auth.mode unsupported: {mode!r}")
+    storage = auth.get("storage_state") if isinstance(auth.get("storage_state"), dict) else {}
+    state_path = str(storage.get("path") or ".playwright/.auth/user.json")
+    tracked = git_tracked(root)
+    if state_path in tracked or any(item.startswith(".playwright/.auth/") for item in tracked):
+        errors.append("Playwright storageState appears tracked by git; remove cookies/tokens from repository")
+    gitignore = read_text(root / ".gitignore")
+    if ".playwright/.auth" not in gitignore:
+        warnings.append(".gitignore should exclude .playwright/.auth/ to protect storageState secrets")
+    evidence = ui.get("evidence") if isinstance(ui.get("evidence"), dict) else {}
+    report_file = evidence.get("report_file")
+    if report_file is not None and not isinstance(report_file, str):
+        errors.append("ui_validation.evidence.report_file must be a string when set")
+    verification_text = read_text(profile)
+    if "playwright_auth_smoke.mjs" in verification_text and "sr_ui_verify.mjs" not in verification_text:
+        warnings.append("legacy playwright_auth_smoke.mjs configured without sr_ui_verify.mjs")
+    return errors, warnings
+
+
 def task_plan_skill_warnings(root: Path, allowed: set[str]) -> list[str]:
     warnings = []
     task_roots = [root / "docs/codex/tasks", root / "tasks"]
@@ -127,6 +188,9 @@ def main() -> int:
     errors.extend(check_markers(profile, REQUIRED_PROFILE_MARKERS, "project_profile"))
     errors.extend(check_markers(agents, ["SR Bootstrap obligatoire", "Context budget gate", "Self Evaluation Gate"], "agents"))
     errors.extend(check_markers(repomap, ["CODEBASE_MAP"], "repomap"))
+    ui_errors, ui_warnings = check_ui_validation(root, profile)
+    errors.extend(f"ui_validation: {err}" for err in ui_errors)
+    warnings.extend(f"ui_validation: {warn}" for warn in ui_warnings)
     lot_errors = lot_contract_errors(lots)
     errors.extend(f"lot_contract: {err}" for err in lot_errors)
     pass_errors = pass_contract_errors(passes, lots)

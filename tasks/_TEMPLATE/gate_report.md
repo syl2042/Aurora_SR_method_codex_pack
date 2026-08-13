@@ -188,6 +188,33 @@
 - Patterns interdits evites :
 - Screenshot ou smoke visuel :
 
+## UI Test Readiness Gate
+
+- Statut : OK / KO / blocked / N/A
+- Requis pour le lot :
+- Base URL :
+- Routes demandees :
+- Auth requise :
+- Mode auth :
+- storageState disponible :
+- storageState valide :
+- Redirection login detectee :
+- Decision : pass / fail / blocked / not_applicable
+
+## UI Visual Evidence Gate
+
+- Statut : OK / KO / blocked / N/A
+- Rapport : `output/playwright/ui-verification-report.json`
+- Routes testees :
+- Viewports testes :
+- Screenshots :
+- `console.error` :
+- `pageerror` :
+- `requestfailed` :
+- Overflow horizontal :
+- Redirection login inattendue :
+- Decision : pass / repair / blocked / not_applicable
+
 ## Security Gate
 
 - Statut : OK / KO / N/A

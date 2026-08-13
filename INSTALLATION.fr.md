@@ -44,6 +44,17 @@ docs/codex/tasks/_TEMPLATE/pass_runtime_goal.md
 
 Ne pas generer de goal de passe immediatement sur un projet vierge. Il faut d'abord definir les lots, proposer les passes, puis valider la passe a executer. `pass_runtime_goal.md` se genere seulement pour une vraie passe `validated` ou `in_progress`.
 
+Les nouvelles installations incluent aussi le UI Verification Harness :
+
+```text
+scripts/codex/sr_ui_verify.mjs
+scripts/codex/playwright_auth_smoke.mjs  # wrapper legacy
+docs/codex/skills-method/aurora-ui-visual-qa/
+PROJECT_PROFILE.yaml ui_validation
+```
+
+Pour une application publique, garder `ui_validation.auth.mode = none`. Pour une application authentifiee, configurer `auth.mode = storage_state` et garder `.playwright/.auth/` hors Git.
+
 ## Mettre a jour
 
 Dans le projet cible, coller [prompts/fr/05_upgrade_codex_environment.md](prompts/fr/05_upgrade_codex_environment.md). Codex doit auditer, preserver les fichiers projet, proposer le plan, puis seulement appliquer l'upgrade.
@@ -55,6 +66,9 @@ Pour un projet qui utilise deja une ancienne SR Method, l'upgrade doit etre non 
 - ajouter ou rafraichir `SR_PASSES.yaml` de facon additive si absent/obsolète, sans marquer silencieusement des passes `validated` ;
 - conserver les anciennes task memories et ne pas les convertir en batch vers `sr_contract.json` sans validation explicite ;
 - traiter les anciens contrats sans nouveaux gates comme warnings legacy, pas comme erreurs bloquantes ;
+- ajouter `ui_validation` de facon additive quand c'est possible ; si elle est absente, garder le projet utilisable pour les taches non UI mais bloquer la cloture d'un lot UI significatif tant qu'elle n'est pas configuree ;
+- preserver le comportement legacy via le wrapper `playwright_auth_smoke.mjs` et privilegier `sr_ui_verify.mjs` pour les nouvelles validations UI ;
+- ne jamais commiter ni imprimer de storageState Playwright, cookies ou tokens ;
 - mettre a jour `docs/CURRENT_STATE.md` avec version SR avant/apres, commit source, controles, warnings et prochain prompt ;
 - lancer `07_realign_sr_state_after_upgrade` avant de reprendre le developpement applicatif.
 

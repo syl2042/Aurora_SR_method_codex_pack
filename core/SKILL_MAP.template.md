@@ -13,15 +13,16 @@ Lire `docs/codex/PROJECT_SKILLS_POLICY.md` pour distinguer skills globales et sk
 Une skill projet non declaree dans ce fichier ou dans `PROJECT_PROFILE.yaml` est interdite par defaut. Une exception cross-project doit etre explicite dans `task_plan.md`.
 
 ## Skills methode
-- `aurora-planning-with-files` : taches non triviales et memoire de tache.
+- `aurora-planning-with-files` : taches non triviales et memoire de tache, deprecated progressif.
 - `aurora-diagnose` : debug avant correction.
 - `aurora-tdd` : test-first pragmatique.
 - `aurora-review-diff` : revue avant cloture.
-- `aurora-to-prd` : besoin vague vers PRD.
+- `aurora-ui-visual-qa` : UI/UX significative, responsive, screenshots et rapport Playwright.
+- `aurora-to-prd` : besoin vague vers PRD, facultative.
 - `aurora-architecture-check` : changements structurants.
 - `aurora-repomap-maintainer` : maj RepoMap.
 - `aurora-domain-skill-factory` : creation skills metier.
-- `aurora-terminal-token-optimizer` : sorties terminal longues.
+- `aurora-terminal-token-optimizer` : sorties terminal longues, deprecated progressif comme skill cognitive.
 - `aurora-lot-runner` : orchestration SR Development Method, backlog vivant, gates, execution multi-lots bornee et Loop Contract.
 
 ## Skills metier Codex

@@ -7,5 +7,7 @@ __pycache__/
 docs/*.pdf
 docs/codex/CODEBASE_MAP.generated.md
 docs/codex/tasks/
+.playwright/.auth/
+output/playwright/
 tools/sr-cockpit/node_modules/
 tools/sr-cockpit/dist/

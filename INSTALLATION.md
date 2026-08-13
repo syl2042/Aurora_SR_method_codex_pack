@@ -54,6 +54,7 @@ docs/codex/*
 docs/codex/prompts/*
 docs/codex/tasks/_TEMPLATE/*
 scripts/codex/*
+docs/codex/skills-method/*
 ```
 
 These generated target-project files are intentionally not stored in this source repository.
@@ -68,6 +69,17 @@ docs/codex/tasks/_TEMPLATE/pass_runtime_goal.md
 ```
 
 Do not generate a pass goal immediately on a blank project. First define lots, then propose and validate passes. Generate `pass_runtime_goal.md` only for a real `validated` or `in_progress` pass.
+
+New installations also include the UI Verification Harness:
+
+```text
+scripts/codex/sr_ui_verify.mjs
+scripts/codex/playwright_auth_smoke.mjs  # legacy wrapper
+docs/codex/skills-method/aurora-ui-visual-qa/
+PROJECT_PROFILE.yaml ui_validation
+```
+
+For a public app, keep `ui_validation.auth.mode = none`. For an authenticated app, configure `auth.mode = storage_state` and keep `.playwright/.auth/` out of Git.
 
 ## Upgrade A Target Project
 
@@ -86,6 +98,9 @@ For a project already using an older SR Method, the upgrade must be non-regressi
 - add or refresh `SR_PASSES.yaml` additively if absent/stale, without marking passes `validated` silently;
 - preserve historical task memories and do not batch-convert them to `sr_contract.json` without explicit validation;
 - keep legacy contracts without new gates as warnings, not blocking errors;
+- add `ui_validation` additively when possible; if absent, keep the project usable for non-UI tasks but block significant UI lot closure until configured;
+- preserve legacy `playwright_auth_smoke.mjs` behavior through the wrapper and prefer `sr_ui_verify.mjs` for new UI validation;
+- never commit or print Playwright storageState, cookies or tokens;
 - update `docs/CURRENT_STATE.md` with the SR version change, source commit, checks, warnings, and next prompt;
 - run `07_realign_sr_state_after_upgrade` before resuming application development.
 

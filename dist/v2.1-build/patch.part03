@@ -1,0 +1,115 @@
+ferences have bounded roles;
++- the Reference Lock exists;
++- the Decision Ledger covers all major structural decisions;
++- no unsupported major decision remains;
++- the target can be generated without asking the renderer to invent the design direction.
+diff -ruN old/aurora-design-coherence/references/target-generation.md new/aurora-design-coherence/references/target-generation.md
+--- old/aurora-design-coherence/references/target-generation.md	2026-08-24 18:21:54.000000000 +0000
++++ new/aurora-design-coherence/references/target-generation.md	2026-08-24 18:44:47.563947854 +0000
+@@ -10,6 +10,8 @@
+ - `SCREEN_REDESIGN_SPEC.md`;
+ - information triage;
+ - selected reference patterns;
++- approved Reference Lock;
++- Decision Ledger;
+ - existing product theme/brand constraints;
+ - target Aurora/shadcn components.
+ 
+diff -ruN old/aurora-design-coherence/references/visual-qa-v2.md new/aurora-design-coherence/references/visual-qa-v2.md
+--- old/aurora-design-coherence/references/visual-qa-v2.md	2026-08-24 18:21:54.000000000 +0000
++++ new/aurora-design-coherence/references/visual-qa-v2.md	2026-08-24 18:44:48.248252384 +0000
+@@ -24,11 +24,12 @@
+ 2. information hierarchy and disclosure;
+ 3. navigation/interaction behavior;
+ 4. target layout/density fidelity;
+-5. component mapping;
+-6. responsive behavior;
+-7. empty/loading/error/permission states;
+-8. themes and accessibility basics;
+-9. technical regressions.
++5. Reference Lock / Decision Ledger fidelity;
++6. component mapping;
++7. responsive behavior;
++8. empty/loading/error/permission states;
++9. themes and accessibility basics;
++10. technical regressions.
+ 
+ ## Verdicts
+ 
+diff -ruN old/aurora-design-coherence/scripts/validate_redesign_spec.py new/aurora-design-coherence/scripts/validate_redesign_spec.py
+--- old/aurora-design-coherence/scripts/validate_redesign_spec.py	2026-08-24 18:21:54.000000000 +0000
++++ new/aurora-design-coherence/scripts/validate_redesign_spec.py	2026-08-24 18:44:46.797202144 +0000
+@@ -11,6 +11,8 @@
+     "## 3. Current problems",
+     "## 4. Information triage",
+     "## 5. Design research",
++    "### 5.3 Reference Lock",
++    "### 5.4 Decision Ledger",
+     "## 6. Target information architecture",
+     "## 7. Navigation and interaction",
+     "## 8. Layout and density",
+@@ -38,6 +40,10 @@
+         errors.append("missing target validation state")
+     if not all(token in text for token in TRIAGE):
+         errors.append("information triage vocabulary incomplete")
++    if "### 3.1 Product / UX audit" not in text or "### 3.2 Visual craft audit" not in text:
++        errors.append("missing split Product/UX and Visual Craft audits")
++    if "UNSUPPORTED DECISION" in text:
++        errors.append("unresolved unsupported design decision")
+     if errors:
+         print("INVALID")
+         for error in errors:
+diff -ruN old/aurora-design-coherence/templates/SCREEN_REDESIGN_SPEC.md new/aurora-design-coherence/templates/SCREEN_REDESIGN_SPEC.md
+--- old/aurora-design-coherence/templates/SCREEN_REDESIGN_SPEC.md	2026-08-24 18:21:54.000000000 +0000
++++ new/aurora-design-coherence/templates/SCREEN_REDESIGN_SPEC.md	2026-08-24 18:44:45.926759356 +0000
+@@ -21,9 +21,16 @@
+ 
+ ## 3. Current problems
+ 
++### 3.1 Product / UX audit
++
+ | Problem | Evidence | User/business consequence | Severity |
+ |---|---|---|---|
+ 
++### 3.2 Visual craft audit
++
++| Problem | Evidence | Perceived-quality consequence | Severity |
++|---|---|---|---|
++
+ ## 4. Information triage
+ 
+ | Information/action | Current location | Decision | Target level/location | Reason |
+@@ -33,8 +40,31 @@
+ 
+ ## 5. Design research
+ 
+-| Reference | Pattern retained | Pattern rejected | Why relevant |
+-|---|---|---|---|
++### 5.1 Research question
++
++- Product/design question:
++- Refero/Mobbin queries used:
++- Candidate count reviewed:
++
++### 5.2 Shortlisted references
++
++| Reference | Type: screen/flow/style | Role | Pattern retained | Pattern rejected | Why relevant |
++|---|---|---|---|---|---|
++
++### 5.3 Reference Lock
++
++- Primary structural reference:
++- Preserve:
++- Secondary reference(s):
++- Borrow only:
++- Visual/craft reference, if used:
++- Reject:
++- Aurora constraints that override external references:
++
++### 5.4 Decision Ledger
++
++| Decision | Evidence/source | Source role | Why | Target consequence |
++|---|---|---|---|---|
+ 
+ ## 6. Target information architecture
+ 

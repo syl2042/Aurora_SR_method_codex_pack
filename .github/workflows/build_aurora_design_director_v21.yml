@@ -1,0 +1,55 @@
+name: Build Aurora Design Director V2.1
+
+on:
+  push:
+    paths:
+      - 'dist/v2.1-build/**'
+      - '.github/workflows/build_aurora_design_director_v21.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: sudo apt-get update && sudo apt-get install -y patch zip unzip
+
+      - name: Rebuild V2.1 from published V2
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/aurora-design-v21
+          mkdir -p /tmp/aurora-design-v21
+          cd /tmp/aurora-design-v21
+          curl -fsSL 'https://raw.githubusercontent.com/syl2042/Aurora_SR_method_codex_pack/main/dist/aurora_design_director_v2_skill.zip' -o v2.zip
+          unzip -q v2.zip
+          cat "$GITHUB_WORKSPACE"/dist/v2.1-build/patch.part* > /tmp/aurora_design_director_v2.1.patch
+          cd aurora-design-coherence
+          patch -p2 < /tmp/aurora_design_director_v2.1.patch
+          python3 scripts/validate_redesign_spec.py templates/SCREEN_REDESIGN_SPEC.md
+          test "$(cat VERSION)" = '2.1.0'
+          cd ..
+          zip -qr "$GITHUB_WORKSPACE/dist/aurora_design_director_v2.1_skill.zip" aurora-design-coherence
+
+      - name: Verify archive
+        run: unzip -t dist/aurora_design_director_v2.1_skill.zip
+
+      - name: Publish V2.1 package
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add dist/aurora_design_director_v2.1_skill.zip
+          if git diff --cached --quiet; then
+            echo 'Package already current.'
+          else
+            git commit -m 'build Aurora Design Director V2.1 skill package'
+            git push
+          fi

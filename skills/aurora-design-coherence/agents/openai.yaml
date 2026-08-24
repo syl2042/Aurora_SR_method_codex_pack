@@ -1,0 +1,15 @@
+interface:
+  display_name: Aurora Design Director
+  short_description: Research, audit, redesign and visually validate premium B2B Auroramind
+    interfaces with evidence-locked decisions.
+  icon: sparkles
+  primary_color: '#34A85A'
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

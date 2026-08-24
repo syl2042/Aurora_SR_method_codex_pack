@@ -1,0 +1,95 @@
+diff -ruN old/aurora-design-coherence/SKILL.md new/aurora-design-coherence/SKILL.md
+--- old/aurora-design-coherence/SKILL.md	2026-08-24 18:21:54.000000000 +0000
++++ new/aurora-design-coherence/SKILL.md	2026-08-24 18:44:45.079045640 +0000
+@@ -3,7 +3,7 @@
+ description: audit, redesign, benchmark, and govern auroramind B2B application interfaces for ChatGPT or Codex. Use for new apps or existing Nexus, NKS, B DATA Studio, Nexus Pocket, Silio, AIS/CIS, MIA, Compta-IA, SocialGenie, or other Auroramind products when the task involves UI/UX architecture, screen hierarchy, information overload, developer-facing UI leakage, Playwright-based visual inspection, Refero/Mobbin design research, premium B2B patterns, target mockups, shadcn/Aurora component mapping, Codex implementation specs, or before/after visual QA without changing business logic.
+ ---
+ 
+-# Aurora Design Coherence V2 — Design Director
++# Aurora Design Coherence V2.1 — Design Director
+ 
+ Act as the **AI Design Director** for Auroramind products. Own the product-interface analysis, UX/UI decisions, information hierarchy, benchmark research, target design, and implementation specification. The human product owner is the **final validator**. Codex is the **implementation agent** and must not invent the redesign after validation.
+ 
+@@ -77,39 +77,55 @@
+ 
+ **Availability in the backend is never sufficient justification for visibility in the UI.**
+ 
+-## Gate 3 — Current design research
++## Gate 3 — Current design research and decision lock
+ 
+-Before a material redesign, research current real-product patterns when a design research source is available.
++Before a material redesign, research current real-product patterns when a design research source is available. External references inform the decision; they do not own it.
+ 
+-Preferred order for this project:
++Preferred sources:
+ 
+-1. **Refero MCP** — first source for semantic product/UX research and flows.
+-2. **Mobbin MCP** — complementary source for breadth when available.
++1. **Refero MCP** — primary source for the initial Auroramind workflow.
++2. **Mobbin MCP** — complementary breadth when available.
+ 3. Existing approved Aurora patterns.
+ 
+-Load `references/design-research.md`.
++For **in-app B2B product UI**, research in this order:
+ 
+-For each target screen:
+-
+-- search at least 5 relevant reference candidates when the corpus supports it;
+-- shortlist 2–3 patterns;
+-- state what is retained and rejected;
+-- extract hierarchy, disclosure, interaction, density, and navigation patterns;
++1. screens for concrete hierarchy, content, states, and interaction;
++2. similar screens when one candidate strongly matches;
++3. flows when the task spans multiple steps or state transitions;
++4. styles only after product architecture is understood, when visual craft needs external direction.
++
++For marketing/art-direction work, styles may come first.
++
++Load `references/design-research.md` and `references/research-contract.md`.
++
++For each material target screen:
++
++- state a precise research question;
++- search at least 5 relevant candidates when the corpus supports it;
++- inspect and shortlist the strongest candidates;
++- assign each retained reference a bounded role;
++- create a **REFERENCE LOCK** before target generation;
++- create a **DECISION LEDGER** tracing every major decision to product evidence, Aurora rules, or external research;
++- apply the anti-averaging rule: do not blend strong references into generic SaaS styling;
+ - never copy another product's branding or visual identity.
+ 
+-If external research is unavailable, continue only if useful, explicitly mark `current benchmark unavailable`, and rely on approved Aurora patterns + product evidence.
++If external research is unavailable, explicitly mark `current benchmark unavailable`, use approved Aurora patterns + product evidence, and still produce a Decision Ledger.
+ 
+-## Gate 4 — Redesign specification
++## Gate 4 — Product/UX audit, visual craft audit, and redesign specification
+ 
+ Produce a `SCREEN_REDESIGN_SPEC.md` using `templates/SCREEN_REDESIGN_SPEC.md`.
+ 
+ The spec must contain:
+ 
+ - current evidence;
++- separate Product/UX Audit and Visual Craft Audit;
+ - persona/job/decision/action;
+ - identified UX/product problems;
+ - information triage table;
+ - selected reference patterns;
++- research question and query trail;
++- Reference Lock;
++- Decision Ledger;
+ - target information architecture;
+ - exact navigation behavior;
+ - layout and density rules;
+@@ -289,7 +305,8 @@
+ - `references/product-intent.md` — persona/job/decision/action model.
+ - `references/information-triage.md` — visibility and progressive-disclosure decisions.
+ - `references/browser-evidence.md` — Playwright/browser evidence and authentication handling.
+-- `references/design-research.md` — Refero/Mobbin research protocol.
++- `references/design-research.md` — live Refero/Mobbin research protocol.
++- `references/research-contract.md` — Research Question, Reference Lock, Decision Ledger, anti-averaging, and dual audit rules.
+ - `references/screen-redesign.md` — screen redesign decision framework.
+ - `references/target-generation.md` — visual target generation and fidelity rules.
+ - `references/human-validation.md` — final human validation gate.
+diff -ruN old/aurora-design-coherence/VERSION new/aurora-design-coherence/VERSION
+--- old/aurora-design-coherence/VERSION	1970-01-01 00:00:00.000000000 +0000
++++ new/aurora-design-coherence/VERSION	2026

@@ -1,0 +1,128 @@
+-08-24 18:43:58.321084635 +0000
+@@ -0,0 +1 @@
++2.1.0
+diff -ruN old/aurora-design-coherence/agents/openai.yaml new/aurora-design-coherence/agents/openai.yaml
+--- old/aurora-design-coherence/agents/openai.yaml	2026-08-24 18:21:54.000000000 +0000
++++ new/aurora-design-coherence/agents/openai.yaml	2026-08-24 18:44:48.960128599 +0000
+@@ -1,7 +1,7 @@
+ interface:
+   display_name: Aurora Design Director
+-  short_description: Audit, benchmark, redesign and visually validate premium B2B
+-    Auroramind interfaces.
++  short_description: Research, audit, redesign and visually validate premium B2B Auroramind
++    interfaces with evidence-locked decisions.
+   icon: sparkles
+   primary_color: '#34A85A'
+   icon_small: assets/icon.svg
+diff -ruN old/aurora-design-coherence/references/design-research.md new/aurora-design-coherence/references/design-research.md
+--- old/aurora-design-coherence/references/design-research.md	2026-08-24 18:21:54.000000000 +0000
++++ new/aurora-design-coherence/references/design-research.md	2026-08-24 18:44:44.425241524 +0000
+@@ -1,57 +1,75 @@
+-# Current design research protocol
++# Current design research protocol — V2.1
+ 
+-Use external product-reference corpora to prevent stale or generic design decisions.
++Use live external product-reference corpora to prevent stale, generic, or model-invented design decisions. Research supports the Design Director; it does not replace product reasoning.
+ 
+ ## Preferred sources
+ 
+-1. **Refero MCP** — semantic discovery, screens, patterns, and flows.
+-2. **Mobbin MCP** — complementary breadth and alternative real-product examples.
++1. **Refero MCP** — primary live source for Auroramind pilots.
++2. **Mobbin MCP** — complementary breadth when connected.
+ 3. Approved Aurora patterns.
+ 
+-Do not require both paid services for a task. Use whichever is connected; for the initial Auroramind pilot, prefer Refero.
++Do not require both paid services for a task.
++
++## Refero tool routing
++
++For in-app product UI:
++
++- `refero_search_screens` → concrete screen patterns;
++- `refero_get_screen` → inspect strong candidates deeply;
++- `refero_get_similar_screens` → expand from a particularly good match;
++- `refero_get_screen_image` → inspect the raw screenshot only for shortlisted references when metadata is insufficient;
++- `refero_search_flows` / `refero_get_flow` → multi-step journeys and state transitions;
++- `refero_search_styles` / `refero_get_style` → visual language and craft, usually after information architecture is established.
++
++For marketing or art-direction work, style research may precede screen research.
+ 
+ ## Query construction
+ 
+-Search by user job and interaction pattern, not by aesthetics.
++Search by user job and interaction pattern first.
+ 
+-Good queries:
++Good screen queries:
+ 
+-- enterprise SaaS data table with filters and bulk actions;
+-- knowledge workspace with sources and citations;
+-- AI chat with evidence and source disclosure;
+-- document management detail page;
++- knowledge workspace with document sources citations and AI chat;
++- enterprise SaaS data table with filters and contextual actions;
++- document library with search filters status and detail panel;
+ - creation workflow with progressive disclosure;
+-- agent activity or run history;
+ - dense B2B settings with advanced configuration;
+ - multi-format content studio;
+-- workspace navigation for knowledge products.
++- AI assistant with sources and evidence;
++- agent activity or run history.
++
++Good flow queries:
+ 
+-Weak queries:
++- adding sources to knowledge workspace;
++- creating document from AI response;
++- publish content workflow;
++- onboarding knowledge base;
++- configuring advanced workspace settings.
+ 
+-- beautiful dashboard;
+-- modern SaaS;
+-- cool AI UI;
+-- premium green interface.
++Use aesthetic queries only when visual language is the question.
+ 
+-## Research output
++## Research depth
+ 
+-For a material screen, aim for at least 5 candidates and shortlist 2–3 when the corpus allows it.
++For a material screen:
+ 
+-For each shortlisted pattern record:
++1. establish the research question;
++2. search at least 5 candidates when possible;
++3. inspect 2–4 strong candidates in detail;
++4. if one is unusually relevant, expand with `refero_get_similar_screens`;
++5. research flows only when sequencing matters;
++6. research styles when craft/visual language needs an external direction;
++7. synthesize into a Reference Lock + Decision Ledger.
+ 
+-- product/screen reference;
+-- problem it solves;
+-- hierarchy pattern;
+-- navigation/interaction pattern;
+-- density/disclosure pattern;
+-- what to retain;
+-- what to reject;
+-- why it fits this persona/job.
++Load `references/research-contract.md` for the mandatory contract.
+ 
+-## Anti-copy rule
++## Anti-copy and anti-averaging
+ 
+-Extract design logic, not brand identity. Do not clone another product's colors, typography, iconography, wording, or distinctive visual signature.
++- Extract design logic, not another product's identity.
++- Do not clone wording, brand colors, iconography, or distinctive signature treatments.
++- Do not average incompatible references into generic SaaS styling.
++- Assign every retained reference a bounded role.
++- Aurora product constraints and validated user intent override external references.
+ 
+-## Freshness rule
++## Freshness
+ 
+-Treat design research as a live source, not a permanent 2026 style guide. Re-query for significant redesigns rather than relying only on remembered examples.
++Treat des

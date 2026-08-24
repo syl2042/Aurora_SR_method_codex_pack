@@ -35,12 +35,12 @@ Methode :
    - `python3 scripts/codex/context_budget_report.py --root . --compact`
 2. Classer les lots :
    - `done` ou `user_testing` : prerequis possibles ;
-   - `validated` ou `reopened` : candidats executables ;
+   - `repair`, `reopened` ou `validated` : candidats executables, avec priorite a la reprise consolidee ;
    - `planned` ou `proposed` : a cadrer avant execution ;
    - `blocked`, `deferred`, `superseded` : non executables.
 3. Verifier le Lot Design Evidence Gate :
    - un lot `proposed` peut rester exploratoire ;
-   - un lot `planned`, `validated`, `in_progress` ou `reopened` doit avoir `design_evidence.status: pass` ou `not_applicable` justifie ;
+   - un lot `planned`, `validated`, `in_progress`, `repair` ou `reopened` doit avoir `design_evidence.status: pass` ou `not_applicable` justifie ;
    - si le gate manque ou reste `pending/fail`, exclure le lot d'une passe executable et recommander son cadrage.
 4. Construire le graphe :
    - `depends_on` ;

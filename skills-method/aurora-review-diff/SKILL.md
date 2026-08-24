@@ -9,6 +9,8 @@ Verifier demande, scope, securite, dependances, migrations, tests, memoire, CURR
 
 Pour une tache non triviale, verifier que `docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json` existe et que `python3 scripts/codex/validate_loop_contract.py --file <chemin>` passe, ou documenter pourquoi le contrat n'est pas applicable.
 
+Verifier aussi le `sr_contract.json` 3.1.0 : registre granulaire, heritage des exigences ouvertes, separation `implementation_status` / `evidence_status`, table de couverture derivee et coherence du langage de cloture. Rejeter `user_testing` si du code, une UI ou un comportement demande manque encore. Si le Completion Gate est rouge, exiger une cloture `repair`/`blocked` ou un `user_testing` uniquement technique-complet, avec la liste explicite du travail restant.
+
 Pour une tache UI/UX significative, verifier aussi :
 
 - `sr_contract.json.ui_validation.required` ;

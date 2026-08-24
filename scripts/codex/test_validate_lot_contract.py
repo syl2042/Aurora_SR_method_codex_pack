@@ -80,6 +80,24 @@ class ValidateLotContractTest(unittest.TestCase):
         errors = validate_lot_contract.validate_lot(lot, 0)
         self.assertEqual([], errors)
 
+    def test_version_04_requires_validated_request_ids(self) -> None:
+        lot = valid_lot()
+        errors = validate_lot_contract.validate_lot(
+            lot,
+            0,
+            enforce_design_evidence=True,
+            enforce_requirement_registry=True,
+        )
+        self.assertTrue(any("validated_request_ids" in error for error in errors), errors)
+        lot["validated_request_ids"] = ["REQ-GOV-001"]
+        errors = validate_lot_contract.validate_lot(
+            lot,
+            0,
+            enforce_design_evidence=True,
+            enforce_requirement_registry=True,
+        )
+        self.assertEqual([], errors)
+
     def test_proposed_lot_accepts_pending_design_evidence(self) -> None:
         lot = valid_lot()
         lot["status"] = "proposed"

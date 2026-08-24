@@ -41,19 +41,28 @@ Task memory a reprendre :
 
 Contexte court :
 - objectif courant :
-- lots ouverts :
+- exigences validees :
+- exigences faites :
+- exigences partielles ou defectueuses :
+- exigences non faites :
+- preuves et tests manquants :
+- retours utilisateur rattaches aux requirement_id :
+- lots rouverts :
+- prochain ensemble coherent a traiter :
 - decisions actives :
 - interdits :
-- prochaine action recommandee :
 
 Avant de coder :
 - si la demande utilisateur est vague (`reprends`, `resume`, `continue`), appliquer `Reprise SR stricte` : lire ce fichier, resumer, puis attendre validation ;
+- charger `sr_contract.json` 3.1.0 et verifier que toutes les exigences ouvertes du parent sont heritees ;
+- traiter par defaut tout retour sur une fonction validee comme `existing_requirement_repair`, rattache au lot d'origine ;
+- ne pas proposer un nouveau micro-lot ou seulement le prochain gate cible si une exigence techniquement incomplete de la passe precedente reste ouverte ;
 - appliquer evidence_gate ;
 - appliquer knowledge_gate : RepoMap/KG -> fichiers candidats -> lecture code reel ;
 - mettre a jour SR_INBOX/SR_LOTS si ma demande modifie le backlog ;
 - demander validation si le lot est seulement proposed/planned ou si une action sensible apparait.
 - utiliser aurora-lot-runner si plusieurs lots sont ouverts ;
-- traiter jusqu'a 3 lots reopened/validated si les gates restent verts ;
+- traiter jusqu'a 3 lots `repair`/`reopened` puis `validated` si les gates restent verts ;
 - executer `context_budget_report.py --root . --compact` avant toute reponse de cloture ou d'avancement significatif ; ne rien afficher si le statut est `green` ;
 - appliquer self_evaluation_gate apres patch ;
 - donner les tests E2E utilisateur apres chaque lot livre.
@@ -61,4 +70,9 @@ Avant de coder :
 
 ## Notes de reprise
 
--
+- `sr_contract.json` canonique :
+- contrat parent :
+- requirement_id ouverts :
+- lots `repair`/`reopened` :
+- retours utilisateur :
+- reprise consolidee :

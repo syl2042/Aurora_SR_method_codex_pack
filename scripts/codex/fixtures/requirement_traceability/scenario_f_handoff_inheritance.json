@@ -1,0 +1,7 @@
+{
+  "scenario": "F",
+  "parent_open_requirement_ids": ["REQ-OPEN-1", "REQ-OPEN-2", "REQ-OPEN-3"],
+  "incomplete_child_requirement_ids": ["REQ-OPEN-1", "REQ-OPEN-2"],
+  "complete_child_requirement_ids": ["REQ-OPEN-1", "REQ-OPEN-2", "REQ-OPEN-3"],
+  "expected_next_scope": "Reprendre les trois exigences dans le lot consolidé."
+}

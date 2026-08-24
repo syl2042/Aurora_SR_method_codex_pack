@@ -133,8 +133,30 @@ class ValidateLoopContractTest(unittest.TestCase):
         data = valid_contract()
         data["task_type"] = "upgrade"
         data["status_decision"] = "repair"
+        data["lot_completion_gate"]["status"] = "fail"
+        data["lot_completion_gate"]["decision"] = "repair"
         errors, _warnings = validate_loop_contract.validate(data)
         self.assertEqual([], errors)
+
+    def test_user_testing_rejects_partial_implementation_row(self) -> None:
+        data = valid_contract()
+        data["status_decision"] = "user_testing"
+        data["lot_completion_gate"]["status"] = "pending"
+        data["lot_completion_gate"]["decision"] = "user_testing"
+        data["lot_completion_gate"]["coverage_table"][0]["status"] = "partiel"
+        data["e2e_user_tests"] = {"required": True, "items": ["Verifier la fonction complete."]}
+        errors, _warnings = validate_loop_contract.validate(data)
+        self.assertTrue(any("user_testing" in error and "partial" in error for error in errors), errors)
+
+    def test_user_testing_rejects_failed_completion_gate(self) -> None:
+        data = valid_contract()
+        data["status_decision"] = "user_testing"
+        data["lot_completion_gate"]["status"] = "fail"
+        data["lot_completion_gate"]["decision"] = "user_testing"
+        data["lot_completion_gate"]["coverage_table"][0]["status"] = "requires_e2e"
+        data["e2e_user_tests"] = {"required": True, "items": ["Executer l'E2E."]}
+        errors, _warnings = validate_loop_contract.validate(data)
+        self.assertTrue(any("pending or pass" in error for error in errors), errors)
 
     def test_structural_change_requires_global_impact(self) -> None:
         data = valid_contract()

@@ -16,6 +16,8 @@ VALID_STATUSES = {
     "in_progress",
     "done",
     "user_testing",
+    "repair",
+    "reopened",
     "blocked",
     "superseded",
 }
@@ -23,7 +25,7 @@ VALID_PRIORITIES = {"low", "medium", "high", "critical"}
 VALID_E2E_MODES = {"per_lot", "grouped_at_pass_end", "not_required"}
 REQUIRED_PASS_FIELDS = ["pass_id", "title", "status", "lots", "preflight", "e2e_strategy", "stop_on"]
 FINISHED_DEPENDENCY_STATUSES = {"done", "user_testing"}
-EXECUTABLE_PASS_STATUSES = {"validated", "in_progress"}
+EXECUTABLE_PASS_STATUSES = {"validated", "in_progress", "repair", "reopened"}
 
 
 def load_yaml(path: Path) -> dict:
@@ -279,6 +281,14 @@ def validate_pass(
     for list_field in ("shared_sources", "stop_on", "notes"):
         if list_field in item and not isinstance(item[list_field], list):
             errors.append(f"{prefix}: {list_field} must be a list")
+    request_ids = item.get("validated_request_ids")
+    if request_ids is not None:
+        if not isinstance(request_ids, list) or not request_ids:
+            errors.append(f"{prefix}: validated_request_ids must be a non-empty list when present")
+        elif not all(isinstance(value, str) and value.strip() for value in request_ids):
+            errors.append(f"{prefix}: validated_request_ids must contain non-empty strings")
+        elif len(request_ids) != len(set(request_ids)):
+            errors.append(f"{prefix}: validated_request_ids must not contain duplicates")
 
     if lots_by_id is not None and isinstance(lots, list):
         lot_positions = {lot_id: pos for pos, lot_id in enumerate(lots)}
@@ -288,7 +298,7 @@ def validate_pass(
                 continue
             lot = lots_by_id[lot_id]
             lot_status = lot.get("status")
-            if item.get("status") in {"validated", "in_progress"} and lot_status in {"blocked", "proposed", "superseded"}:
+            if item.get("status") in EXECUTABLE_PASS_STATUSES and lot_status in {"blocked", "proposed", "superseded"}:
                 errors.append(f"{prefix}: executable pass includes non-executable lot {lot_id!r} with status {lot_status!r}")
             for dependency in as_list(lot.get("depends_on")):
                 if dependency in lot_positions and lot_positions[dependency] > lot_positions[lot_id]:
@@ -298,6 +308,19 @@ def validate_pass(
                     error = validate_external_dependency(item, index, lot_id, dependency, lots_by_id, pass_lot_index)
                     if error:
                         errors.append(error)
+        lot_statuses = [lots_by_id[lot_id].get("status") for lot_id in lots if lot_id in lots_by_id]
+        if status == "done" and any(lot_status != "done" for lot_status in lot_statuses):
+            errors.append(f"{prefix}: status done requires every lot to be done; found {lot_statuses}")
+        if status == "user_testing":
+            incompatible = sorted({value for value in lot_statuses if value not in {"done", "user_testing"}})
+            if incompatible:
+                errors.append(
+                    f"{prefix}: status user_testing is incompatible with lot statuses {incompatible}; repair or incomplete lots must reopen the pass"
+                )
+        if status == "repair" and not any(value in {"repair", "reopened"} for value in lot_statuses):
+            errors.append(f"{prefix}: status repair requires at least one repair or reopened lot")
+        if status == "reopened" and not any(value in {"repair", "reopened"} for value in lot_statuses):
+            errors.append(f"{prefix}: status reopened requires at least one repair or reopened lot")
     return errors
 
 
@@ -336,8 +359,8 @@ def main() -> int:
         return 1
 
     passes = data.get("passes")
-    if not isinstance(passes, list) or not passes:
-        print("SR_PASSES must contain a non-empty `passes` list", file=sys.stderr)
+    if not isinstance(passes, list):
+        print("SR_PASSES must contain a `passes` list", file=sys.stderr)
         return 1
 
     errors = validate_passes(passes, lots_by_id)
@@ -347,6 +370,9 @@ def main() -> int:
         for error in errors:
             print(f"- {error}")
         return 1
+    if not passes:
+        print("OK: empty pass registry valid; define product passes through pass planning")
+        return 0
     print(f"OK: {len(passes)} pass(es) valid")
     return 0
 

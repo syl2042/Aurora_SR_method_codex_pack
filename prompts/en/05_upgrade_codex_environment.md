@@ -4,6 +4,10 @@ You are working in an application repository that already contains an existing A
 
 Verifiable objective: upgrade the SR Method to the latest official version without regression, without changing application code, without overwriting project-owned adaptations, and leave the project in a realigned SR state before any development resumes.
 
+This prompt accepts one target or an explicit list of repositories. For multiple folders, treat every repository as an independent target and produce a pre-mutation matrix: `repository | markers read | detected version | install state | proposed path | files to preserve | validation`. Never assume a shared version; apply and verify each target separately.
+
+If one target has no SR marker, classify it as `fresh_install`, remove it from the upgrade flow, and use `00_install_codex_environment.md` with its own validation.
+
 Official SR Method source:
 
 ```text
@@ -29,12 +33,15 @@ Strict rules:
 - Do not blindly replace `AGENTS.md`, `DESIGN.md`, `docs/CURRENT_STATE.md`, `PROJECT_PROFILE.yaml`, `SKILL_MAP.md`, `docs/codex/SR_LOTS.yaml`, `docs/codex/SR_PASSES.yaml`, task memories, handoffs, decisions, or project skills.
 - Preserve local project adaptations.
 - Preserve legacy task memory files; do not create retroactive contracts in batch without explicit validation.
-- Preserve `SR_LOTS.yaml`. Add `SR_PASSES.yaml` additively when missing, but do not automatically convert old lots or task memories into validated passes.
+- Preserve `SR_LOTS.yaml`. When `SR_PASSES.yaml` is missing, add a valid `passes: []` registry; never copy an example pass or automatically convert old lots or task memories into validated passes.
 - Do not mass-convert old lots to add `design_evidence`; add the Lot Design Evidence Gate only to lots created, promoted, or resumed after upgrade.
 - Add Pass Runtime Goal tooling additively (`build_pass_runtime_goal.py`, `pass_runtime_goal.md` template, `sr_passes.pass_runtime_goal` options) without generating a goal until a pass is validated.
 - Never launch `/goal` during upgrade. The upgrade prepares the method; goal execution comes only after realignment, pass planning, and user validation.
 - Do not close, promote, or reclassify any application lot or pass as an implicit side effect of the upgrade. If the user explicitly asks to close a lot or pass in the same work, treat that closure as a separate sub-phase after the upgrade, with validated scope, its own SR contract, evidence, and a distinct report.
 - Preserve historical task memories without `propagation_gate`: report them as legacy warnings, not blocking errors. New templates and contracts created after upgrade must include the Propagation Gate.
+- Preserve `sr_contract` 3.0.0 contracts through compatible reading. New task memories and reopened lots use 3.1.0 with separate `implementation_status` and `evidence_status`.
+- Do not mass-rewrite legacy `validated_requests`. Flag multi-lot contracts reduced to one global requirement; normalize only active or reopened scope after reading sources and obtaining human validation.
+- The upgrade must not close, move, or turn any open, partial, or defective requirement into a new lot.
 - In full SR regime, every SR version change must update `docs/CURRENT_STATE.md` with installed version, review date, checks run, latest `NEXT_SESSION_PROMPT.md`, significant lots, and next step.
 - An `upgrade` `loop_contract.json` cannot close as `done` with `memory_updates.current_state_updated=false`.
 - Before any file mutation, present the upgrade plan and wait for explicit user validation.
@@ -62,6 +69,10 @@ Classify the project into one flow:
 - `upgrade_standard_235_plus` when the version is `2.3.5+`;
 - `upgrade_legacy_unknown` when the version is missing, unreadable, lower than `2.3.5`, or the SR installation is partial.
 
+SR 3.7.0 migration matrix: fresh installs target schemas 3.1.0/1.1 and lots 0.4/passes 0.2; SR 3.6.x gets an additive refresh; SR 3.0-3.5 keeps legacy reading with warnings and targeted normalization of active/reopened lots; SR 2.x/unknown/partial requires backup and file-by-file inventory; local adaptations remain preserved outside managed SR blocks.
+
+Representative official SR 2.2.0, 2.3.0, 2.3.5, 2.4.1, and 3.0.0 layouts have upgrade regressions. An unknown/partial layout still requires file-by-file audit: the fixture proves the minimal path, not universal compatibility with every local adaptation.
+
 Step 3 - Official source:
 
 1. Check whether a local clone of the official pack already exists.
@@ -85,6 +96,8 @@ Compare the current installation with the latest pack version and identify:
 - overwrite risks;
 - application lots or passes that may need resumption or closure, to be handled only as a separate sub-phase when explicitly requested by the user;
 - old contracts or task memories to keep as legacy warnings.
+- open requirements and `repair`, `reopened`, or `user_testing` lots to keep in one consolidated resume;
+- multi-lot contracts with only one generic `validated_request` to flag.
 
 Important: old lots without `design_evidence` must not be modified in batch. `design_evidence` must be added only to lots created, promoted, or resumed after upgrade.
 
@@ -111,7 +124,7 @@ After validation only:
 1. Apply the SR upgrade additively.
 2. Preserve project files and history.
 3. Update required SR scripts, templates, prompts, and docs.
-4. Add `SR_PASSES.yaml` if absent, without declaring an executable pass automatically.
+4. Add `SR_PASSES.yaml` with `passes: []` if absent, without declaring any pass automatically. Prompt `08` fills it only after reading lots and obtaining human validation.
 5. Add Pass Runtime Goal tooling if absent:
    - `build_pass_runtime_goal.py`
    - `pass_runtime_goal.md` template
@@ -120,6 +133,8 @@ After validation only:
    - `max_goal_command_chars: 1000`
    - `hard_limit: 4000`
 7. Verify that the Lot Design Evidence Gate is documented and active for new or resumed lots.
+8. Verify the SR Contract 3.1.0, Loop Contract 1.1, `SR_LOTS` 0.4, and `SR_PASSES` 0.2 targets while retaining 3.0.0 contract reading.
+9. Inherit open requirement IDs and reopen the original lot when needed; do not create a product migration lot.
 
 Step 7 - Verification:
 
@@ -128,6 +143,7 @@ Run the available and applicable checks:
 - `python3 scripts/codex/audit_codex_pack.py`
 - `python3 scripts/codex/verify_codex_pack.py`
 - `python3 scripts/codex/sr_post_install_check.py --root .`
+- `python3 scripts/codex/validate_release_docs.py --root . --json` to verify `CHANGELOG.md`, version, and localized public prompts
 - `python3 scripts/codex/find_next_session_prompt.py --root .`
 - `python3 scripts/codex/audit_sr_project.py --root .`
 - `python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml` if the file exists
@@ -139,6 +155,8 @@ Run the available and applicable checks:
 - `python3 scripts/codex/validate_skills.py --path ~/.codex/skills` if method skills are installed
 
 If some scripts are missing before upgrade, report that as normal for an old version, then rerun after upgrade.
+
+Installer exit code 0 is not sufficient to declare the upgrade successful. `sr_post_install_check.py` must also pass; otherwise keep the target in `repair` and list its errors.
 
 Step 8 - Mandatory realignment:
 
@@ -181,5 +199,6 @@ Expected final report:
 - legacy warnings;
 - application lots or passes detected as candidates for closure or resumption, and status of any explicitly requested closure sub-phase;
 - proposed next action.
+- for multiple repositories, result and warnings per target, without a misleading global status.
 
 Mandatory end: wait for validation before any application modification or pass execution.

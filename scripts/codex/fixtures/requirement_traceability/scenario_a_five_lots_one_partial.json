@@ -1,0 +1,14 @@
+{
+  "scenario": "A",
+  "declared_status": "user_testing",
+  "lots": ["LOT-1", "LOT-2", "LOT-3", "LOT-4", "LOT-SOURCES"],
+  "requests": [
+    {"id": "REQ-1", "lot_id": "LOT-1", "implementation_status": "complete", "evidence_status": "sufficient"},
+    {"id": "REQ-2", "lot_id": "LOT-2", "implementation_status": "complete", "evidence_status": "sufficient"},
+    {"id": "REQ-3", "lot_id": "LOT-3", "implementation_status": "complete", "evidence_status": "sufficient"},
+    {"id": "REQ-4", "lot_id": "LOT-4", "implementation_status": "complete", "evidence_status": "sufficient"},
+    {"id": "REQ-SOURCES-ACCORDION", "lot_id": "LOT-SOURCES", "implementation_status": "partial", "evidence_status": "missing"}
+  ],
+  "expected_decision": "repair",
+  "forbidden_closure": "Les cinq lots sont implémentés."
+}

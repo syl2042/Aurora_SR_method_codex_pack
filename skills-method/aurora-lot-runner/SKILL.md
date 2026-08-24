@@ -37,28 +37,26 @@ Lire uniquement ce qui est utile :
 
 ## Classification obligatoire
 
-Avant de coder, classer la demande :
+Avant de coder, chercher si le besoin est deja couvert par un objectif, un critere d'acceptation, une `validated_request`, un lot `user_testing` ou une passe validee, puis classer la demande :
 
-- nouveau lot ;
-- lot existant a rouvrir ;
-- bug/regression ;
-- decision produit ;
-- question de faisabilite ;
-- demande de plan ;
-- execution d'un lot valide ;
-- phase multi-lots bornee.
-- execution ou cadrage d'une passe SR.
+- `existing_requirement_repair` ;
+- `existing_requirement_clarification` ;
+- `existing_requirement_acceptance` ;
+- `new_requirement` ;
+- `scope_change` ;
+- `cancelled_requirement`.
 
-Si la demande modifie le backlog, proposer ou effectuer la mise a jour de `SR_INBOX.yaml` ou `SR_LOTS.yaml` selon le risque.
+Un retour sur une fonction validee est par defaut `existing_requirement_repair`, pas `new_requirement`. Rattacher le retour au `requirement_id`, rouvrir le lot d'origine, heriter de toutes ses exigences ouvertes et executer la reprise consolidee. Un nouveau lot exige une justification explicite prouvant que la demande est hors scope existant et une decision utilisateur.
 
 ## Boucle d'execution
 
-1. Selectionner le prochain lot executable ou la prochaine passe executable.
-2. Creer ou reprendre une task memory.
-3. Appliquer `pass_planning_gate` avant toute execution multi-lots.
-4. Appliquer `evidence_gate` avant plan ou faisabilite.
-5. Appliquer `knowledge_gate` : RepoMap/KG -> fichiers candidats -> lecture code reel.
-5. Selectionner les skills utiles :
+1. Recharger le registre `validated_requests`, son parent et tous les identifiants ouverts avant de selectionner le prochain lot.
+2. Selectionner le prochain bloc coherent : lots `repair`/`reopened`, puis `validated`, sans creer un micro-lot par critere.
+3. Creer ou reprendre une task memory et un `sr_contract.json` 3.1.0.
+4. Appliquer `pass_planning_gate` avant toute execution multi-lots.
+5. Appliquer `evidence_gate` avant plan ou faisabilite.
+6. Appliquer `knowledge_gate` : RepoMap/KG -> fichiers candidats -> lecture code reel.
+7. Selectionner les skills utiles :
    - `aurora-planning-with-files`
    - `aurora-diagnose` si bug
    - `aurora-tdd` si test automatisable
@@ -68,15 +66,15 @@ Si la demande modifie le backlog, proposer ou effectuer la mise a jour de `SR_IN
    - `aurora-ui-visual-qa` si UI/UX significative
    - skill metier locale si domaine
    - skill design si UI et disponible
-7. Implementer dans le scope du lot ou de la passe.
-8. Lancer les verifications.
-9. Corriger au maximum selon `max_repair_attempts_per_lot`.
-10. Appliquer `self_evaluation_gate`.
-11. Produire `gate_report.md`.
-12. Produire et valider `loop_contract.json` avec `scripts/codex/validate_loop_contract.py` si disponible.
-13. Valider `SR_PASSES.yaml` avec `scripts/codex/validate_pass_contract.py` si une passe a ete creee, modifiee ou utilisee.
-14. Mettre a jour `SR_LOTS.yaml`, `SR_PASSES.yaml`, task memory, RepoMap/KG et `CURRENT_STATE.md` si necessaire.
-15. Continuer seulement si le niveau d'autonomie l'autorise et que les gates critiques sont verts.
+8. Implementer dans le scope du lot ou de la passe.
+9. Lancer les verifications.
+10. Corriger au maximum selon `max_repair_attempts_per_lot`.
+11. Appliquer `self_evaluation_gate`.
+12. Produire `gate_report.md`.
+13. Produire et valider `sr_contract.json`, puis `loop_contract.json` 1.1 lie au meme registre, avec les validateurs disponibles.
+14. Valider `SR_PASSES.yaml` avec `scripts/codex/validate_pass_contract.py` si une passe a ete creee, modifiee ou utilisee.
+15. Mettre a jour `SR_LOTS.yaml`, `SR_PASSES.yaml`, task memory, RepoMap/KG et `CURRENT_STATE.md` si necessaire.
+16. Continuer seulement si le niveau d'autonomie l'autorise et que les gates critiques sont verts.
 
 ## Gates minimales
 
@@ -88,6 +86,7 @@ Si la demande modifie le backlog, proposer ou effectuer la mise a jour de `SR_IN
 - `verification_gate` : executer ou documenter les verifications.
 - `self_evaluation_gate` : relire diff/fichiers, verifier preuves, risques et oublis possibles.
 - `loop_contract_gate` : verifier que `loop_contract.json` declare status, preuves, fichiers modifies, verifications, E2E utilisateur, memoire, budget contexte et decision de transition conversationnelle.
+- `requirement_registry_gate` : separer implementation et preuve, calculer le statut depuis chaque demande et heriter sans perte de toutes les exigences ouvertes lors d'une reprise.
 - `design_gate` : obligatoire pour UI non triviale.
 - `ui_test_readiness_gate` : obligatoire pour UI non triviale quand `ui_validation.required` vaut `true`.
 - `ui_visual_evidence_gate` : obligatoire avant cloture `done` d'un lot UI significatif.
@@ -113,6 +112,7 @@ Pendant l'execution, rester concis.
 
 En cloture :
 
+- commencer par `Demande utilisateur | Etat | Preuve | Reste a faire` ;
 - lots traites ;
 - statut backlog mis a jour ;
 - fichiers touches ;
@@ -121,4 +121,6 @@ En cloture :
 - loop contract OK/KO ;
 - decision self evaluation : done / user_testing / repair / blocked ;
 - risques restants ;
-- prochain lot recommande.
+- prochain bloc coherent recommande.
+
+Ne jamais qualifier la passe de terminee, complete, livree ou implementee si son Completion Gate est rouge. `user_testing` est reserve aux exigences techniquement completes auxquelles il manque seulement un E2E ou une acceptation humaine.

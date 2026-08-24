@@ -11,6 +11,7 @@
 [⭐ Repository mit Stern markieren](https://github.com/syl2042/Aurora_SR_method_codex_pack/stargazers) ·
 [Dokumentation](https://docs.auroramind.fr/docs/SR_Method) ·
 [Installation](INSTALLATION.de.md) ·
+[Changelog](CHANGELOG.md) ·
 [Mit Codex installieren](prompts/de/00_install_codex_environment.md) ·
 [Aktualisieren](prompts/de/05_upgrade_codex_environment.md) ·
 [Prüfen](prompts/de/06_verify_sr_installation.md)
@@ -128,15 +129,15 @@ Jede wichtige Sitzung muss verwertbare Spuren hinterlassen: aktueller Zustand, E
 
 ---
 
-## Was sich in 3.2.1 ändert
+## SR Passes und SR Agent Method
 
-Version `3.2.1` enthaelt zwei getrennte Erweiterungen:
+Version `3.2.0` fuehrte zwei getrennte Erweiterungen ein; Version `3.2.1` haertete danach geordnete Inter-Pass-Abhaengigkeiten:
 
 ### SR Passes: Lose in Ausfuehrungspasses buendeln
 
 SR Passes fuegt eine Orchestrierungsschicht oberhalb der Lose hinzu. Das Los bleibt die atomare Einheit fuer Scope, Akzeptanzkriterien, erlaubte Pfade, Stop Conditions, Status und Task Memory. Ein Pass buendelt mehrere zusammenhaengende Lose, wenn sie eine gemeinsame Grundlage, einen Preflight, Abhaengigkeiten oder eine koharente E2E-Pruefung teilen.
 
-SR 3.2.1 fuegt hinzu:
+SR 3.2.0 fuegte hinzu:
 
 - `docs/codex/SR_PASSES.yaml` fuer begrenzte Multi-Los-Ausfuehrung;
 - `scripts/codex/validate_pass_contract.py` zur Pruefung von Losreferenzen und Abhaengigkeitsreihenfolge;
@@ -149,7 +150,7 @@ Diese Erweiterung ist nuetzlich, wenn eine Roadmap, ein grosser Brief oder eine 
 
 ### SR Agent Method: Runtime Agents ohne Framework-Lock-in
 
-SR 3.2.1 fuegt ausserdem hinzu:
+SR 3.2.0 fuegte ausserdem hinzu:
 
 - ein Runtime-Agent-Contract-Template fuer begrenzte Produktaktionen, stabile interne Representation, Prompt Contract, Message Builder, Tools/Actions, Routing/Fallback, Validierung und Traces.
 
@@ -164,19 +165,19 @@ So bleibt SR projektagnostisch und verhindert zugleich, dass wichtige Querschnit
 
 ---
 
-## Was sich in 3.5.2 aendert
+## Zielrelease 3.7.0
 
-Version `3.5.2` integriert erstes Upgrade-Feedback aus aelteren produktiven SR-Projekten.
+Zielversion `3.7.0` trennt `implementation_status` und `evidence_status`, leitet Requirement-Entscheidungen und Completion Gate ab und oeffnet bei Feedback standardmaessig das urspruengliche Los wieder. Contracts 3.0.0 bleiben lesbar und werden nicht massenhaft umgeschrieben. Die kanonische Versionshistorie steht in [CHANGELOG.md](CHANGELOG.md).
 
-Historische Task-Contracts mit Datum vor `2026-08-08`, denen `lot_completion_gate` fehlt, werden von `audit_sr_task_contracts.py` jetzt als Legacy Warnings behandelt, waehrend neuere Contracts strikt bleiben. Der Prompt `05_upgrade_codex_environment.md` stellt ausserdem klar, dass ein SR-Upgrade keine Anwendungs-Lose oder -Passes als impliziten Nebeneffekt schliessen, promoten oder reklassifizieren darf. Wenn der Benutzer eine Schliessung im selben Auftrag ausdruecklich verlangt, muss sie als separate validierte Unterphase mit eigenem SR-Contract und Nachweisen laufen.
+Neuinstallationen und Upgrades ohne Produkt-Passes verwenden ein gueltiges `passes: []`. Regressionen decken repraesentative offizielle Layouts SR 2.2.0, 2.3.0, 2.3.5, 2.4.1 und 3.0.0 ab; unknown oder lokal angepasste Layouts brauchen ein Datei-Audit. Installer-Erfolg reicht nicht: Bis `sr_post_install_check.py` gruen ist, bleibt das Ziel in `repair`.
 
-## Was sich in 3.5.1 aendert
-
-Version `3.5.1` haertet den Upgrade-Prompt `05_upgrade_codex_environment.md`.
-
-Das Upgrade eines bestehenden Projekts wird jetzt standardmaessig als heterogener Fall behandelt: Die installierte SR Method Version kann alt, unvollstaendig, unbekannt oder lokal angepasst sein. Codex muss die aktuelle Installation diagnostizieren, den Upgrade-Flow klassifizieren, projektspezifische Dateien erhalten, vor jeder Mutation einen Plan vorlegen, das Upgrade additiv anwenden, verfuegbare Checks ausfuehren und `CURRENT_STATE.md` neu ausrichten, bevor die Anwendungsentwicklung fortgesetzt wird.
+Prompt `00` gilt nur fuer Repositories ohne SR-Marker. Prompt `05` auditiert jedes bestehende Repository separat. Bei mehreren Ordnern mit unterschiedlichen Versionen ist eine Matrix pro Repository Pflicht; ein gruener Zielordner darf andere nicht verdecken. Der Installer verweigert Fresh-Install-`--write`, wenn er eine SR-Installation erkennt.
 
 ---
+
+## Versionshistorie
+
+Die vollstaendige Versionshistorie mit Migration, Kompatibilitaet und Source-Referenzen steht in [CHANGELOG.md](CHANGELOG.md).
 
 ## Der vollständige Workflow
 
@@ -249,7 +250,7 @@ Empfohlener Prompt:
 | SR-Sitzung starten | [01_start_sr_session.md](prompts/de/01_start_sr_session.md) |
 | SR Method aktualisieren | [05_upgrade_codex_environment.md](prompts/de/05_upgrade_codex_environment.md) |
 | Installation prüfen | [06_verify_sr_installation.md](prompts/de/06_verify_sr_installation.md) |
-| Zustand nach Upgrade neu ausrichten | [07_realign_sr_state_after_upgrade.md](prompts/07_realign_sr_state_after_upgrade.md) |
+| Zustand nach Upgrade neu ausrichten | [07_realign_sr_state_after_upgrade.md](prompts/de/07_realign_sr_state_after_upgrade.md) |
 | SR-Lose aus Scope definieren | [09_define_sr_lots_from_scope.md](prompts/de/09_define_sr_lots_from_scope.md) |
 | Runtime-KI-Agenten definieren | [15_define_runtime_agents.md](prompts/de/15_define_runtime_agents.md) |
 
@@ -578,6 +579,8 @@ Entwickler-Einstiegspunkte sind in mehreren Sprachen verfügbar:
 - Installationsanleitungen;
 - kopierbare Codex-Prompts;
 - Prompts für Aktualisierung, Prüfung, Wiederaufnahme und Runtime-Agenten.
+
+Der getestete lokalisierte oeffentliche Prompt-Satz umfasst `00`, `01`, `05`, `06`, `07`, `08`, `09` und `15`. Andere Prompts sind interne kanonische Workflows und werden nicht als uebersetzte Einstiegspunkte zugesagt.
 
 Ein installiertes Projekt kann Codex anweisen, mit dem Benutzer auf Deutsch zu sprechen. Die technische Methode bleibt kanonisch Englisch.
 

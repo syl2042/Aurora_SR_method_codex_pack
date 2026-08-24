@@ -1,17 +1,22 @@
 # Verify an SR Method installation
 
-You are working in a repository equipped with the Aurora SR Method.
+Do not modify files.
 
-Objective: verify that the installation or upgrade is complete, coherent, and usable before development resumes.
+Objective: prove that each installation or upgrade is complete, coherent, and usable before application development resumes.
 
-Instructions:
+For every target repository independently:
 
-1. Run `python3 scripts/codex/verify_codex_pack.py`.
-2. Run `python3 scripts/codex/audit_codex_pack.py --root . --json`.
-3. Run `python3 scripts/codex/sr_post_install_check.py --root . --json` if available.
-4. Validate lot, pass, loop, and SR contracts when the scripts are present.
-5. Run `python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml` if `SR_PASSES.yaml` exists.
-6. Classify remaining warnings as acceptable, to document, to fix with validation, or blocking.
-7. Report version, checks, errors, warnings, `SR_PASSES.yaml` status, and recommended next action.
+1. Read its actual `AGENTS.md`, `docs/codex/SR_PACK_VERSION.json`, method, contracts, lots, passes, and task-memory markers. Do not infer one folder's version from another.
+2. Run `python3 scripts/codex/verify_codex_pack.py`.
+3. Run `python3 scripts/codex/validate_release_docs.py --root . --json`.
+4. Run `python3 scripts/codex/audit_codex_pack.py --root . --json`.
+5. Run `python3 scripts/codex/sr_post_install_check.py --root . --json`.
+6. Run `python3 scripts/codex/audit_sr_task_contracts.py --root . --json`.
+7. Validate `SR_LOTS.yaml`, `SR_PASSES.yaml`, active loop contracts, and the SR Contract 3.1.0 (or explicitly identified legacy 3.0.0 contracts).
+8. Verify `docs/codex/CHANGELOG.md`, the target version, localized public prompts, and additive preservation of project-owned files.
 
-This is not an application development pass.
+Classify every warning as compatible legacy state, documentation debt, `repair`, or a real external blocker. Installer exit code `0` alone is not sufficient.
+
+Report a per-repository table with version, checks, errors, warnings, contract status, open `validated_requests`, missing evidence, and next action. `user_testing` is allowed only for technically complete work; missing implementation remains `repair`.
+
+Stop without applying fixes. Ask for exact validation for any repair scope.

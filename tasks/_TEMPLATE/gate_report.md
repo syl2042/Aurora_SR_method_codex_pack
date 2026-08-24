@@ -144,17 +144,31 @@
 - Reduction silencieuse detectee : oui/non
 - Exigence UI/UX explicite : oui/non
 - Preuve visuelle ou E2E ciblee :
+- Registre `validated_requests` granulaire : oui/non
+- Table derivee automatiquement du registre : oui/non
 
-| Exigence validee | Statut | Preuve | Commentaire |
-|---|---|---|---|
-| ... | fait/partiel/non fait/bloque/hors perimetre valide/requires_e2e | fichier/test/log/capture/endpoint/build/E2E | ... |
+| Demande utilisateur | Implementation | Preuve | Decision | Reste a faire |
+|---|---|---|---|---|
+| ... | not_started/partial/complete/defective | missing/partial/failed/sufficient/user_accepted | done/user_testing/repair/blocked | ... |
 
 - Exigences partielles :
 - Exigences non faites :
 - Exigences bloquees :
 - Exigences en attente E2E :
 - Decision de statut autorisee : `done` / `user_testing` / `repair` / `blocked`
+- Langage de cloture coherent avec le gate : oui/non
 - Cloture `done` autorisee : oui/non
+
+## Reprise et consolidation
+
+- Classification : `existing_requirement_repair` / `existing_requirement_clarification` / `existing_requirement_acceptance` / `new_requirement` / `scope_change` / `cancelled_requirement`
+- Requirement ID rattache :
+- Contrat parent :
+- Exigences ouvertes heritees :
+- Lots rouverts :
+- Nouveau lot cree : oui/non
+- Justification hors scope si oui :
+- Prochain ensemble coherent :
 
 ## Knowledge Gate
 

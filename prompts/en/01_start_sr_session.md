@@ -1,17 +1,24 @@
 # Start a governed SR session
 
-You are working in a repository equipped with the Aurora SR Method.
+Do not code.
 
-Objective: resume the project cleanly before any development work.
+Objective: reconstruct the complete validated scope and propose the next coherent action before any mutation.
 
-Instructions:
+1. Read `AGENTS.md`, `docs/codex/SR_BOOTSTRAP.md`, and `docs/CURRENT_STATE.md` when present.
+2. Run `python3 scripts/codex/find_next_session_prompt.py --root . --json` and read the latest `NEXT_SESSION_PROMPT.md` when found.
+3. Read the linked `sr_contract.json` (SR Contract 3.1.0 or legacy 3.0.0), `loop_contract.json`, task memory, lots, and passes needed to understand open work.
+4. Reload every inherited open entry in `validated_requests`; never resume from only the most recent feedback item.
+5. Separate requirements that are done, partial, not done, defective, blocked, or awaiting evidence.
+6. Apply the status semantics: incomplete implementation means `repair`; `user_testing` requires complete technical implementation and only real E2E or human acceptance remaining.
+7. If feedback concerns an existing requirement, reopen the original lot by default and present its consolidated checklist. Do not create a new micro-lot.
+8. Run available contract and context-budget checks without mutating project state.
 
-1. Read `AGENTS.md`.
-2. Read `docs/codex/SR_BOOTSTRAP.md`.
-3. Read `docs/CURRENT_STATE.md` if present.
-4. Run `python3 scripts/codex/find_next_session_prompt.py --root . --json` if available.
-5. If a `NEXT_SESSION_PROMPT.md` is found, read it before proposing work.
-6. Check the SR version with `python3 scripts/codex/audit_codex_pack.py --root . --json` if available.
-7. Summarize open lots, active decisions, blockers, and the recommended next action.
+Report:
 
-Do not code before this bootstrap is complete.
+- SR version and memory used;
+- validated requests and their implementation/evidence state;
+- reopened lots, blockers, and missing evidence;
+- the next coherent scope;
+- the exact human validation required before coding.
+
+Stop and wait for validation.

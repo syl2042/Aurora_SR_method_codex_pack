@@ -7,7 +7,7 @@ Objectif : reprendre proprement le projet sans perdre le backlog, les decisions 
 Ne code pas avant d'avoir fait ce bootstrap.
 
 Fast path obligatoire : Reprise SR stricte
-si la demande utilisateur est seulement `reprends`, `resume`, `continue`, `on reprend` ou une formule vague equivalente, ne lis pas tout le projet. Execute `find_next_session_prompt.py`, lis uniquement le dernier `NEXT_SESSION_PROMPT.md`, son `sr_contract.json` SR 3.0.0 et son `loop_contract.json` associes si indiques, puis resume l'etat et attends validation. Ne code pas et ne lance pas le prochain lot.
+si la demande utilisateur est seulement `reprends`, `resume`, `continue`, `on reprend` ou une formule vague equivalente, ne lis pas tout le projet. Execute `find_next_session_prompt.py`, lis uniquement le dernier `NEXT_SESSION_PROMPT.md`, son `sr_contract.json` (3.1.0 ou legacy 3.0.0) et son `loop_contract.json` associes si indiques, puis resume toutes les exigences ouvertes et attends validation. Ne code pas et ne lance pas le prochain lot.
 
 Etapes :
 
@@ -26,9 +26,9 @@ Etapes :
 13. Verifier rapidement la version SR avec `python3 scripts/codex/audit_codex_pack.py` si le script existe.
 14. Verifier le contrat projet avec `python3 scripts/codex/audit_sr_project.py --root .` si le script existe.
 15. Verifier la disponibilite du Loop Contract avec `test -f docs/codex/tasks/_TEMPLATE/loop_contract.json && test -f scripts/codex/validate_loop_contract.py`.
-16. Verifier la disponibilite du SR Contract 3.0.0 avec `test -f docs/codex/tasks/_TEMPLATE/sr_contract.json && test -f scripts/codex/validate_sr_contract.py`.
+16. Verifier la disponibilite du SR Contract 3.1.0 avec `test -f docs/codex/tasks/_TEMPLATE/sr_contract.json && test -f scripts/codex/validate_sr_contract.py`.
 17. Verifier le budget contexte avec `python3 scripts/codex/context_budget_report.py --root . --compact` si le script existe. Si le statut est `green`, ne pas l'afficher sauf demande explicite ; sinon appliquer le Context budget gate.
-18. Pour toute tache non triviale reprise dans cette conversation, prevoir `sr_contract.json` avec `validated_requests` et une decision finale `conversation_transition` dans `loop_contract.json`.
+18. Pour toute tache non triviale reprise dans cette conversation, prevoir `sr_contract.json` avec `validated_requests` heritees sans perte et une decision finale `conversation_transition` dans `loop_contract.json`.
 19. Si une nouvelle conversation est recommandee ou imposee, verifier que `resume_protocol.next_user_prompt` existe dans le contrat de boucle.
 
 Puis repondre avec :
@@ -39,7 +39,7 @@ Puis repondre avec :
 - `NEXT_SESSION_PROMPT.md` detecte ou absent ;
 - mode connaissance detecte : `core` ou `nexus_kg` ;
 - etat court du budget contexte seulement s'il n'est pas `green` ou si l'utilisateur le demande ;
-- etat court du SR Contract 3.0.0 si une task memory active existe ;
+- etat court du SR Contract 3.1.0 (ou legacy 3.0.0) si une task memory active existe ;
 - regle de transition conversationnelle applicable : continuer ici / recommander nouvelle conversation / stopper si contexte orange ou rouge ;
 - protocole de reprise applicable : strict_resume / resume_and_continue / non requis ;
 - risques ou blockers ;

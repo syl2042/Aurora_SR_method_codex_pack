@@ -1,0 +1,13 @@
+{
+  "scenario": "C",
+  "classification": "existing_requirement_repair",
+  "matched_requirement_id": "REQ-SOURCES-ACCORDION",
+  "origin_lot_id": "LOT-SOURCES",
+  "source_checklist": [
+    "REQ-SOURCES-ACCORDION",
+    "REQ-SOURCES-SEPARATION",
+    "REQ-SOURCES-DOCUMENT-OPEN"
+  ],
+  "expected_status": "repair",
+  "new_lot_expected": false
+}

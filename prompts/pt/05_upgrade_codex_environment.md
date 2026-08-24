@@ -4,6 +4,10 @@ Voce esta trabalhando em um repositorio de aplicacao que ja contem uma instalaca
 
 Objetivo verificavel: atualizar a SR Method para a ultima versao oficial disponivel, sem regressao, sem modificar codigo da aplicacao, sem sobrescrever adaptacoes do projeto, e deixando o projeto em um estado SR realinhado antes de retomar qualquer desenvolvimento.
 
+Este prompt aceita um alvo ou uma lista explicita de repositorios. Com varias pastas, trate cada repositorio como alvo independente e produza antes da mutacao a matriz `repository | marcadores lidos | versao detectada | estado | fluxo | arquivos a preservar | validacao`. Nunca suponha versao comum; atualize e verifique alvo por alvo.
+
+Se um alvo nao tiver marcador SR, classifique-o como `fresh_install`, retire-o do fluxo de upgrade e use `00_install_codex_environment.md` com validacao propria.
+
 Fonte oficial da SR Method:
 
 ```text
@@ -29,12 +33,15 @@ Regras estritas:
 - Nao substitua cegamente `AGENTS.md`, `DESIGN.md`, `docs/CURRENT_STATE.md`, `PROJECT_PROFILE.yaml`, `SKILL_MAP.md`, `docs/codex/SR_LOTS.yaml`, `docs/codex/SR_PASSES.yaml`, task memories, handoffs, decisoes ou skills do projeto.
 - Preserve as adaptacoes locais do projeto.
 - Preserve arquivos legacy de task memory; nao crie contratos retroativos em lote sem validacao explicita.
-- Preserve `SR_LOTS.yaml`. Adicione `SR_PASSES.yaml` de forma aditiva se estiver ausente, mas nao converta automaticamente lotes antigos ou task memories em passes validadas.
+- Preserve `SR_LOTS.yaml`. Se `SR_PASSES.yaml` estiver ausente, adicione um registro valido `passes: []`; nao copie uma pass de exemplo nem converta automaticamente lotes antigos ou task memories em passes validadas.
 - Nao converta lotes antigos em massa para adicionar `design_evidence`; adicione Lot Design Evidence Gate somente a lotes criados, promovidos ou retomados apos o upgrade.
 - Adicione Pass Runtime Goal tooling de forma aditiva (`build_pass_runtime_goal.py`, template `pass_runtime_goal.md`, opcoes `sr_passes.pass_runtime_goal`) sem gerar um goal ate que uma pass esteja validada.
 - Nunca lance `/goal` durante o upgrade. O upgrade prepara o metodo; a execucao por goal vem somente depois do realinhamento, pass planning e validacao do usuario.
 - Nao feche, promova nem reclassifique nenhum lote ou pass de aplicacao como efeito colateral implicito do upgrade. Se o usuario pedir explicitamente para fechar um lote ou pass no mesmo trabalho, trate esse fechamento como uma subfase separada depois do upgrade, com escopo validado, contrato SR proprio, evidencias e relatorio distinto.
 - Preserve task memories historicas sem `propagation_gate`: reporte-as como legacy warnings, nao como erros bloqueantes. Novos templates e contratos criados depois do upgrade devem incluir o Propagation Gate.
+- Preserve leitura compativel de contratos `sr_contract` 3.0.0. Novas task memories e lotes reabertos usam 3.1.0 com `implementation_status` e `evidence_status` separados.
+- Nao reescreva `validated_requests` antigos em massa. Sinalize contratos multi-lote reduzidos a uma exigencia global; normalize apenas escopo ativo ou reaberto apos ler fontes e obter validacao humana.
+- O upgrade nao deve fechar, mover ou transformar em novo lote nenhuma exigencia aberta, parcial ou defeituosa.
 - Em regime SR completo, toda alteracao de versao SR deve atualizar `docs/CURRENT_STATE.md` com versao instalada, data de revisao, checks executados, ultimo `NEXT_SESSION_PROMPT.md`, lotes significativos e proximo passo.
 - Um `loop_contract.json` do tipo `upgrade` nao pode fechar como `done` com `memory_updates.current_state_updated=false`.
 - Antes de qualquer modificacao de arquivo, apresente o plano de upgrade e aguarde validacao explicita do usuario.
@@ -61,6 +68,10 @@ Classifique o projeto em um fluxo:
 - `upgrade_minor_3x` se a versao instalada ja for `3.x`;
 - `upgrade_standard_235_plus` se a versao for `2.3.5+`;
 - `upgrade_legacy_unknown` se a versao estiver ausente, ilegivel, abaixo de `2.3.5`, ou se a instalacao SR for parcial.
+
+Matriz SR 3.7.0: fresh install para schemas 3.1.0/1.1 e lotes 0.4/passes 0.2; SR 3.6.x com atualizacao aditiva; SR 3.0-3.5 com leitura legacy, warnings e normalizacao direcionada de lotes ativos/reabertos; SR 2.x/unknown/partial com backup e inventario arquivo por arquivo; adaptacoes locais preservadas fora dos blocos SR gerenciados.
+
+Layouts oficiais representativos SR 2.2.0, 2.3.0, 2.3.5, 2.4.1 e 3.0.0 possuem regressoes de upgrade. Unknown/partial ainda exige auditoria arquivo por arquivo: a fixture prova o caminho minimo, nao toda adaptacao local.
 
 Etapa 3 - Fonte oficial:
 
@@ -111,7 +122,7 @@ Somente depois da validacao:
 1. Aplique o upgrade SR de forma aditiva.
 2. Preserve arquivos do projeto e historicos.
 3. Atualize scripts, templates, prompts e docs SR necessarios.
-4. Adicione `SR_PASSES.yaml` se estiver ausente, sem declarar automaticamente uma pass executavel.
+4. Adicione `SR_PASSES.yaml` com `passes: []` se estiver ausente. O prompt `08` o preenche somente depois de ler os lotes e obter validacao humana.
 5. Adicione Pass Runtime Goal tooling se estiver ausente:
    - `build_pass_runtime_goal.py`
    - template `pass_runtime_goal.md`
@@ -128,6 +139,7 @@ Execute os checks disponiveis e aplicaveis:
 - `python3 scripts/codex/audit_codex_pack.py`
 - `python3 scripts/codex/verify_codex_pack.py`
 - `python3 scripts/codex/sr_post_install_check.py --root .`
+- `python3 scripts/codex/validate_release_docs.py --root . --json` para verificar `CHANGELOG.md`, versao e prompts publicos localizados
 - `python3 scripts/codex/find_next_session_prompt.py --root .`
 - `python3 scripts/codex/audit_sr_project.py --root .`
 - `python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml` se o arquivo existir
@@ -139,6 +151,8 @@ Execute os checks disponiveis e aplicaveis:
 - `python3 scripts/codex/validate_skills.py --path ~/.codex/skills` se as skills do metodo estiverem instaladas
 
 Se alguns scripts estiverem ausentes antes do upgrade, reporte isso como normal para uma versao antiga e execute novamente depois do upgrade.
+
+O codigo 0 do instalador nao basta para declarar sucesso. `sr_post_install_check.py` tambem deve ficar verde; caso contrario o alvo permanece em `repair`.
 
 Etapa 8 - Realinhamento obrigatorio:
 

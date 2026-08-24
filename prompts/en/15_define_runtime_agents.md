@@ -18,4 +18,6 @@ Constraints:
 - distinguish inspection/preparation tools from committing actions;
 - no agent is active before validation.
 
+Require an explicit `output schema`, Pydantic models for Python application-consumed output (or an equivalent strict typed validator elsewhere), and an `invalid_output_policy` such as reject, retry once, traced repair, or human review. Invalid output must never trigger a critical action.
+
 Never let an LLM generate and execute free SQL. Critical actions require human validation.

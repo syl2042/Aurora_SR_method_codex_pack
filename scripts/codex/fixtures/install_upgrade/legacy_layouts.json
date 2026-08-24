@@ -1,0 +1,50 @@
+[
+  {
+    "name": "sr_2_2_0",
+    "source_release": "2.2.0",
+    "source_commit": "c883004",
+    "sr_lots_version": "0.1",
+    "lot_id": "EXAMPLE-01",
+    "has_project_key": false
+  },
+  {
+    "name": "sr_2_3_0",
+    "source_release": "2.3.0",
+    "source_commit": "c0973cd",
+    "sr_lots_version": "0.2",
+    "lot_id": "LEGACY-DOCS-001",
+    "has_project_key": true
+  },
+  {
+    "name": "sr_2_3_5",
+    "source_release": "2.3.5",
+    "source_commit": "a59a248",
+    "sr_lots_version": "0.2",
+    "lot_id": "LEGACY-DOCS-001",
+    "has_project_key": true
+  },
+  {
+    "name": "sr_2_4_1",
+    "source_release": "2.4.1",
+    "source_commit": "b07c9b4",
+    "sr_lots_version": "0.2",
+    "lot_id": "LEGACY-DOCS-001",
+    "has_project_key": true
+  },
+  {
+    "name": "sr_3_0_0",
+    "source_release": "3.0.0",
+    "source_commit": "761edf9",
+    "sr_lots_version": "0.2",
+    "lot_id": "LEGACY-DOCS-001",
+    "has_project_key": true
+  },
+  {
+    "name": "unknown_partial",
+    "source_release": null,
+    "source_commit": null,
+    "sr_lots_version": "0.1",
+    "lot_id": "LOCAL-LEGACY-01",
+    "has_project_key": false
+  }
+]

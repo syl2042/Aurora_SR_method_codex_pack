@@ -12,9 +12,10 @@
 - En fin de tache non triviale, indiquer la memoire SR utilisee, les fichiers SR mis a jour, les gates, les tests E2E utilisateur a faire et le prochain lot recommande.
 - En fin de tache non triviale, indiquer `NEXT_SESSION_PROMPT.md : cree / mis a jour / non requis` avec la raison.
 - SR plein regime : mettre a jour `docs/CURRENT_STATE.md` apres tout upgrade SR, realignement SR, changement de version SR, creation de `NEXT_SESSION_PROMPT.md`, modification structurante de `SR_LOTS.yaml`, lot applicatif significatif passe en `done` ou `user_testing`, ou fin de session significative.
-- SR Contract 3.0.0 : creer ou mettre a jour `docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json` quand `PROJECT_PROFILE.yaml` declare `require_sr_contract`, suivre `validated_requests`, puis verifier avec `python3 scripts/codex/validate_sr_contract.py --file <chemin>`.
+- SR Contract 3.1.0 : creer ou mettre a jour `docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json` quand `PROJECT_PROFILE.yaml` declare `require_sr_contract`, suivre chaque intention granulaire dans `validated_requests`, separer `implementation_status` et `evidence_status`, puis verifier avec `python3 scripts/codex/validate_sr_contract.py --file <chemin>`. Les contrats 3.0.0 restent lisibles.
 - Loop Contract obligatoire pour toute tache non triviale : creer ou mettre a jour `docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json`, declarer `conversation_transition`, puis verifier avec `python3 scripts/codex/validate_loop_contract.py --file <chemin>`.
-- Lot Completion Gate obligatoire : avant de declarer un lot ou une passe `done`, produire une table de couverture des exigences validees avec statut et preuve. `simple/chirurgical` ne reduit jamais le perimetre valide ; toute exigence partielle, non faite, bloquee ou en attente E2E interdit `done`.
+- Lot Completion Gate obligatoire : produire une table derivee des exigences validees avec implementation, preuve et reste a faire. `simple/chirurgical` ne reduit jamais le perimetre valide. Une implementation partielle, absente ou defectueuse impose `repair`; `user_testing` est reserve au code techniquement complet dont seule une preuve E2E ou acceptation manque.
+- Reprise consolidee obligatoire : un retour sur une exigence validee est par defaut `existing_requirement_repair`; rouvrir le lot d'origine, heriter de toutes ses exigences ouvertes et ne creer un nouveau lot que pour un scope reellement nouveau avec justification explicite.
 - UI Test Readiness Gate et UI Visual Evidence Gate obligatoires pour UI/UX significative quand `ui_validation.required` vaut `true` : lancer `node scripts/codex/sr_ui_verify.mjs` sur les routes/viewports requis, renseigner `sr_contract.json.ui_validation`, et ne jamais accepter une capture de login comme preuve UI.
 - Propagation Gate obligatoire : si un changement touche un symbole ou contrat partage (fonction, signature, type, schema, endpoint, champ DB, config, import/export, composant, agent runtime), annoncer avant mutation les consommateurs et surfaces a risque, demander validation humaine si le risque depasse le local, puis verifier apres mutation les references, appels, imports/exports, signatures, tests et smokes proportionnes. Un lot ne peut pas etre `done` si le gate requis n'est pas `pass`.
 - Backlog Contract obligatoire : si `docs/codex/SR_LOTS.yaml` est modifie, executer `python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml` avant cloture. `git diff --check` ne remplace jamais cette validation.
@@ -71,7 +72,7 @@ Pour toute demande qui modifie le backlog, lire `docs/codex/SR_HARNESS_METHOD.md
 Pour toute execution multi-lots, lire ou proposer `docs/codex/SR_PASSES.yaml` avant codage significatif. Une passe doit declarer les lots inclus, l'ordre, les prerequis, validations humaines, secrets/actions externes, migrations, criteres d'arret et tests E2E groupes.
 
 Politique par defaut :
-- traiter les lots `reopened` puis `validated` ;
+- traiter les lots `repair`/`reopened` puis `validated` ;
 - enchainer jusqu'a 3 lots par passe si les gates restent verts ;
 - appliquer le Pass Planning Gate avant de coder une passe ;
 - valider `SR_PASSES.yaml` avec `validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml` si le fichier existe ou vient d'etre cree ;
@@ -99,7 +100,7 @@ Evidence gate obligatoire avant recommandation :
 
 Lot Design Evidence Gate obligatoire avant lot executable :
 - un lot peut etre `proposed` avec hypotheses et fichiers candidats ;
-- un lot `planned`, `validated`, `in_progress` ou `reopened` doit declarer `design_evidence.status: pass` ou `not_applicable` justifie ;
+- un lot `planned`, `validated`, `in_progress`, `repair` ou `reopened` doit declarer `design_evidence.status: pass` ou `not_applicable` justifie ;
 - si `code_read_required: true`, le lot doit lister `confirmed_files_read` ;
 - sans preuve suffisante, garder le lot en `proposed` et ne pas le mettre dans une passe executable.
 
@@ -128,7 +129,7 @@ Lot Completion Gate obligatoire :
 - relire le perimetre valide juste avant validation utilisateur ;
 - couvrir chaque exigence dans `validated_requests` et dans la table de couverture ;
 - fournir une preuve par exigence : fichier, test, log, endpoint, capture, build, E2E ou justification ;
-- si une exigence UI/UX est explicite, fournir une preuve visuelle ou E2E ciblee ; si `ui_validation.required` vaut `true`, `ui_test_readiness` et `ui_visual_evidence` doivent etre `pass`, sinon rester en `requires_e2e`/`user_testing`/`repair`/`blocked` ;
+- si une exigence UI/UX est explicite, fournir une preuve visuelle ou E2E ciblee ; une implementation complete sans preuve reste `user_testing`, une implementation absente/partielle/defectueuse reste `repair` ;
 - ne jamais presenter un sous-ensemble comme lot complet.
 
 Loop Contract obligatoire :

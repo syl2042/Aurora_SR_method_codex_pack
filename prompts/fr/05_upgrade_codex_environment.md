@@ -4,6 +4,10 @@ Tu travailles dans un repository applicatif deja equipe d'une version existante 
 
 Objectif verifiable : mettre a jour la SR Method vers la derniere version officielle disponible, sans regression, sans modifier le code applicatif, sans ecraser les adaptations projet, et en laissant le projet dans un etat SR realigne avant toute reprise de developpement.
 
+Ce prompt accepte une cible unique ou plusieurs repositories explicites. Avec plusieurs dossiers, traite chaque repository comme une cible independante et produis avant mutation une matrice `repository | marqueurs lus | version detectee | etat | flux propose | fichiers a preserver | validation`. Ne suppose jamais une version commune ; applique et verifie chaque cible separement.
+
+Si une cible ne contient aucun marqueur SR, classe-la `fresh_install`, retire-la du flux d'upgrade et utilise `00_install_codex_environment.md` avec sa propre validation.
+
 Source officielle SR Method :
 
 ```text
@@ -29,12 +33,15 @@ Regles strictes :
 - Ne remplace pas aveuglement `AGENTS.md`, `DESIGN.md`, `docs/CURRENT_STATE.md`, `PROJECT_PROFILE.yaml`, `SKILL_MAP.md`, `docs/codex/SR_LOTS.yaml`, `docs/codex/SR_PASSES.yaml`, les task memories, handoffs, decisions ou skills projet.
 - Preserve les adaptations locales du projet.
 - Preserve les fichiers legacy de task memory ; ne cree pas de contrats retroactifs en batch sans validation explicite.
-- Preserve `SR_LOTS.yaml`. Ajouter `SR_PASSES.yaml` de facon additive si absent, mais ne pas convertir automatiquement les anciens lots ou task memories en passes validees.
+- Preserve `SR_LOTS.yaml`. Si `SR_PASSES.yaml` est absent, ajouter un registre valide `passes: []` ; ne jamais copier une passe d'exemple ni convertir automatiquement les anciens lots ou task memories en passes validees.
 - Ne pas convertir massivement les anciens lots pour ajouter `design_evidence`; ajouter le Lot Design Evidence Gate seulement aux lots crees, promus ou repris apres upgrade.
 - Ajouter l'outillage Pass Runtime Goal de facon additive (`build_pass_runtime_goal.py`, template `pass_runtime_goal.md`, options `sr_passes.pass_runtime_goal`) sans generer de goal tant qu'une passe n'est pas validee.
 - Ne jamais lancer `/goal` pendant l'upgrade. L'upgrade prepare la methode ; l'execution par goal ne vient qu'apres realignement, pass planning et validation utilisateur.
 - Ne ferme, ne promeus et ne requalifie aucun lot ou passe applicatif comme effet secondaire implicite de l'upgrade. Si l'utilisateur demande explicitement de cloturer un lot ou une passe dans le meme travail, traite cette cloture comme une sous-phase separee apres l'upgrade, avec perimetre valide, contrat SR propre, preuves et rapport distinct.
 - Preserve les task memories historiques sans `propagation_gate` : les signaler comme legacy warnings, pas comme erreurs bloquantes. Les nouveaux templates et contrats crees apres upgrade doivent inclure le Propagation Gate.
+- Preserve les contrats `sr_contract` 3.0.0 en lecture compatible. Les nouvelles task memories et les lots rouverts utilisent 3.1.0 avec `implementation_status` et `evidence_status` separes.
+- Ne reecris pas massivement les anciens `validated_requests`. Signale les contrats multi-lots reduits a une exigence globale ; normalise seulement le perimetre actif ou rouvert apres lecture des sources et validation humaine.
+- L'upgrade ne ferme, ne deplace et ne transforme en nouveau lot aucune exigence ouverte, partielle ou defectueuse.
 - En SR plein regime, tout changement de version SR doit mettre a jour `docs/CURRENT_STATE.md` avec la version installee, la date de revue, les controles executes, le dernier `NEXT_SESSION_PROMPT.md`, les lots significatifs et la prochaine etape.
 - Un `loop_contract.json` de type `upgrade` ne peut pas se cloturer en `done` avec `memory_updates.current_state_updated=false`.
 - Avant toute modification de fichier, expose le plan d'upgrade et attends la validation explicite de l'utilisateur.
@@ -62,6 +69,10 @@ Classe le projet dans un de ces flux :
 - `upgrade_standard_235_plus` si la version est `2.3.5+` ;
 - `upgrade_legacy_unknown` si la version est absente, illisible, inferieure a `2.3.5`, ou si l'installation SR est partielle.
 
+Matrice SR 3.7.0 : fresh install vers schemas 3.1.0/1.1 et lots 0.4/passes 0.2 ; SR 3.6.x par rafraichissement additif ; SR 3.0-3.5 avec warnings et normalisation ciblee des lots actifs/rouverts ; SR 2.x/unknown/partial avec sauvegarde et inventaire fichier par fichier ; adaptations locales preservees hors blocs SR geres.
+
+Les layouts officiels representatifs SR 2.2.0, 2.3.0, 2.3.5, 2.4.1 et 3.0.0 disposent de regressions d'upgrade. Un layout unknown/partial reste audite fichier par fichier : la fixture prouve le chemin minimal, pas la compatibilite universelle de toute adaptation locale.
+
 Etape 3 - Source officielle :
 
 1. Verifie si un clone local du pack officiel existe deja.
@@ -85,6 +96,8 @@ Compare l'installation actuelle avec la derniere version du pack et identifie :
 - risques d'ecrasement ;
 - lots ou passes applicatifs candidats a reprise/cloture, a traiter seulement en sous-phase separee si l'utilisateur l'a explicitement demande ;
 - anciens contrats ou task memories a laisser en legacy warnings.
+- exigences ouvertes et lots `repair`, `reopened` ou `user_testing` a conserver dans une reprise consolidee ;
+- contrats multi-lots avec un seul `validated_request` generique a signaler.
 
 Important : les anciens lots sans `design_evidence` ne doivent pas etre modifies en masse. Le `design_evidence` doit etre ajoute seulement aux lots crees, promus ou repris apres upgrade.
 
@@ -111,7 +124,7 @@ Apres validation seulement :
 1. Applique l'upgrade SR de maniere additive.
 2. Preserve les fichiers projet et les historiques.
 3. Mets a jour les scripts, templates, prompts et docs SR necessaires.
-4. Ajoute `SR_PASSES.yaml` si absent, sans declarer de passe executable automatiquement.
+4. Ajoute `SR_PASSES.yaml` avec `passes: []` s'il est absent, sans declarer de passe automatiquement. Le prompt `08` le remplira seulement apres lecture des lots et validation humaine.
 5. Ajoute l'outillage Pass Runtime Goal si absent :
    - `build_pass_runtime_goal.py`
    - template `pass_runtime_goal.md`
@@ -120,6 +133,8 @@ Apres validation seulement :
    - `max_goal_command_chars: 1000`
    - `hard_limit: 4000`
 7. Verifie que le Lot Design Evidence Gate est documente et actif pour les nouveaux lots ou les lots repris.
+8. Verifie les cibles SR Contract 3.1.0, Loop Contract 1.1, `SR_LOTS` 0.4 et `SR_PASSES` 0.2, avec lecture compatible des contrats 3.0.0.
+9. Herite les requirement IDs ouverts et rouvre le lot d'origine si necessaire ; ne cree pas de lot de migration produit.
 
 Etape 7 - Verifications :
 
@@ -128,6 +143,7 @@ Lance les verifications disponibles et adaptees :
 - `python3 scripts/codex/audit_codex_pack.py`
 - `python3 scripts/codex/verify_codex_pack.py`
 - `python3 scripts/codex/sr_post_install_check.py --root .`
+- `python3 scripts/codex/validate_release_docs.py --root . --json` pour verifier `CHANGELOG.md`, version et prompts publics localises
 - `python3 scripts/codex/find_next_session_prompt.py --root .`
 - `python3 scripts/codex/audit_sr_project.py --root .`
 - `python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml` si le fichier existe
@@ -139,6 +155,8 @@ Lance les verifications disponibles et adaptees :
 - `python3 scripts/codex/validate_skills.py --path ~/.codex/skills` si les skills methode sont installees
 
 Si certains scripts sont absents avant upgrade, signale-le comme information normale pour version ancienne, puis relance apres upgrade.
+
+Le code retour 0 de l'installateur ne suffit pas : `sr_post_install_check.py` doit aussi etre vert. Sinon la cible reste en `repair` avec les erreurs listees.
 
 Etape 8 - Realignement obligatoire :
 
@@ -181,5 +199,6 @@ Rapport final attendu :
 - warnings legacy ;
 - lots ou passes applicatifs detectes comme candidats a cloture ou reprise, et statut de toute sous-phase de cloture explicitement demandee ;
 - action suivante proposee.
+- si plusieurs repositories sont traites, resultat et warnings par cible, sans statut global trompeur.
 
 Fin obligatoire : attends la validation avant toute modification applicative ou toute execution de passe.

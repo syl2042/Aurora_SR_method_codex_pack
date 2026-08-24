@@ -4,10 +4,12 @@ Tu travailles dans un repo equipe de la SR Method.
 
 Objectif : transformer un cadrage, une demande utilisateur ou `docs/codex/SR_INBOX.yaml` en lots SR explicites dans `docs/codex/SR_LOTS.yaml`, sans modifier le code applicatif.
 
+Avant de creer un lot, verifier objectifs, criteres d'acceptation, `validated_requests`, lots `user_testing` et passes validees. Si le besoin est deja couvert, classer `existing_requirement_repair`/clarification/acceptance et rouvrir ou amender le lot d'origine. Un nouveau lot exige une justification explicite du scope reellement nouveau ; ne jamais creer un micro-lot par critere d'une meme demande produit.
+
 Regles :
 
 - Ne modifie aucun code applicatif.
-- Ne cree pas de lot `planned`, `validated`, `in_progress` ou `reopened` sans Lot Design Evidence Gate.
+- Ne cree pas de lot `planned`, `validated`, `in_progress`, `repair` ou `reopened` sans Lot Design Evidence Gate.
 - Un lot `proposed` peut capturer une piste ou une hypothese non encore verifiee.
 - Ne marque jamais un lot `validated` sans validation utilisateur explicite.
 - Ne renomme pas les lots legacy.

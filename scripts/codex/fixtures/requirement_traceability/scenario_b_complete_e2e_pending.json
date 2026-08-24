@@ -1,0 +1,9 @@
+{
+  "scenario": "B",
+  "request_id": "REQ-SOURCES-E2E",
+  "implementation_status": "complete",
+  "expected_evidence": ["e2e"],
+  "obtained_evidence": [],
+  "expected_evidence_status": "missing",
+  "expected_decision": "user_testing"
+}

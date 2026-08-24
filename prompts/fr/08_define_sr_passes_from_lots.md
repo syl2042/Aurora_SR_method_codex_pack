@@ -4,6 +4,8 @@ Tu travailles dans un repository deja equipe de la SR Method.
 
 Objectif : proposer ou mettre a jour `docs/codex/SR_PASSES.yaml` a partir de `docs/codex/SR_LOTS.yaml`, sans modifier le code applicatif.
 
+Prioriser les lots `repair`/`reopened`, conserver tous leurs `validated_request_ids` ouverts et regrouper les reparations du meme perimetre produit dans une passe coherente.
+
 Regles :
 
 - Ne modifie aucun code applicatif.
@@ -25,7 +27,7 @@ Methode :
 
 1. Valider `SR_LOTS.yaml`.
 2. Classer les lots par statut et dependances.
-3. Verifier le Lot Design Evidence Gate : exclure d'une passe executable tout lot `planned`, `validated`, `in_progress` ou `reopened` sans `design_evidence.status: pass` ou `not_applicable` justifie. Un lot `proposed` peut rester exploratoire.
+3. Verifier le Lot Design Evidence Gate : exclure d'une passe executable tout lot `planned`, `validated`, `in_progress`, `repair` ou `reopened` sans `design_evidence.status: pass` ou `not_applicable` justifie. Un lot `proposed` peut rester exploratoire.
 4. Construire le graphe `depends_on`, `blocked_by`, `impacts`, `impacted_by`.
 5. Proposer des passes avec ordre, rationale, preflight, validations humaines, migrations/actions externes, sources partagees, E2E groupe et stop conditions.
 6. Preparer la suite d'execution sans la lancer : si une passe est proposee pour Codex CLI `/goal`, indiquer que `pass_runtime_goal.md` devra etre genere apres validation, avec Goal Length Gate (`max_goal_command_chars: 1000`, `hard_limit: 4000`) et sans enchainement silencieux de la passe suivante.

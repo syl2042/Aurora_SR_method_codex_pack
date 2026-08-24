@@ -14,6 +14,16 @@ https://github.com/syl2042/Aurora_SR_method_codex_pack
 
 The preferred workflow is **Codex prompt first**. The Python scripts are implementation and validation tools that Codex can run after reading the prompt and inspecting the target project.
 
+## Choose The Correct Path First
+
+| Target state | Prompt | Installer mode | Required behavior |
+|---|---|---|---|
+| No SR marker | `00_install_codex_environment` | `--write` | Install SR 3.7.0 directly |
+| Any existing or partial SR marker | `05_upgrade_codex_environment` | `--upgrade` | Audit and merge additively |
+| Several repositories, possibly different versions | `05_upgrade_codex_environment` | one `--upgrade` per repository | Produce a per-repository version matrix |
+
+Do not infer that sibling folders use the same SR version. Read `SR_PACK_VERSION.json` and the actual method, schema, task-memory, lot, and pass markers in every target. The installer refuses fresh-install `--write` when it detects an existing SR installation.
+
 ## Install In A Target Project
 
 1. Clone this repository locally.
@@ -31,7 +41,11 @@ For a blank or never-SR project, Codex must treat this as a method installation 
 - run verification scripts;
 - stop with a report and recommended next prompts.
 
+The fresh-install target is SR pack 3.7.0: `sr_contract` 3.1.0, `loop_contract` 1.1, `SR_LOTS` 0.4, and `SR_PASSES` 0.2. The SR contract separates `implementation_status` from `evidence_status`. Installation must not invent validated product requirements, lots, or passes.
+
 Technical fallback:
+
+Running the installer without `--write` or `--upgrade` is a read-only preview. The two mutation modes are mutually exclusive.
 
 ```bash
 export SR_PACK_SOURCE="$HOME/aurora-sr-method-pack"
@@ -60,6 +74,8 @@ docs/codex/skills-method/*
 These generated target-project files are intentionally not stored in this source repository.
 
 New installations include `docs/codex/SR_PASSES.yaml`. SR Passes group several SR lots into a bounded execution pass with dependency ordering, shared preflight, human validations, and grouped E2E checks. Lots remain the atomic delivery unit in `SR_LOTS.yaml`.
+
+The installed registry starts as `passes: []`. This is a valid state, not a missing configuration: installation does not invent a product pass. Use prompt `08` after the lots are known and validated.
 
 New installations also include Pass Runtime Goal tooling:
 
@@ -103,6 +119,16 @@ For a project already using an older SR Method, the upgrade must be non-regressi
 - never commit or print Playwright storageState, cookies or tokens;
 - update `docs/CURRENT_STATE.md` with the SR version change, source commit, checks, warnings, and next prompt;
 - run `07_realign_sr_state_after_upgrade` before resuming application development.
+- keep reading historical `sr_contract` 3.0.0 contracts, while new task memories and reopened lots use 3.1.0;
+- warn when a multi-lot historical contract has only one generic `validated_request`;
+- do not rewrite historical memories in bulk; normalize only active or reopened scope after reviewing its source and obtaining the required validation;
+- preserve every open requirement ID and reopen its original lot by default instead of creating migration micro-lots.
+
+Representative official layouts from SR 2.2.0, 2.3.0, 2.3.5, 2.4.1, and 3.0.0 are covered by upgrade regressions. If an older target has no `SR_PASSES.yaml`, the upgrade creates a valid `passes: []` registry and does not infer a pass from existing lots. Unknown, partial, or locally adapted layouts still require the per-file audit in prompt `05`; the regression fixture does not claim universal compatibility with arbitrary local structures.
+
+An installer exit code of 0 is only implementation evidence. The upgrade is successful only when `sr_post_install_check.py` also passes; otherwise report the target as `repair` and keep its errors explicit.
+
+When upgrading several repositories, audit and report each repository separately. A green result in one folder cannot hide an old, partial, failed, or locally adapted installation in another folder.
 
 Technical fallback:
 
@@ -132,6 +158,7 @@ Technical checks Codex may run:
 
 ```bash
 python3 scripts/codex/verify_codex_pack.py
+python3 scripts/codex/validate_release_docs.py --root . --json
 python3 scripts/codex/audit_codex_pack.py --root . --json
 python3 scripts/codex/sr_post_install_check.py --root . --json
 python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml

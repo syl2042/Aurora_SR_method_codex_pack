@@ -4,6 +4,8 @@ Du arbeitest in einem Repository, das bereits mit der SR Method ausgestattet ist
 
 Ziel: `docs/codex/SR_PASSES.yaml` aus `docs/codex/SR_LOTS.yaml` vorschlagen oder aktualisieren, ohne Anwendungscode zu aendern.
 
+`repair`/`reopened` Lose priorisieren, alle offenen `validated_request_ids` behalten und Reparaturen desselben Produktumfangs in einem kohaerenten Pass konsolidieren.
+
 Regeln:
 
 - Keinen Anwendungscode aendern.
@@ -25,7 +27,7 @@ Methode:
 
 1. `SR_LOTS.yaml` validieren.
 2. Lose nach Status und Abhaengigkeiten klassifizieren.
-3. Lot Design Evidence Gate pruefen: jedes `planned`, `validated`, `in_progress` oder `reopened` Los ohne `design_evidence.status: pass` oder begruendetes `not_applicable` aus ausfuehrbaren Passes ausschliessen. Ein `proposed` Los darf explorativ bleiben.
+3. Lot Design Evidence Gate pruefen: jedes `planned`, `validated`, `in_progress`, `repair` oder `reopened` Los ohne `design_evidence.status: pass` oder begruendetes `not_applicable` aus ausfuehrbaren Passes ausschliessen. Ein `proposed` Los darf explorativ bleiben.
 4. Den Graphen `depends_on`, `blocked_by`, `impacts`, `impacted_by` bauen.
 5. Passes mit Reihenfolge, Rationale, Preflight, menschlichen Validierungen, Migrationen/externen Aktionen, gemeinsamen Quellen, gruppiertem E2E und Stop Conditions vorschlagen.
 6. `SR_PASSES.yaml` nur nach Validierung erstellen oder aktualisieren, wenn das Projekt strikte Validierung verlangt.

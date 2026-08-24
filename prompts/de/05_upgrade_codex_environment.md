@@ -4,6 +4,10 @@ Du arbeitest in einem Anwendungs-Repository, das bereits eine Aurora SR Method I
 
 Nachweisbares Ziel: Die SR Method auf die neueste offizielle Version aktualisieren, ohne Regression, ohne Anwendungscode zu aendern, ohne projektspezifische Anpassungen zu ueberschreiben, und das Projekt vor jeder Entwicklungsfortsetzung in einen neu ausgerichteten SR-Zustand bringen.
 
+Dieser Prompt akzeptiert ein Ziel oder eine explizite Repository-Liste. Behandle bei mehreren Ordnern jedes Repository als unabhaengiges Ziel und erstelle vor jeder Mutation die Matrix `repository | gelesene Marker | erkannte Version | Installationszustand | Upgrade-Flow | zu erhaltende Dateien | Freigabe`. Nimm niemals eine gemeinsame Version an; aktualisiere und pruefe Ziel fuer Ziel.
+
+Hat ein Ziel keinen SR-Marker, klassifiziere es als `fresh_install`, entferne es aus dem Upgrade-Flow und verwende `00_install_codex_environment.md` mit eigener Freigabe.
+
 Offizielle SR Method Quelle:
 
 ```text
@@ -29,12 +33,15 @@ Strikte Regeln:
 - Ersetze `AGENTS.md`, `DESIGN.md`, `docs/CURRENT_STATE.md`, `PROJECT_PROFILE.yaml`, `SKILL_MAP.md`, `docs/codex/SR_LOTS.yaml`, `docs/codex/SR_PASSES.yaml`, Task Memories, Handoffs, Entscheidungen oder Projektskills nicht blind.
 - Erhalte lokale Projektanpassungen.
 - Erhalte Legacy-Task-Memory-Dateien; erstelle keine rueckwirkenden Contracts im Batch ohne explizite Freigabe.
-- Erhalte `SR_LOTS.yaml`. Fuege `SR_PASSES.yaml` additiv hinzu, wenn es fehlt, aber konvertiere alte Lose oder Task Memories nicht automatisch in validierte Passes.
+- Erhalte `SR_LOTS.yaml`. Wenn `SR_PASSES.yaml` fehlt, fuege ein gueltiges Register `passes: []` hinzu; kopiere keine Beispiel-Pass und konvertiere alte Lose oder Task Memories nicht automatisch in validierte Passes.
 - Konvertiere alte Lose nicht massenhaft, um `design_evidence` hinzuzufuegen; fuege das Lot Design Evidence Gate nur fuer Lose hinzu, die nach dem Upgrade erstellt, promoted oder wiederaufgenommen werden.
 - Fuege Pass Runtime Goal Tooling additiv hinzu (`build_pass_runtime_goal.py`, Template `pass_runtime_goal.md`, Optionen `sr_passes.pass_runtime_goal`), ohne ein Goal zu generieren, solange keine Pass validiert ist.
 - Starte niemals `/goal` waehrend des Upgrades. Das Upgrade bereitet die Methode vor; Goal-Ausfuehrung kommt erst nach Realignment, Pass Planning und Benutzerfreigabe.
 - Schliesse, promote oder reklassifiziere kein Anwendungs-Los und keine Anwendungs-Pass als impliziten Nebeneffekt des Upgrades. Wenn der Benutzer ausdruecklich verlangt, im selben Auftrag ein Los oder eine Pass zu schliessen, behandle diese Schliessung als separate Unterphase nach dem Upgrade, mit validiertem Scope, eigenem SR-Contract, Nachweisen und separatem Bericht.
 - Erhalte historische Task Memories ohne `propagation_gate`: melde sie als Legacy Warnings, nicht als blockierende Fehler. Neue Templates und Contracts nach dem Upgrade muessen das Propagation Gate enthalten.
+- Erhalte `sr_contract` 3.0.0 lesekompatibel. Neue Task Memories und wiedereroeffnete Lose verwenden 3.1.0 mit getrenntem `implementation_status` und `evidence_status`.
+- Schreibe alte `validated_requests` nicht massenhaft um. Markiere Multi-Lot-Contracts mit nur einer globalen Anforderung; normalisiere nur aktive oder wiedereroeffnete Umfaenge nach Quellenpruefung und menschlicher Freigabe.
+- Das Upgrade darf offene, partielle oder defekte Anforderungen weder schliessen noch verschieben oder in neue Lose umwandeln.
 - Im vollen SR-Betrieb muss jede SR-Versionsaenderung `docs/CURRENT_STATE.md` mit installierter Version, Review-Datum, ausgefuehrten Checks, letztem `NEXT_SESSION_PROMPT.md`, wichtigen Losen und naechstem Schritt aktualisieren.
 - Ein `loop_contract.json` vom Typ `upgrade` darf nicht als `done` geschlossen werden, wenn `memory_updates.current_state_updated=false` ist.
 - Vor jeder Dateiaenderung den Upgrade-Plan vorlegen und explizite Benutzerfreigabe abwarten.
@@ -61,6 +68,10 @@ Klassifiziere das Projekt in einen Flow:
 - `upgrade_minor_3x`, wenn die installierte Version bereits `3.x` ist;
 - `upgrade_standard_235_plus`, wenn die Version `2.3.5+` ist;
 - `upgrade_legacy_unknown`, wenn die Version fehlt, unlesbar ist, unter `2.3.5` liegt oder die SR-Installation unvollstaendig ist.
+
+SR-3.7.0-Matrix: Neuinstallation auf Schemas 3.1.0/1.1 und Lots 0.4/Passes 0.2; SR 3.6.x additiv auffrischen; SR 3.0-3.5 mit Legacy-Lesen, Warnungen und gezielter Normalisierung aktiver/wiedereroeffneter Lose; SR 2.x/unknown/partial mit Backup und Datei-Inventar; lokale Anpassungen ausserhalb verwalteter SR-Bloecke erhalten.
+
+Fuer repraesentative offizielle Layouts SR 2.2.0, 2.3.0, 2.3.5, 2.4.1 und 3.0.0 bestehen Upgrade-Regressionstests. Unknown/partial bleibt ein Datei-Audit; die Fixture beweist den Minimalpfad, nicht jede lokale Anpassung.
 
 Schritt 3 - Offizielle Quelle:
 
@@ -111,7 +122,7 @@ Nur nach Freigabe:
 1. Wende das SR-Upgrade additiv an.
 2. Erhalte Projektdateien und Historie.
 3. Aktualisiere notwendige SR-Skripte, Templates, Prompts und Docs.
-4. Fuege `SR_PASSES.yaml` hinzu, wenn es fehlt, ohne automatisch eine ausfuehrbare Pass zu deklarieren.
+4. Fuege `SR_PASSES.yaml` mit `passes: []` hinzu, wenn es fehlt. Prompt `08` fuellt das Register erst nach Lektuere der Lose und menschlicher Freigabe.
 5. Fuege Pass Runtime Goal Tooling hinzu, wenn es fehlt:
    - `build_pass_runtime_goal.py`
    - Template `pass_runtime_goal.md`
@@ -128,6 +139,7 @@ Fuehre die verfuegbaren und passenden Checks aus:
 - `python3 scripts/codex/audit_codex_pack.py`
 - `python3 scripts/codex/verify_codex_pack.py`
 - `python3 scripts/codex/sr_post_install_check.py --root .`
+- `python3 scripts/codex/validate_release_docs.py --root . --json` fuer `CHANGELOG.md`, Version und lokalisierte oeffentliche Prompts
 - `python3 scripts/codex/find_next_session_prompt.py --root .`
 - `python3 scripts/codex/audit_sr_project.py --root .`
 - `python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml`, wenn die Datei existiert
@@ -139,6 +151,8 @@ Fuehre die verfuegbaren und passenden Checks aus:
 - `python3 scripts/codex/validate_skills.py --path ~/.codex/skills`, wenn Method Skills installiert sind
 
 Wenn einige Skripte vor dem Upgrade fehlen, melde das als normal fuer eine alte Version und fuehre sie nach dem Upgrade erneut aus.
+
+Exit-Code 0 des Installers reicht nicht fuer einen erfolgreichen Abschluss. `sr_post_install_check.py` muss ebenfalls gruen sein; sonst bleibt das Ziel in `repair`.
 
 Schritt 8 - Pflicht-Realignment:
 

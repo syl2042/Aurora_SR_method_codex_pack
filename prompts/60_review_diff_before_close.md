@@ -1,13 +1,13 @@
 # Revue de diff avant cloture
 
-Verifier demande, scope, securite, dependances/migrations, tests, CURRENT_STATE, RepoMap/KG, risques restants, appliquer le Fact Gate, le Propagation Gate si un symbole ou contrat partage a change, le Lot Completion Gate puis le Self Evaluation Gate, puis valider le SR Contract 3.0.0 et le Loop Contract si la tache est non triviale.
+Verifier demande, scope, securite, dependances/migrations, tests, CURRENT_STATE, RepoMap/KG, risques restants, appliquer le Fact Gate, le Propagation Gate si un symbole ou contrat partage a change, le Lot Completion Gate puis le Self Evaluation Gate, puis valider le SR Contract 3.1.0 (ou legacy 3.0.0) et le Loop Contract si la tache est non triviale.
 
 Avant de dire `done` ou `lot termine`, produire une table de couverture :
 
 | Exigence validee | Statut | Preuve | Commentaire |
 |---|---|---|---|
 
-Si une exigence validee est `partiel`, `non fait`, `blocked` ou `requires_e2e`, repondre corrections requises et utiliser `repair`, `user_testing` ou `blocked`. Pour une exigence UI/UX, un build/lint/smoke HTTP ne suffit pas : fournir une preuve visuelle/E2E ciblee ou ne pas declarer le lot termine.
+Si une exigence a `implementation_status` `not_started`, `partial` ou `defective`, repondre corrections requises et utiliser `repair` (ou `blocked` pour un blocage externe reel avant demarrage). `user_testing` exige `implementation_status: complete` et seulement une preuve E2E/acceptation manquante. Pour une exigence UI/UX, un build/lint/smoke HTTP ne suffit pas. Commencer la cloture par la table `Demande utilisateur | Etat | Preuve | Reste a faire` et interdire tout langage de completude non qualifie si le gate est rouge.
 
 Pour une UI/UX significative avec `ui_validation.required=true`, verifier dans `sr_contract.json` :
 
@@ -66,7 +66,7 @@ Repondre OK cloture ou corrections requises avec :
 - Propagation Gate avec decision et preuves si applicable ;
 - UI Test Readiness Gate et UI Visual Evidence Gate si UI significative ;
 - Lot Completion Gate avec table de couverture et decision ;
-- SR Contract 3.0.0 valide ou raison de non-applicabilite, avec couverture `validated_requests` ;
+- SR Contract 3.1.0 valide ou contrat 3.0.0 legacy explicitement signale, avec couverture granulaire `validated_requests` ;
 - Loop Contract valide ou raison de non-applicabilite, avec decision `conversation_transition` et `resume_protocol` si reprise nouvelle conversation ;
 - tests E2E utilisateur a faire ;
 - prochain lot ou point d'arret.

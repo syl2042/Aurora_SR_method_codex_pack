@@ -1,8 +1,24 @@
 {
   "pack": "auroramind_codex_operating_pack",
-  "version": "3.6.0",
-  "released_at": "2026-08-13",
+  "version": "3.7.0",
+  "release_status": "released",
+  "released_at": "2026-08-24",
   "patch_notes": [
+    {
+      "date": "2026-08-24",
+      "scope": "release_documentation_coherence",
+      "change": "Add a canonical changelog, explicit unreleased/released metadata, tested multilingual public prompts, aligned installation guides, and automated version/changelog/link parity validation."
+    },
+    {
+      "date": "2026-08-24",
+      "scope": "legacy_layout_upgrade_continuity",
+      "change": "Cover representative SR 2.2.0 through 3.0.0 and unknown/partial layouts with upgrade regressions, synchronize managed AGENTS gates, allow an empty SR_PASSES registry, preserve project-owned state, and require a green post-install check before upgrade success."
+    },
+    {
+      "date": "2026-08-24",
+      "scope": "persistent_requirement_traceability",
+      "change": "Add SR Contract 3.1.0 and Loop Contract 1.1 with separate implementation/evidence states, derived Completion Gates, consolidated reopening, inherited open requirements, guarded new-lot creation, user-facing request tables, and additive 3.0.0 compatibility."
+    },
     {
       "date": "2026-08-13",
       "scope": "ui_verification_harness",
@@ -55,6 +71,19 @@
     }
   ],
   "features": [
+    "release_changelog",
+    "release_status_metadata",
+    "release_docs_validator",
+    "localized_public_prompt_parity",
+    "granular_validated_requests",
+    "implementation_evidence_separation",
+    "derived_completion_gate",
+    "consolidated_requirement_reopening",
+    "requirement_lineage_inheritance",
+    "new_lot_justification_guard",
+    "legacy_layout_upgrade_fixtures",
+    "empty_pass_registry",
+    "managed_agents_contract_sync",
     "sr_harness",
     "sr_inbox",
     "sr_lots",

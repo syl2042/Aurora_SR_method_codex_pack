@@ -18,7 +18,7 @@ else:
 
 DEFAULT_MAX_GOAL_COMMAND_CHARS = 1000
 DEFAULT_HARD_LIMIT = 4000
-EXECUTABLE_STATUSES = {"validated", "in_progress"}
+EXECUTABLE_STATUSES = {"validated", "in_progress", "repair", "reopened"}
 PLANNING_STATUSES = {"planned"}
 FINAL_STATUS_RULES = {
     "done": "Aucune validation/E2E utilisateur restante, tous les gates requis passent.",
@@ -83,6 +83,7 @@ def lot_section(lot_id: str, lot: dict | None) -> str:
         f"- title: {lot.get('title', '')}",
         f"- status: {lot.get('status', '')}",
         f"- objective: {lot.get('objective', '')}",
+        f"- validated_request_ids: {as_list(lot.get('validated_request_ids'))}",
         f"- depends_on: {as_list(lot.get('depends_on'))}",
         "",
         "Acceptance criteria:",
@@ -214,6 +215,9 @@ def build_goal_markdown(
             "## Non Regression Rules",
             "",
             "- Ne pas elargir ni reduire silencieusement le scope valide.",
+            "- Charger tous les requirement_id ouverts des contrats parents et les conserver jusqu'a leur decision finale.",
+            "- Un retour sur une exigence existante rouvre le lot d'origine; ne pas creer un micro-lot par defaut.",
+            "- `user_testing` exige que toutes les implementations techniques soient completes; sinon utiliser `repair`.",
             "- Ne pas executer une passe `proposed`.",
             "- Ne pas enchainer une passe suivante sans validation utilisateur explicite.",
             "- Valider `SR_PASSES.yaml` avec `validate_pass_contract.py` avant et apres execution si la passe est utilisee ou modifiee.",

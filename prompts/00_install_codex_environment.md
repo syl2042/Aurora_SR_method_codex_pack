@@ -1,40 +1,57 @@
-# Installer / verifier l'environnement SR Codex
+# Installer SR 3.7 dans un projet neuf
 
-Tu travailles dans un repo applicatif qui doit recevoir la SR Method.
+Tu travailles dans un repository logiciel qui doit recevoir Aurora SR Method pour la premiere fois.
 
-Objectif : installer ou verifier l'environnement SR Method apres une premiere installation, sans modifier le code applicatif.
+Objectif verifiable : installer le pack SR 3.7.0 et ses contrats cibles (`sr_contract` 3.1.0, `loop_contract` 1.1, `SR_LOTS` 0.4, `SR_PASSES` 0.2), verifier l'installation, puis stopper avant tout developpement applicatif.
 
-Terminologie :
-- SR Method = doctrine generale Specification Runtime.
-- SR Development Method = cadrage du developpement assiste par IA.
-- SR Agent Method = agents IA runtime applicatifs.
+`SR_PASSES.yaml` doit etre installe avec `passes: []`. Ce registre vide est valide : aucune passe produit ne doit etre inventee pendant l'installation neuve. Les passes sont proposees ensuite par le prompt `08`, apres lecture des lots et validation humaine.
 
-Regles : ne modifie aucun code applicatif, ne cree aucune migration, n'ajoute aucune dependance applicative, ne touche pas aux secrets.
+Source officielle :
+
+```text
+https://github.com/syl2042/Aurora_SR_method_codex_pack
+```
+
+Regles strictes :
+
+- Ne modifie aucun code applicatif, migration, dependance, secret ou regle metier.
+- Inspecte d'abord le repository cible et son `AGENTS.md` le plus proche.
+- Si `docs/codex/SR_PACK_VERSION.json`, `docs/codex/SR_METHOD.md` ou `docs/codex/SR_LOTS.yaml` existe deja, ce n'est pas une installation neuve : stoppe et utilise `05_upgrade_codex_environment.md`.
+- Avant toute mutation, presente les fichiers a creer, les fichiers existants a preserver et les commandes de verification, puis attends la validation humaine exigee par le projet.
+- N'invente aucune `validated_request`, aucun lot `validated` et aucune passe executable. Les templates peuvent contenir des exemples explicites, jamais un faux perimetre utilisateur.
+- N'utilise jamais `--write` pour mettre a niveau un projet existant ; l'installateur doit refuser ce cas et imposer `--upgrade` apres audit.
 
 Etapes :
-1. Lire AGENTS.md, PROJECT_PROFILE.yaml, WORKFLOW_CODEX.md, SR_BOOTSTRAP.md, SR_METHOD.md, SR_DEVELOPMENT_METHOD.md, SR_AGENT_METHOD.md, SR_HARNESS_METHOD.md, LOT_EXECUTION_METHOD.md, SKILL_MAP.md, SKILL_DIGEST.md, AI_AGENT_RUNTIME_METHOD.md, DOMAIN_EXPERTISE_BOOTSTRAP.md, PROJECT_SKILLS_POLICY.md, REPO_MAP_POLICY.md, TOKEN_OPTIMIZATION.md.
-2. Verifier les skills methode dans ~/.codex/skills.
-3. Creer docs/codex/tasks/YYYY-MM-DD_install-codex-environment/.
-4. Verifier si les livrables domaine existent : DOMAIN_PROFILE, GLOSSARY, BUSINESS_RULES, RISK_REGISTER, HUMAN_VALIDATION_RULES.
-5. Verifier que les skills metier projet sont prevues dans `docs/codex/project-skills/` et non copiees globalement par defaut.
-6. Si le projet contient ou prevoit des agents IA, verifier la presence d'une section agents runtime dans SKILL_MAP et PROJECT_PROFILE.
-7. Identifier le mode connaissance :
-   - `core` : RepoMap obligatoire ;
-   - `nexus_kg` : RepoMap + Nexus KG si le connecteur existe.
-8. Lancer si possible verify_codex_pack.py, audit_codex_pack.py, audit_sr_project.py --root ., validate_lot_contract.py --file docs/codex/SR_LOTS.yaml, validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml, generate_repo_map.py --write, context_budget_report.py --root . --compact, validate_skills.py.
-9. Verifier la presence de `docs/codex/tasks/_TEMPLATE/loop_contract.json` et `scripts/codex/validate_loop_contract.py`.
-10. Valider le template : `python3 scripts/codex/validate_loop_contract.py --file docs/codex/tasks/_TEMPLATE/loop_contract.json`.
-11. Verifier la presence de `docs/codex/tasks/_TEMPLATE/sr_contract.json` et `scripts/codex/validate_sr_contract.py`.
-12. Valider le template : `python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/_TEMPLATE/sr_contract.json`.
-13. Auditer les task memories avec `python3 scripts/codex/audit_sr_task_contracts.py --root . --json`.
-14. Verifier le prompt `docs/codex/prompts/09_define_sr_lots_from_scope.md`. Pour un nouveau projet, recommander de definir les lots avec ce prompt afin d'appliquer le Lot Design Evidence Gate avant tout lot executable.
-15. Verifier `docs/codex/SR_PASSES.yaml`. Pour un nouveau projet, recommander de definir les passes apres les lots : ordre logique, dependances, preflight, validations humaines, secrets/actions externes et E2E groupe.
-16. Verifier l'outillage Pass Runtime Goal : `scripts/codex/build_pass_runtime_goal.py`, `docs/codex/tasks/_TEMPLATE/pass_runtime_goal.md`, options `sr_passes.pass_runtime_goal` dans `PROJECT_PROFILE.yaml`.
-17. Verifier l'outillage UI Verification Harness : `scripts/codex/sr_ui_verify.mjs`, wrapper `playwright_auth_smoke.mjs`, section `ui_validation`, skill `aurora-ui-visual-qa`; pour une application authentifiee, rappeler que `.playwright/.auth/` doit rester hors Git.
-18. Pour un projet vierge, ne pas generer de goal immediatement : le goal vient seulement apres lots, Lot Design Evidence Gate, passes, Pass Planning Gate et validation d'une passe `validated` ou `in_progress`.
-19. Rappeler le Goal Length Gate au prochain Codex : `max_goal_command_chars: 1000`, `hard_limit: 4000`; `/goal` reste derive, les fichiers SR restent source de verite.
-20. Si le projet contient ou prevoit des agents IA runtime, confirmer que `docs/codex/SR_AGENT_METHOD.md`, `docs/codex/AI_AGENT_RUNTIME_METHOD.md` et `docs/codex/prompts/15_define_runtime_agents.md` existent, puis recommander le prompt `15` apres validation.
-21. Verifier RTK avec verify_rtk.sh si le script existe.
-22. Produire rapport presents/manquants/prochaines actions.
 
-Fin obligatoire : J'attends validation avant toute modification applicative.
+1. Identifier ou cloner une copie locale verifiee du pack officiel et noter son commit source.
+2. Confirmer par lecture que le projet est `fresh_install` et qu'aucun marqueur SR existant n'est present.
+3. Creer une task memory d'installation si les regles du projet l'exigent.
+4. Apres validation, lancer :
+
+   ```bash
+   python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" \
+     --source "$SR_PACK_SOURCE" \
+     --target . \
+     --profile default \
+     --write
+   ```
+
+5. Verifier la presence de `AGENTS.md`, `docs/codex/SR_PACK_VERSION.json`, `docs/codex/CHANGELOG.md`, `SR_LOTS.yaml`, `SR_PASSES.yaml`, des templates de task memory, des validateurs et des prompts publics localises `01`, `05`, `06`, `07`, `08`, `09` et `15`.
+6. Verifier que le template `sr_contract.json` separe `implementation_status` et `evidence_status`, contient `validated_requests`, `lineage`, `closure` et un Completion Gate derive.
+7. Lancer au minimum :
+
+   ```bash
+   python3 scripts/codex/audit_codex_pack.py --root . --json
+   python3 scripts/codex/sr_post_install_check.py --root . --json
+   python3 scripts/codex/validate_release_docs.py --root . --json
+   python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml
+   python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml
+   python3 scripts/codex/validate_loop_contract.py --file docs/codex/tasks/_TEMPLATE/loop_contract.json
+   python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/_TEMPLATE/sr_contract.json
+   ```
+
+8. Verifier l'outillage Pass Runtime Goal et UI Verification Harness. Pour une application authentifiee, garder `.playwright/.auth/` hors Git ; ne demander aucun secret pendant l'installation.
+9. Ne generer aucun `/goal`. Recommander ensuite `09_define_sr_lots_from_scope.md`, puis `08_define_sr_passes_from_lots.md`, puis un Pass Runtime Goal seulement pour une passe validee.
+10. Produire le rapport : classification `fresh_install`, version et commit source, fichiers ajoutes/preserves, controles verts/rouges, warnings, absence de code applicatif modifie et prochaine validation humaine.
+
+Fin obligatoire : l'installation de la methode ne valide aucun perimetre produit. Attends une demande utilisateur explicite avant de definir ou d'executer des lots applicatifs.

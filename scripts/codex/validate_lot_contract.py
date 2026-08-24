@@ -21,6 +21,7 @@ VALID_STATUSES = {
     "in_progress",
     "done",
     "user_testing",
+    "repair",
     "reopened",
     "blocked",
     "deferred",
@@ -28,7 +29,7 @@ VALID_STATUSES = {
 }
 VALID_GATE_STATUSES = {"pending", "pass", "fail", "not_applicable"}
 VALID_RECONCILIATION_STATUSES = {"not_required", "pending", "completed", "blocked"}
-EXECUTABLE_LOT_STATUSES = {"planned", "validated", "in_progress", "reopened"}
+EXECUTABLE_LOT_STATUSES = {"planned", "validated", "in_progress", "repair", "reopened"}
 DESIGN_EVIDENCE_READY_STATUSES = {"pass", "not_applicable"}
 
 
@@ -163,7 +164,12 @@ def version_at_least(value: str, minimum: str) -> bool:
     return left >= right
 
 
-def validate_lot(lot: dict, index: int, enforce_design_evidence: bool = False) -> list[str]:
+def validate_lot(
+    lot: dict,
+    index: int,
+    enforce_design_evidence: bool = False,
+    enforce_requirement_registry: bool = False,
+) -> list[str]:
     errors = []
     prefix = f"lot[{index}]"
     for field in REQUIRED_LOT_FIELDS:
@@ -175,6 +181,16 @@ def validate_lot(lot: dict, index: int, enforce_design_evidence: bool = False) -
     for list_field in ("acceptance_criteria", "verification_commands", "stop_conditions"):
         if list_field in lot and not isinstance(lot[list_field], list):
             errors.append(f"{prefix}: {list_field} must be a list")
+    request_ids = lot.get("validated_request_ids")
+    if enforce_requirement_registry:
+        if not isinstance(request_ids, list) or not request_ids:
+            errors.append(f"{prefix}: validated_request_ids must be a non-empty list for SR_LOTS 0.4+")
+        elif not all(isinstance(value, str) and value.strip() for value in request_ids):
+            errors.append(f"{prefix}: validated_request_ids must contain non-empty strings")
+        elif len(request_ids) != len(set(request_ids)):
+            errors.append(f"{prefix}: validated_request_ids must not contain duplicates")
+    elif request_ids is not None and not isinstance(request_ids, list):
+        errors.append(f"{prefix}: validated_request_ids must be a list when present")
     if lot.get("allowed_paths") and not isinstance(lot.get("allowed_paths"), list):
         errors.append(f"{prefix}: allowed_paths must be a list when present")
     if lot.get("forbidden_paths") and not isinstance(lot.get("forbidden_paths"), list):
@@ -291,6 +307,7 @@ def main() -> int:
     data = parse_simple_yaml(path)
     version = str(data.get("version") or "")
     enforce_design_evidence = version_at_least(version, "0.3")
+    enforce_requirement_registry = version_at_least(version, "0.4")
     lots = data.get("lots")
     if not isinstance(lots, list) or not lots:
         print("SR_LOTS must contain a non-empty `lots` list", file=sys.stderr)
@@ -305,7 +322,14 @@ def main() -> int:
         if lot_id in seen:
             errors.append(f"lot[{i}]: duplicate lot_id {lot_id!r}")
         seen.add(lot_id)
-        errors.extend(validate_lot(lot, i, enforce_design_evidence=enforce_design_evidence))
+        errors.extend(
+            validate_lot(
+                lot,
+                i,
+                enforce_design_evidence=enforce_design_evidence,
+                enforce_requirement_registry=enforce_requirement_registry,
+            )
+        )
     for i, lot in enumerate(lots):
         if not isinstance(lot, dict):
             continue

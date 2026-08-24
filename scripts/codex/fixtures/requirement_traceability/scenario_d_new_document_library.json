@@ -1,0 +1,9 @@
+{
+  "scenario": "D",
+  "classification": "new_requirement",
+  "existing_open_requirement_id": "REQ-SOURCES-DOCUMENT-OPEN",
+  "new_requirement_id": "REQ-DOCUMENT-LIBRARY",
+  "new_lot_id": "LOT-DOCUMENT-LIBRARY",
+  "checked_lots": ["LOT-SOURCES"],
+  "reason": "Une bibliothèque documentaire complète dépasse l'affichage des sources sous une réponse."
+}

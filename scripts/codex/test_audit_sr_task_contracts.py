@@ -37,7 +37,7 @@ class AuditSrTaskContractsTest(unittest.TestCase):
             self.assertTrue((task / "task_plan.md").exists())
             valid, errors, warnings = audit_sr_task_contracts.validate_contract(contract)
             self.assertTrue(valid, errors)
-            self.assertEqual([], warnings)
+            self.assertTrue(any("generic" in warning and "normalize" in warning for warning in warnings), warnings)
 
     def test_existing_contract_is_not_overwritten_by_default(self) -> None:
         with self.make_root() as directory:

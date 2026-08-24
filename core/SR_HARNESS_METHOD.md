@@ -129,9 +129,9 @@ Une passe doit declarer :
 - strategie E2E : par lot, groupee en fin de passe ou non requise ;
 - gates et conditions d'arret.
 
-Migration douce : un projet existant sans `SR_PASSES.yaml` reste valide. Lors d'un upgrade, Codex ajoute le fichier et propose des passes `planned` ou `proposed` a partir de `SR_LOTS.yaml`, sans convertir automatiquement l'historique ni modifier les statuts de lots sans preuve.
+Migration douce : un projet existant sans `SR_PASSES.yaml` reste valide. Lors d'une installation ou d'un upgrade, Codex ajoute d'abord un registre `passes: []`, que le validateur accepte explicitement. Il ne deduit aucune passe des anciens lots. Le prompt `08` peut ensuite proposer des passes `planned` ou `proposed` seulement apres lecture de `SR_LOTS.yaml` et validation humaine, sans convertir automatiquement l'historique ni modifier les statuts de lots sans preuve.
 
-Note de migration 3.2.x : le validateur de passes reconnait les dependances inter-passes ordonnees. Une passe `proposed` ou `planned` peut declarer une dependance vers un lot place dans une passe strictement anterieure, meme si ce lot est lui aussi `proposed` ou `planned`. Une passe `validated` ou `in_progress` reste executable seulement si ses dependances placees dans les passes anterieures sont reellement satisfaites (`done` ou `user_testing`). Les dependances vers une passe posterieure, les dependances hors de toute passe non terminees et les lots presents dans plusieurs passes restent des erreurs.
+Note de migration : le validateur de passes reconnait les dependances inter-passes ordonnees. Une passe `proposed` ou `planned` peut declarer une dependance vers un lot place dans une passe strictement anterieure. Une passe `validated`, `in_progress`, `repair` ou `reopened` reste executable seulement si ses dependances anterieures sont reellement satisfaites (`done` ou `user_testing`). Les dependances vers une passe posterieure, les dependances hors de toute passe non terminees et les lots presents dans plusieurs passes restent des erreurs.
 
 Exemple valide de planification avant execution :
 
@@ -164,7 +164,7 @@ Politique :
 - si elle depasse encore `max_goal_command_chars` ou `hard_limit`, le Goal Length Gate est rouge et le goal ne doit pas etre lance ;
 - une passe `proposed` ne doit jamais etre executee par goal ;
 - une passe `planned` peut servir a un dry-run de generation, mais pas a une execution sans validation utilisateur ;
-- une passe `validated` ou `in_progress` peut recevoir un goal d'execution ;
+- une passe `validated`, `in_progress`, `repair` ou `reopened` peut recevoir un goal d'execution ;
 - le goal s'arrete a la fin de la passe et propose la suivante sans l'enchainer silencieusement.
 
 Generation recommandee :
@@ -217,17 +217,16 @@ proposed      idee ou retour a cadrer
 planned       lot structure mais non valide
 validated     lot valide par l'humain ou par regle projet
 in_progress   lot en cours
-done          code/verifications techniques termines
+done          toutes les exigences implementees et preuves suffisantes
 user_testing  attente test reel utilisateur
+repair        au moins une exigence est absente, partielle, defectueuse ou en echec
 reopened      lot rouvert apres bug, oubli ou regression
 blocked       attente decision, acces, source, spec ou architecture
 deferred      reporte volontairement
 superseded    remplace par une decision ou un autre lot
 ```
 
-`done` ne signifie pas "valide produit".
-
-Si un test reel utilisateur est requis, utiliser `user_testing`.
+`done` exige que toutes les exigences soient implementees et suffisamment prouvees. `user_testing` est reserve a une implementation technique complete dont il manque seulement un E2E, une preuve visuelle reelle ou une acceptation humaine. Une verification unitaire, build ou runtime requise mais manquante reste `repair`. Une UI absente ou partielle reste `repair`, meme si le build et les tests unitaires sont verts.
 
 ## Niveaux d'autonomie
 
@@ -278,30 +277,33 @@ Regles :
 - une validation utilisateur engage tout le perimetre decrit juste avant validation ;
 - `simple`, `chirurgical`, `scope minimal` et `eviter les refactors` ne peuvent jamais retirer une exigence validee ;
 - si Codex veut reduire, reporter, decouper ou clarifier le lot valide, il doit stopper avant mutation et attendre une nouvelle validation ;
-- la cloture doit produire une table de couverture exigence par exigence ;
+- `validated_requests` doit distinguer chaque lot, critere produit important, demande UI/UX explicite, exclusion et test humain/E2E ; une ligne globale multi-lots est invalide en 3.1.0 ;
+- la cloture doit produire une table de couverture exigence par exigence, derivee du registre canonique ;
 - un lot ne peut pas etre `done` si une exigence validee est `partiel`, `non fait`, `blocked` ou `requires_e2e` ;
 - une exigence sortie du lot doit etre marquee `moved_to_new_lot` ou justifiee comme hors perimetre valide avec une decision explicite ;
 - pour une exigence UI/UX, un build/lint/smoke HTTP ne suffit pas : il faut une preuve visuelle ou E2E ciblee, ou un statut `requires_e2e`.
 - pour une exigence UI/UX significative dans SR 3.6.0, `build OK`, `lint OK`, tests unitaires OK et `HTTP 200 OK` ne constituent pas une preuve UI suffisante ;
 - quand `ui_validation.required` vaut `true`, un lot ne peut etre `done` que si `UI Test Readiness Gate = pass` et `UI Visual Evidence Gate = pass`.
 
-Format minimal :
+Format minimal 3.1.0 :
 
 ```text
 Lot Completion Gate:
-- status: pass/fail/not_applicable
+- status: pending/pass/fail/not_applicable
 - coverage_table:
-  | Exigence validee | Statut | Preuve | Commentaire |
-  |---|---|---|---|
+  | Exigence validee | Implementation | Preuve | Decision | Reste |
+  |---|---|---|---|---|
 - ui_ux_required: oui/non
 - visual_evidence: [...]
 - decision: done/user_testing/repair/blocked
 ```
 
-Statuts de ligne autorises :
+Axes de ligne autorises :
 
 ```text
-fait, partiel, non fait, bloque, hors perimetre valide, requires_e2e
+implementation_status: not_started, partial, complete, defective
+evidence_status: not_required, missing, partial, failed, sufficient,
+                 awaiting_user_acceptance, user_accepted
 ```
 
 Decision :
@@ -309,7 +311,9 @@ Decision :
 - `done` seulement si toutes les exigences validees sont couvertes et les preuves suffisantes ;
 - `user_testing` si la couverture technique est faite mais qu'un E2E utilisateur reste requis ;
 - `repair` si une exigence est partielle ou non faite ;
-- `blocked` si une exigence depend d'une decision, d'un acces, d'une source, d'un secret ou d'une validation absente.
+- `blocked` si l'execution depend reellement d'une autorite, d'un acces, d'une source, d'un secret ou d'une decision externe absente.
+
+Le validateur calcule ces decisions. Une implementation manquante ne peut donc pas etre masquee par `user_testing`. Si le gate est `fail`, les termes « termine », « complet », « livre » et « implemente » doivent etre qualifies et les exigences partielles ou absentes doivent etre listees dans la cloture et la reprise.
 
 ### UI Test Readiness Gate
 
@@ -453,6 +457,19 @@ Sorties autorisees :
 - marquer un lot `deferred` ou `superseded` ;
 - documenter `no_backlog_mutation_required` avec justification courte si aucune mutation n'est necessaire.
 
+Avant toute creation de lot, classifier le retour parmi :
+
+```text
+existing_requirement_repair
+existing_requirement_clarification
+existing_requirement_acceptance
+new_requirement
+scope_change
+cancelled_requirement
+```
+
+La recherche doit verifier objectifs, criteres d'acceptation, `validated_requests`, lots `user_testing` et passes deja validees. Si une correspondance existe, la decision par defaut est `reopen_or_amend_existing_lot` : rattacher le retour au `requirement_id`, rouvrir le lot d'origine et recharger toutes ses exigences encore ouvertes. `new_requirement` avec nouveau lot exige `new_lot_justification.outside_existing_validated_scope: true`, les lots verifies, une raison et une decision utilisateur. Plusieurs changements du meme perimetre produit et du meme niveau de risque sont repris dans une seule passe coherente ; les gates code, runtime, deploiement ou actions externes restent separes mais rattaches au meme registre.
+
 Pour une tache non triviale, la cloture doit declarer :
 
 ```text
@@ -471,7 +488,7 @@ Un changement significatif ne doit pas etre code comme extension silencieuse du 
 
 Le Lot Design Evidence Gate empeche qu'un lot pret a executer soit defini sur une supposition non verifiee.
 
-Il est obligatoire avant de creer ou promouvoir un lot en `planned`, `validated`, `in_progress` ou `reopened`.
+Il est obligatoire avant de creer ou promouvoir un lot en `planned`, `validated`, `in_progress`, `repair` ou `reopened`.
 
 Un lot peut rester `proposed` sans preuve complete s'il sert a capturer une intention, une piste exploratoire ou une question a investiguer. Dans ce cas, il doit garder ses hypotheses et ne doit pas etre mis dans une passe executable.
 
@@ -493,7 +510,7 @@ design_evidence:
 
 Regles :
 
-- `planned`, `validated`, `in_progress` et `reopened` exigent `design_evidence.status: pass` ou `not_applicable` avec raison ;
+- `planned`, `validated`, `in_progress`, `repair` et `reopened` exigent `design_evidence.status: pass` ou `not_applicable` avec raison ;
 - si `code_read_required: true`, `confirmed_files_read` ne doit pas etre vide ;
 - si des fichiers existent et peuvent trancher le cadrage, Codex doit les lire avant de proposer un plan engageant ;
 - pour un lot greenfield, Codex doit lire les patterns adjacents quand ils existent ou justifier l'absence de surface code.
@@ -666,7 +683,7 @@ Stopper avant codage si :
 
 - un lot inclus dans une passe executable n'a pas de Lot Design Evidence Gate `pass` ou `not_applicable` justifie ;
 - un lot depend d'un lot non termine et non inclus plus tot dans la passe ;
-- une passe `validated` ou `in_progress` depend d'un lot place dans une passe anterieure mais non `done` ou `user_testing` ;
+- une passe `validated`, `in_progress`, `repair` ou `reopened` depend d'un lot place dans une passe anterieure mais non `done` ou `user_testing` ;
 - un lot depend d'un lot place dans une passe posterieure ;
 - un lot apparait dans plusieurs passes ;
 - un secret, identifiant, asset ou acces requis est absent ;
@@ -765,6 +782,7 @@ docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json
 
 Ce contrat ne contient pas les logs. Il pointe seulement les preuves minimales :
 
+- en schema 1.1, le `sr_contract.json` canonique et toutes ses exigences ouvertes via `requirement_registry` ;
 - table de couverture du Lot Completion Gate ;
 - sources lues pour l'evidence gate ;
 - mutation backlog et impact global si les gates sont applicables ;
@@ -780,6 +798,7 @@ Regles critiques :
 
 - si `status_decision` vaut `done`, `lot_completion_gate.status` doit valoir `pass` et aucune ligne de couverture ne doit etre `partiel`, `non fait`, `blocked` ou `requires_e2e` ;
 - si `status_decision` vaut `user_testing`, `e2e_user_tests.items` doit contenir une vraie liste de tests ;
+- `user_testing` est invalide si une ligne de couverture signale une implementation partielle, absente ou bloquee, ou si le Completion Gate vaut `fail` ;
 - si du code applicatif change, `changed_files` et `verification.commands_run` ou `verification.not_run_reason` sont obligatoires ;
 - si le contexte est `orange` ou `red`, `next_session_prompt` doit valoir `created` ou `updated`.
 - si le contexte est `orange` ou `red`, `conversation_transition.decision` doit valoir `stop_for_new_conversation` ;
@@ -793,9 +812,9 @@ Validation :
 python3 scripts/codex/validate_loop_contract.py --file docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json
 ```
 
-### SR Contract 3.0.0
+### SR Contract 3.1.0
 
-A partir de SR 3.0.0, le contrat vivant cible d'un lot est :
+A partir de SR 3.1.0, le contrat vivant cible d'un nouveau lot est :
 
 ```text
 docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json
@@ -803,9 +822,12 @@ docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json
 
 Il fusionne la partie machine de `task_plan.md`, `findings.md`, `decisions.md`, `verification.md`, `gate_report.md` et `loop_contract.json` autour d'une question principale : toutes les intentions utilisateur validees dans le lot sont-elles couvertes ?
 
+Le validateur conserve la lecture des contrats 3.0.0. Il ne les convertit ni ne les reecrit automatiquement.
+
 Champs structurants :
 
-- `validated_requests` : intentions validees, statut, couverture, fichiers et verification ;
+- `validated_requests` : intentions granulaires stables, origine lot/passe, implementation, preuves attendues/obtenues, travail/tests restants, historique et disposition ;
+- `origin`, `intake` et `lineage` : validation d'origine, classification du retour et heritage obligatoire des exigences ouvertes ;
 - `lot_completion_gate` : table de couverture avant cloture et decision de completude ;
 - `scope` : inclus, exclus, chemins autorises/interdits ;
 - `product_truth` : verites produit/metier a preserver ;
@@ -823,7 +845,9 @@ Regles critiques :
 
 - `validated_requests` ne doit pas etre vide pour un lot non trivial ;
 - les identifiants de requetes doivent etre uniques ;
-- un lot `done` est invalide si une requete reste `todo`, `doing`, `requires_e2e` ou `blocked` ;
+- chaque exigence separe `implementation_status` et `evidence_status` ; son statut, le gate et le statut global sont derives ;
+- une implementation `not_started`, `partial` ou `defective` impose `repair`, hors blocage externe reel avant demarrage ;
+- `user_testing` exige une implementation `complete` pour toutes les exigences techniques ;
 - un lot `done` est invalide si `lot_completion_gate.status` n'est pas `pass` ou si une exigence de la table de couverture reste partielle, non faite, bloquee ou en attente E2E ;
 - si `lot_completion_gate.ui_ux_required` vaut `true`, une preuve visuelle ou E2E ciblee doit etre declaree avant `done` ;
 - si `ui_validation.required` vaut `true`, `ui_validation.test_readiness.status` et `ui_validation.visual_evidence.status` doivent valoir `pass` avant `done` ;
@@ -842,7 +866,7 @@ Validation :
 python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json
 ```
 
-Transition : tant que le lot de migration SR 3.0.0 n'a pas ete execute, `loop_contract.json` reste requis par les projets SR 2.x et les fichiers legacy restent historiques.
+Transition : les contrats 3.0.0 et les fichiers legacy restent historiques. Un contrat multi-lots reduit a une seule exigence generique produit un warning et doit etre normalise apres lecture de ses sources avant reprise ou cloture, sans reecriture massive.
 
 ### Nexus context gate
 
@@ -884,7 +908,7 @@ Quand le backlog contient plusieurs lots executables :
 1. verifier ou proposer une passe dans `SR_PASSES.yaml` ;
 2. appliquer le Pass Planning Gate ;
 3. generer un Pass Runtime Goal si la passe est validee et que la fonctionnalite est activee ;
-4. traiter d'abord les lots `reopened`, puis `validated`, dans l'ordre valide de la passe ;
+4. traiter d'abord les lots `repair`/`reopened`, puis `validated`, dans l'ordre valide de la passe ;
 5. executer jusqu'a `max_lots_per_session` ou `max_lots_per_pass` si les gates restent verts ;
 6. mettre a jour `SR_LOTS.yaml` apres chaque decision de statut ;
 7. mettre a jour `SR_PASSES.yaml` apres chaque decision de statut de passe ;
@@ -914,9 +938,14 @@ SR-Harness impose que le handoff reference :
 
 - lots ouverts ;
 - lots en test utilisateur ;
+- exigences validees, faites, partielles et non faites avec leurs identifiants stables ;
+- preuves manquantes et tests restant a executer ;
+- retours utilisateur rattaches et lots rouverts ;
 - decisions actives ;
 - stop conditions ;
-- prochaine action recommandee.
+- prochain ensemble coherent a traiter.
+
+Un handoff ou un compact ne peut jamais retirer silencieusement une exigence ouverte. La reprise commence par le registre herite et non par la proposition d'un nouveau gate cible.
 
 ## Regle de cloture
 
@@ -935,12 +964,14 @@ Avant de clore une tache SR-Harness :
 Format de cloture utilisateur recommande :
 
 ```text
-Ce qui est fait
+| Demande utilisateur | Etat | Preuve | Reste a faire |
+
 Resultat observe
-Couverture du lot valide
 Lecture expert / produit
 Verifications executees
 Memoire SR mise a jour
 Tests E2E utilisateur a faire
 Prochaine etape recommandee
 ```
+
+Si le Completion Gate est rouge, cette cloture doit dire `repair` ou `blocked`, ou `user_testing` uniquement lorsque toute implementation technique est complete. Elle ne peut pas qualifier la passe de terminee, complete, livree ou implementee sans expliciter ce qui reste ouvert.

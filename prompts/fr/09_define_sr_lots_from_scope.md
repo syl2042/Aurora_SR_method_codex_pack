@@ -2,10 +2,12 @@
 
 Objectif : transformer un cadrage, une demande utilisateur ou `docs/codex/SR_INBOX.yaml` en lots SR explicites dans `docs/codex/SR_LOTS.yaml`, sans modifier le code applicatif.
 
+Avant de creer un lot, verifier objectifs, criteres d'acceptation, `validated_requests`, lots `user_testing` et passes validees. Un retour deja couvert est par defaut `existing_requirement_repair` et rouvre le lot d'origine. Un nouveau lot exige une justification hors scope ; ne pas creer un micro-lot par critere.
+
 Regles :
 
 - Ne modifie aucun code applicatif.
-- Ne cree pas de lot `planned`, `validated`, `in_progress` ou `reopened` sans Lot Design Evidence Gate.
+- Ne cree pas de lot `planned`, `validated`, `in_progress`, `repair` ou `reopened` sans Lot Design Evidence Gate.
 - Un lot `proposed` peut rester exploratoire.
 - Ne marque jamais un lot `validated` sans validation utilisateur explicite.
 

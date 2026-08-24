@@ -15,7 +15,7 @@ Regles :
 - Ne corrige aucun bug pendant cette passe.
 - Ne suppose pas qu'un lot est fait parce qu'il est note comme fait dans la documentation.
 - Verifie dans le code et les tests ce qui est reellement implemente.
-- En SR 3.0.0, `sr_contract.json` est le contrat machine cible de chaque task memory.
+- En SR 3.1.0, `sr_contract.json` est le contrat machine cible de chaque nouvelle task memory ; les contrats 3.0.0 restent lisibles.
 - Les fichiers legacy `task_plan.md`, `findings.md`, `progress.md`, `decisions.md`, `verification.md`, `gate_report.md` et `loop_contract.json` restent historiques.
 - Ne supprime aucun fichier legacy.
 - Ne cree pas de contrats retroactifs pour toutes les anciennes taches sans validation explicite.
@@ -61,12 +61,13 @@ Methode :
    - ecarts entre documentation et implementation.
 5. Appliquer le Lot Design Evidence Gate avant tout statut executable :
    - `proposed` autorise les hypotheses et fichiers candidats ;
-   - `planned`, `validated`, `in_progress` et `reopened` exigent `design_evidence.status: pass` ou `not_applicable` justifie ;
+   - `planned`, `validated`, `in_progress`, `repair` et `reopened` exigent `design_evidence.status: pass` ou `not_applicable` justifie ;
    - si `code_read_required: true`, renseigner `confirmed_files_read` ;
    - sans preuve suffisante, garder le lot en `proposed`.
 6. Classer chaque lot :
-   - `done` : implemente et verifiable ;
-   - `partial` : implemente en partie ;
+   - `done` : toutes les exigences implementees et suffisamment prouvees ;
+   - `user_testing` : implementation technique complete, seule preuve E2E ou acceptation humaine manquante ;
+   - `repair` : au moins une exigence absente, partielle, defectueuse ou en echec ;
    - `reopened` : annonce termine mais incomplet ou incoherent ;
    - `validated` : pret a developper ;
    - `blocked` : decision humaine, dependance ou information manquante.
@@ -87,7 +88,7 @@ Methode :
    - passe `validated` ou `in_progress` pour execution ;
    - `--allow-planned` seulement pour dry-run ;
    - jamais pour une passe `proposed`.
-10. Rappeler la regle de cloture de passe : `done` seulement si aucun E2E utilisateur ou validation humaine ne reste requis ; sinon `user_testing`, `repair` ou `blocked`.
+10. Rappeler la regle de cloture de passe : `done` seulement si toutes les exigences sont implementees et suffisamment prouvees ; `user_testing` uniquement si l'implementation technique est complete ; sinon `repair` ou `blocked`.
 11. Auditer les task memories avec `audit_sr_task_contracts.py` :
    - par defaut, rester en lecture seule ;
    - lister les taches legacy sans `sr_contract.json` ;
@@ -102,7 +103,7 @@ Methode :
    - marquer les intentions comme `todo` tant qu'elles n'ont pas ete relues ;
    - valider avec `python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/<task>/sr_contract.json`.
 14. Mettre a jour `docs/CURRENT_STATE.md` pour tout changement de version SR et mettre a jour les autres memoires SR uniquement si l'audit prouve un ecart.
-15. Creer un `loop_contract.json` et, pour la passe de realignement elle-meme, un `sr_contract.json` si le projet exige SR 3.0.0.
+15. Creer un `loop_contract.json` et, pour la passe de realignement elle-meme, un `sr_contract.json` si le projet exige SR 3.1.0.
 16. Produire un plan net :
    - fait ;
    - partiel ;
@@ -125,6 +126,6 @@ Sortie attendue :
 - statut `SR_PASSES.yaml`, passes proposees ou raison de non-proposition ;
 - statut Pass Runtime Goal : outillage present/absent, Goal Length Gate, prochaine passe eligible ou raison de non-generation ;
 - Loop Contract de realignement avec decision `conversation_transition` ;
-- SR Contract 3.0.0 de la passe de realignement si requis par le projet ;
+- SR Contract 3.1.0 de la passe de realignement si requis par le projet ;
 - plan de reprise priorise ;
 - point d'arret avant tout code applicatif.

@@ -51,7 +51,7 @@ Si l'utilisateur ouvre une nouvelle conversation et dit seulement `reprends`, `r
 1. executer `python3 scripts/codex/find_next_session_prompt.py --root . --json` ;
 2. lire uniquement le dernier `NEXT_SESSION_PROMPT.md` detecte ;
 3. lire le `loop_contract.json` associe si le prompt ou la task memory l'indique ;
-   si un `sr_contract.json` SR 3.0.0 est indique ou present dans la meme memoire, le lire aussi avant les fichiers legacy ;
+   si un `sr_contract.json` SR 3.1.0 ou legacy 3.0.0 est indique ou present dans la meme memoire, le lire aussi avant les fichiers legacy ;
 4. repondre avec l'etat precedent, les tests E2E utilisateur, le prochain lot recommande, les blockers et la decision attendue ;
 5. ne pas coder ;
 6. ne pas lancer le prochain lot ;
@@ -92,7 +92,7 @@ Avant une recommandation technique engageante, appliquer le knowledge gate :
 RepoMap/KG -> fichiers candidats -> lecture code reel -> tests/logs
 ```
 
-Avant de creer ou promouvoir un lot en `planned`, `validated`, `in_progress` ou `reopened`, appliquer aussi le Lot Design Evidence Gate :
+Avant de creer ou promouvoir un lot en `planned`, `validated`, `in_progress`, `repair` ou `reopened`, appliquer aussi le Lot Design Evidence Gate :
 
 - identifier les fichiers candidats ;
 - lire les fichiers qui peuvent confirmer ou infirmer le cadrage ;
@@ -140,7 +140,7 @@ docs/codex/tasks/YYYY-MM-DD_slug/
   loop_contract.json
 ```
 
-En SR 3.0.0, `sr_contract.json` est la cible machine du lot. Il doit lister les intentions utilisateur validees dans `validated_requests` et etre valide avec :
+En SR 3.1.0, `sr_contract.json` est la cible machine du lot. Il doit lister les intentions utilisateur granulaires dans `validated_requests`, separer implementation et preuve, heriter des demandes ouvertes lors d'une reprise et etre valide avec :
 
 ```bash
 python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json
@@ -215,12 +215,12 @@ Pour une question simple ou une commande ponctuelle sans modification, la memoir
 Avant de conclure une tache non triviale :
 - completer `verification.md` ;
 - creer ou mettre a jour `loop_contract.json` ;
-- creer ou mettre a jour `sr_contract.json` si le projet declare SR 3.0.0 ;
+- creer ou mettre a jour `sr_contract.json` si le projet declare SR 3.1.0 ; lire les contrats 3.0.0 en compatibilite ;
 - appliquer le Lot Completion Gate : table de couverture des exigences validees, statut `fait/partiel/non fait/bloque/hors perimetre valide/requires_e2e`, preuve et commentaire ;
 - appliquer le Propagation Gate si un symbole ou contrat partage a change : references ancien/nouveau nom recherchees, consommateurs verifies, imports/exports/signatures controles, references restantes justifiees, verification proportionnee executee ;
 - refuser le statut `done` si `propagation_gate.required` ou `propagation.required` vaut `true` et que le gate n'est pas `pass` ;
 - refuser le statut `done` si une exigence validee reste partielle, non faite, bloquee ou requiert un E2E non execute ;
-- pour toute exigence UI/UX explicite, fournir une preuve visuelle ou E2E ciblee, ou declarer `requires_e2e` et cloturer en `user_testing` ou `repair`, pas en `done` ;
+- pour toute exigence UI/UX explicite, fournir une preuve visuelle ou E2E ciblee ; si l'implementation est complete mais la preuve manque, utiliser `user_testing`, sinon `repair`, jamais `done` ;
 - executer `python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json` si le contrat existe ;
 - executer `python3 scripts/codex/validate_loop_contract.py --file docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json` si le script existe ;
 - executer ou documenter la verification impossible ;

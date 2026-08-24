@@ -1,6 +1,6 @@
 # SR_LOTS.yaml - backlog vivant SR-Harness
 
-version: "0.3"
+version: "0.4"
 project: "{{PROJECT_NAME}}"
 project_key: "{{PROJECT_KEY}}"
 updated_at: null
@@ -30,6 +30,7 @@ autonomy_run:
   approved_by_user_at: null
   max_lots: 3
   executable_statuses:
+    - repair
     - reopened
     - validated
   stop_on:
@@ -46,6 +47,7 @@ status_values:
   - in_progress
   - done
   - user_testing
+  - repair
   - reopened
   - blocked
   - deferred
@@ -111,6 +113,10 @@ lots:
       - "Le tri par defaut est derniere mise a jour descendante."
       - "Les dates invalides sont normalisees, ignorees ou signalees sans casser l'affichage."
       - "Le perimetre sans filtre respecte tous les source_app autorises pour l'utilisateur."
+    validated_request_ids:
+      - "REQ-DOCS-SORT-001"
+      - "REQ-DOCS-DATES-001"
+      - "REQ-DOCS-SOURCE-APP-001"
     verification_commands:
       - "git diff --check"
     gates:

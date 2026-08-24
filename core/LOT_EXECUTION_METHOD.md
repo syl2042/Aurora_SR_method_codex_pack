@@ -24,7 +24,7 @@ Cette methode est utilisee par `aurora-lot-runner`.
 
 Choisir le prochain lot executable :
 
-- statut `validated` ou `reopened` ;
+- statut `repair`, `reopened` ou `validated` ;
 - dependances terminees ;
 - non bloque ;
 - risque compatible avec le niveau d'autonomie.
@@ -32,12 +32,12 @@ Choisir le prochain lot executable :
 Priorite recommandee :
 
 ```text
-reopened > validated > planned/proposed a cadrer
+repair/reopened > validated > planned/proposed a cadrer
 ```
 
 Ne pas coder un lot `proposed` sans validation si le changement est significatif.
 
-Si plusieurs lots sont executables et que l'utilisateur a valide une phase autonome, une roadmap ou un gros brief, preparer une passe jusqu'a `max_lots_per_session` en commencant par `reopened`, puis `validated`.
+Si plusieurs lots sont executables et que l'utilisateur a valide une phase autonome, une roadmap ou un gros brief, preparer une passe jusqu'a `max_lots_per_session` en commencant par les lots `repair`/`reopened`, puis `validated`.
 
 Quand `docs/codex/SR_PASSES.yaml` existe, choisir une passe `validated` ou proposer une passe `planned` avant de coder. Une passe ne remplace pas les lots : elle declare seulement l'ordre, le preflight commun, les validations humaines et l'E2E groupe.
 
@@ -47,7 +47,7 @@ Avant toute execution multi-lots, verifier la passe :
 
 - les lots inclus existent dans `SR_LOTS.yaml` ;
 - les dependances sont terminees, incluses plus tot dans la passe, ou placees dans une passe strictement anterieure quand la passe courante est encore `proposed` ou `planned` ;
-- les passes `validated` et `in_progress` n'ont que des dependances anterieures reellement satisfaites (`done` ou `user_testing`) ;
+- les passes `validated`, `in_progress`, `repair` et `reopened` n'ont que des dependances anterieures reellement satisfaites (`done` ou `user_testing`) ;
 - aucune dependance ne pointe vers une passe posterieure et aucun lot n'apparait dans plusieurs passes ;
 - les lots `blocked`, `proposed` ou `superseded` ne sont pas executes silencieusement ;
 - les secrets, identifiants, assets, URLs, services Docker ou comptes de test requis sont listes ;
@@ -65,7 +65,7 @@ Si le gate est rouge, stopper avant codage significatif et proposer le delta `SR
 
 ### 1c. Pass Runtime Goal
 
-Si la passe est `validated` ou `in_progress` et que `PROJECT_PROFILE.yaml` active `sr_passes.pass_runtime_goal.enabled`, generer un artefact runtime avant l'execution :
+Si la passe est `validated`, `in_progress`, `repair` ou `reopened` et que `PROJECT_PROFILE.yaml` active `sr_passes.pass_runtime_goal.enabled`, generer un artefact runtime avant l'execution :
 
 ```bash
 python3 scripts/codex/build_pass_runtime_goal.py --pass-id <PASS_ID> --output docs/codex/tasks/YYYY-MM-DD_<pass-id>/pass_runtime_goal.md
@@ -121,7 +121,7 @@ En mode `nexus_kg`, interroger le KG avant de figer le scope et verifier la frai
 
 ### 2c. Lot Design Evidence Gate
 
-Avant de creer ou promouvoir un lot en `planned`, `validated`, `in_progress` ou `reopened`, prouver que le cadrage repose sur le code reel :
+Avant de creer ou promouvoir un lot en `planned`, `validated`, `in_progress`, `repair` ou `reopened`, prouver que le cadrage repose sur le code reel :
 
 - fichiers candidats identifies depuis RepoMap/KG, recherche locale ou sources SR ;
 - fichiers reellement lus avant plan engageant ;
@@ -273,7 +273,7 @@ Hierarchie d'arbitrage :
 
 La simplicite s'applique donc a l'implementation de chaque exigence validee, jamais a la suppression silencieuse d'une exigence.
 
-Avant codage significatif, extraire les exigences validees dans `validated_requests` et preparer la table de couverture attendue. Pour chaque exigence, indiquer la preuve minimale prevue : fichier, test, log, endpoint, capture, build, E2E ou justification.
+Avant codage significatif, extraire les exigences validees dans `validated_requests`. Ne jamais condenser une passe multi-lots en une exigence globale. Creer des identifiants stables pour chaque lot, critere produit important, demande UI/UX explicite, exclusion et validation humaine/E2E attendue. Pour chaque exigence, indiquer la preuve minimale prevue : fichier, test, log, endpoint, capture, build, E2E ou justification.
 
 Si le lot contient une exigence UI/UX explicite, prevoir une verification visuelle ou E2E ciblee. Un build, lint ou smoke HTTP ne suffit pas pour declarer une UI alignee sur une reference produit.
 
@@ -318,6 +318,8 @@ Si une verification echoue :
 
 Si toujours rouge, stopper avec blocker clair.
 
+Un retour utilisateur concernant une exigence deja validee n'est pas une nouvelle micro-demande. Le classer par defaut `existing_requirement_repair`, retrouver son `requirement_id`, rouvrir le lot d'origine, conserver toutes les autres exigences ouvertes et reexecuter leur checklist consolidee. Ne creer un nouveau lot que si la classification conclut `new_requirement` ou `scope_change` hors scope existant, avec justification explicite.
+
 ### 8. Gate report
 
 Completer `gate_report.md` :
@@ -350,6 +352,7 @@ Completer `loop_contract.json` dans la memoire de tache.
 Le contrat doit rester court et ne pas dupliquer les logs. Il doit declarer :
 
 - `status_decision` ;
+- en schema 1.1, `requirement_registry` avec le chemin du `sr_contract.json`, les exigences ouvertes, les lots rouverts, les retours utilisateur et le prochain bloc coherent ;
 - `lot_completion_gate` avec table de couverture des exigences validees ;
 - `evidence_gate.sources_read` ;
 - `fact_gate.status` si le contrat local le declare ;
@@ -370,9 +373,9 @@ Valider :
 python3 scripts/codex/validate_loop_contract.py --file docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json
 ```
 
-### 8c. SR contract 3.0.0
+### 8c. SR contract 3.1.0
 
-Pour les projets SR 3.0.0, completer aussi `sr_contract.json`.
+Pour les nouveaux lots, completer `sr_contract.json` en schema 3.1.0. Le validateur continue a lire les contrats 3.0.0 sans les reecrire automatiquement.
 
 Ce contrat doit etre mis a jour a chaque modification du lot :
 
@@ -382,30 +385,44 @@ Ce contrat doit etre mis a jour a chaque modification du lot :
 - decision de sortir une demande vers un autre lot ;
 - cloture technique ou passage en `user_testing`.
 
-Le champ central est `validated_requests`. Chaque intention validee doit avoir un statut explicite :
+Le champ central est `validated_requests`. Chaque intention validee porte deux axes independants :
 
 ```text
-todo, doing, done, requires_e2e, blocked, moved_to_new_lot, cancelled
+implementation_status: not_started, partial, complete, defective
+evidence_status: not_required, missing, partial, failed, sufficient,
+                 awaiting_user_acceptance, user_accepted
 ```
 
-Un lot ne peut pas etre `done` tant qu'une intention validee reste ouverte.
+Les preuves attendues et obtenues sont typees (`unit`, `build`, `runtime`, `visual`, `e2e`, `human_acceptance`, etc.). `evidence_status`, la decision de chaque exigence, le Completion Gate et le statut global sont derives par le validateur : ils ne sont pas quatre declarations independantes.
 
 Le contrat doit aussi renseigner `lot_completion_gate` avant cloture :
 
 ```text
-status: pass/fail/not_applicable
+status: pending/pass/fail/not_applicable
 coverage_table:
   - requirement_id
   - requirement
-  - status: fait/partiel/non fait/bloque/hors perimetre valide/requires_e2e
+  - implementation_status
+  - evidence_status
+  - decision
   - proof
-  - comment
+  - remaining_work
+  - remaining_tests
 ui_ux_required: true/false
 visual_evidence: [...]
 decision: done/user_testing/repair/blocked
 ```
 
-Si une ligne est `partiel`, `non fait`, `bloque` ou `requires_e2e`, le lot ne peut pas etre `done`. Il doit rester en `repair`, `user_testing` ou `blocked` avec les actions restantes visibles.
+Semantique obligatoire :
+
+- implementation absente, partielle ou defectueuse : `repair` ;
+- implementation complete et seule preuve E2E/acceptation manquante : `user_testing` ;
+- verification unitaire, build ou runtime requise mais non executee : `repair` ;
+- preuve executee et rouge : `repair` ;
+- dependance reelle a une autorite, un acces, un secret ou une decision externe : `blocked` ;
+- toutes les exigences implementees et suffisamment prouvees : `done`.
+
+Si le gate est rouge, la cloture liste les exigences ouvertes et ne dit jamais sans qualification que le lot ou la passe est termine, complet, livre ou implemente.
 
 Pour une exigence UI/UX, le gate exige une preuve visuelle ou E2E ciblee : capture Playwright, smoke visuel, checklist de composants/patterns ou justification d'impossibilite avec statut non `done`.
 
@@ -419,7 +436,7 @@ ui_validation.visual_evidence.report_file: output/playwright/ui-verification-rep
 
 Si l'authentification, le MFA, les secrets ou des donnees de test empechent l'automatisation, utiliser `blocked` ou `user_testing` avec une checklist E2E concrete, pas `done`.
 
-Si une intention validee est sortie du lot courant, utiliser `moved_to_new_lot` et renseigner le lot cible, l'entree inbox ou la raison de blocage dans la couverture, les notes ou `backlog_mutation`.
+Si une intention validee est reportee, annulee ou sortie du lot courant, renseigner `disposition` avec la source de decision et le lot cible pour `moved_to_new_lot`.
 
 Le contrat doit aussi renseigner `propagation` quand un symbole ou contrat partage est modifie. Si `propagation.required` vaut `true`, `status` doit etre `pass` avant `done`, avec preflight, validation humaine si requise, recherches de references, consommateurs verifies et verification proportionnee.
 
@@ -429,7 +446,7 @@ Valider :
 python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json
 ```
 
-Pendant la transition SR 2.x -> 3.0.0, conserver aussi les fichiers legacy requis par le projet. Le lot de migration des anciennes tasks et la mise a jour du prompt 07 sont separes de la creation du schema.
+Pendant la transition 3.0.0 -> 3.1.0, conserver les fichiers legacy. `audit_sr_task_contracts.py` avertit sur les registres generiques ; leur normalisation exige une lecture humaine des sources et ne justifie pas une reecriture historique massive.
 
 ### 9. Mise a jour memoire
 

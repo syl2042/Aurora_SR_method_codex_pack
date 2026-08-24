@@ -1,8 +1,15 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "task_id": "template",
   "task_type": "documentation",
   "status_decision": "not_applicable",
+  "requirement_registry": {
+    "sr_contract_path": null,
+    "open_requirement_ids": [],
+    "reopened_lot_ids": [],
+    "user_feedback": [],
+    "next_coherent_scope": "Template non execute. Pour une reprise active, traiter toutes les exigences ouvertes du sr_contract lie."
+  },
   "evidence_gate": {
     "done": true,
     "sources_read": [

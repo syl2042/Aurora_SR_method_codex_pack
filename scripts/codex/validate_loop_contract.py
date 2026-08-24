@@ -4,6 +4,8 @@ import json
 import sys
 from pathlib import Path
 
+import sr_completion_rules as completion
+
 
 VALID_TASK_TYPES = {"feature", "bugfix", "upgrade", "realign", "documentation", "analysis", "maintenance", "method"}
 VALID_STATUS_DECISIONS = {"done", "user_testing", "repair", "blocked", "not_applicable"}
@@ -36,6 +38,7 @@ VALID_PROPAGATION_COMPATIBILITY = {
     "not_required",
 }
 VALID_PROPAGATION_DECISIONS = {"pass", "repair", "blocked", "not_applicable"}
+SUPPORTED_SCHEMA_VERSIONS = {"1.0", "1.1"}
 
 
 def load_contract(path: Path) -> dict:
@@ -172,6 +175,28 @@ def validate_lot_completion_gate(data: dict, e2e_items: list, errors: list[str])
     if decision not in VALID_STATUS_DECISIONS:
         errors.append(f"lot_completion_gate.decision must be one of {sorted(VALID_STATUS_DECISIONS)}")
 
+    status_decision = data.get("status_decision")
+    if decision in VALID_STATUS_DECISIONS and status_decision in VALID_STATUS_DECISIONS and decision != status_decision:
+        errors.append(
+            f"lot_completion_gate.decision {decision!r} contradicts status_decision {status_decision!r}"
+        )
+    incomplete_rows = [
+        row.get("requirement_id", f"#{index}")
+        for index, row in enumerate(coverage_table)
+        if isinstance(row, dict) and row.get("status") in {"partiel", "non fait", "bloque"}
+    ]
+    if status_decision == "user_testing" and incomplete_rows:
+        errors.append(
+            "status_decision user_testing is incompatible with partial, missing or blocked implementation rows; "
+            f"use repair or blocked: {incomplete_rows}"
+        )
+    if status_decision == "user_testing" and status not in {"pending", "pass"}:
+        errors.append(
+            f"status_decision user_testing requires lot_completion_gate.status pending or pass, not {status!r}"
+        )
+    if status_decision == "repair" and status != "fail":
+        errors.append("status_decision repair requires lot_completion_gate.status fail")
+
     if data.get("status_decision") == "done":
         if status != "pass":
             errors.append("status_decision done requires lot_completion_gate.status pass")
@@ -260,7 +285,49 @@ def validate_propagation_gate(data: dict, errors: list[str], warnings: list[str]
             errors.append("high/critical propagation requires propagation_gate.verification")
 
 
-def validate(data: dict) -> tuple[list[str], list[str]]:
+def validate_requirement_registry(
+    data: dict, errors: list[str], warnings: list[str], contract_path: Path | None
+) -> None:
+    registry = require_object(data, "requirement_registry", errors)
+    if not registry:
+        return
+    sr_contract_path = registry.get("sr_contract_path")
+    if sr_contract_path is not None and not non_empty_string(sr_contract_path):
+        errors.append("requirement_registry.sr_contract_path must be null or a non-empty string")
+    for key in ("open_requirement_ids", "reopened_lot_ids", "user_feedback"):
+        values = registry.get(key)
+        if not isinstance(values, list) or not all(non_empty_string(item) for item in values):
+            errors.append(f"requirement_registry.{key} must contain only non-empty strings")
+    if not non_empty_string(registry.get("next_coherent_scope")):
+        errors.append("requirement_registry.next_coherent_scope must be a non-empty string")
+    if sr_contract_path is None:
+        if data.get("status_decision") != "not_applicable":
+            errors.append("requirement_registry.sr_contract_path is required for an active loop contract")
+        return
+    if contract_path is None:
+        warnings.append("requirement_registry inheritance was not checked because contract_path is unavailable")
+        return
+    linked_path = (contract_path.parent / sr_contract_path).resolve()
+    try:
+        linked = load_contract(linked_path)
+    except ValueError as exc:
+        errors.append(f"requirement_registry.sr_contract_path cannot be loaded: {exc}")
+        return
+    requests = linked.get("validated_requests")
+    if linked.get("schema_version") != "3.1.0" or not isinstance(requests, list):
+        errors.append("requirement_registry.sr_contract_path must reference a 3.1.0 SR contract")
+        return
+    expected_open = completion.open_requirement_ids(requests)
+    if registry.get("open_requirement_ids") != expected_open:
+        errors.append(f"requirement_registry.open_requirement_ids must equal SR contract open requirements {expected_open!r}")
+    linked_status = completion.derive_contract_decision(requests)
+    if data.get("status_decision") != linked_status:
+        errors.append(
+            f"status_decision {data.get('status_decision')!r} contradicts linked SR contract derived status {linked_status!r}"
+        )
+
+
+def validate(data: dict, contract_path: Path | None = None) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
 
@@ -281,6 +348,14 @@ def validate(data: dict) -> tuple[list[str], list[str]]:
     ):
         if key not in data:
             errors.append(f"missing required key: {key}")
+
+    if data.get("schema_version") not in SUPPORTED_SCHEMA_VERSIONS:
+        errors.append(f"schema_version must be one of {sorted(SUPPORTED_SCHEMA_VERSIONS)}")
+    elif data.get("schema_version") == "1.1":
+        if "requirement_registry" not in data:
+            errors.append("missing required key: requirement_registry")
+        else:
+            validate_requirement_registry(data, errors, warnings, contract_path)
 
     task_type = data.get("task_type")
     if task_type not in VALID_TASK_TYPES:
@@ -440,7 +515,7 @@ def main() -> int:
     path = Path(args.file)
     try:
         data = load_contract(path)
-        errors, warnings = validate(data)
+        errors, warnings = validate(data, contract_path=path)
     except ValueError as exc:
         errors, warnings = [str(exc)], []
 

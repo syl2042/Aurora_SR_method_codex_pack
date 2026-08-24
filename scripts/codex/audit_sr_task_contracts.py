@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit and optionally create SR 3.0.0 contracts for legacy task memories."""
+"""Audit SR contracts and legacy task memories; flag registries needing normalization."""
 import argparse
 import json
 import sys
@@ -261,7 +261,22 @@ def validate_contract(path: Path) -> tuple[bool, list[str], list[str]]:
         data = validate_sr_contract.load_contract(path)
     except ValueError as exc:
         return False, [str(exc)], []
-    errors, warnings = validate_sr_contract.validate(data)
+    errors, warnings = validate_sr_contract.validate(data, contract_path=path)
+    requests = data.get("validated_requests")
+    if data.get("schema_version") == "3.0.0" and isinstance(requests, list) and len(requests) == 1:
+        request = requests[0] if isinstance(requests[0], dict) else {}
+        combined = " ".join(
+            str(request.get(key, "")) for key in ("id", "source", "coverage")
+        ).lower()
+        if not any("generic" in warning and "normalize" in warning for warning in warnings) and (
+            request.get("id") == "REQ-LEGACY-001" or any(
+                marker in combined for marker in ("tous les lots", "cinq lots", "five lots", "multi-lot")
+            )
+        ):
+            warnings.append(
+                "legacy validated_requests registry is generic; normalize it manually into stable per-lot and per-criterion "
+                "requirements before resuming or closing the scope"
+            )
     return not errors, errors, warnings
 
 
@@ -352,7 +367,7 @@ def print_human(result: dict) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Audit or create SR 3.0.0 contracts for legacy task memories.")
+    parser = argparse.ArgumentParser(description="Audit SR contracts or create compatible 3.0.0 migration contracts.")
     parser.add_argument("--root", default=".")
     parser.add_argument("--task", help="Limit to one task directory, relative to root or absolute.")
     parser.add_argument("--write", action="store_true", help="Create missing sr_contract.json files.")

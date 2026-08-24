@@ -349,6 +349,32 @@ class ValidateSrContractTest(unittest.TestCase):
         errors, _warnings = validate_sr_contract.validate(data)
         self.assertTrue(any("requires e2e.items" in error for error in errors), errors)
 
+    def test_legacy_user_testing_rejects_partial_implementation_row(self) -> None:
+        data = valid_contract()
+        data["status"] = "user_testing"
+        data["lot_completion_gate"]["status"] = "fail"
+        data["lot_completion_gate"]["decision"] = "user_testing"
+        data["validated_requests"][0]["status"] = "doing"
+        data["lot_completion_gate"]["coverage_table"][0]["status"] = "partiel"
+        errors, _warnings = validate_sr_contract.validate(data)
+        self.assertTrue(any("user_testing" in error and "partial" in error for error in errors), errors)
+
+    def test_legacy_request_done_rejects_requires_e2e_coverage(self) -> None:
+        data = valid_contract()
+        data["status"] = "user_testing"
+        data["lot_completion_gate"]["status"] = "pending"
+        data["lot_completion_gate"]["decision"] = "user_testing"
+        data["lot_completion_gate"]["coverage_table"][0]["status"] = "requires_e2e"
+        errors, _warnings = validate_sr_contract.validate(data)
+        self.assertTrue(any("status done contradicts" in error for error in errors), errors)
+
+    def test_legacy_multi_lot_single_request_emits_normalization_warning(self) -> None:
+        data = valid_contract()
+        data["validated_requests"][0]["coverage"] = "Couvrir tous les lots valides."
+        errors, warnings = validate_sr_contract.validate(data)
+        self.assertEqual([], errors)
+        self.assertTrue(any("multi-lot" in warning and "generic" in warning for warning in warnings), warnings)
+
     def test_missing_ui_validation_is_legacy_warning(self) -> None:
         data = valid_contract()
         del data["ui_validation"]

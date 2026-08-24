@@ -1,0 +1,9 @@
+{
+  "scenario": "E",
+  "implementation_status": "complete",
+  "evidence_status": "missing",
+  "request_decision": "user_testing",
+  "completion_gate_status": "fail",
+  "completion_gate_decision": "user_testing",
+  "expected_error_fragments": ["lot_completion_gate.status", "derived"]
+}

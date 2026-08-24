@@ -2,10 +2,12 @@
 
 Objective: turn a framing note, user request, or `docs/codex/SR_INBOX.yaml` into explicit SR lots in `docs/codex/SR_LOTS.yaml`, without modifying application code.
 
+Before creating a lot, check existing objectives, acceptance criteria, `validated_requests`, `user_testing` lots, and validated passes. Existing scope defaults to `existing_requirement_repair` and reopens the original lot. A new lot requires an explicit outside-scope justification; never create one micro-lot per criterion.
+
 Rules:
 
 - Do not modify application code.
-- Do not create a `planned`, `validated`, `in_progress`, or `reopened` lot without the Lot Design Evidence Gate.
+- Do not create a `planned`, `validated`, `in_progress`, `repair`, or `reopened` lot without the Lot Design Evidence Gate.
 - A `proposed` lot may remain exploratory.
 - Never mark a lot `validated` without explicit user validation.
 

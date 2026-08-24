@@ -78,8 +78,10 @@ def pass_contract_errors(path: Path, lots: Path) -> list[str]:
     except Exception as exc:
         return [str(exc)]
     passes = data.get("passes")
-    if not isinstance(passes, list) or not passes:
-        return ["no passes found"]
+    if not isinstance(passes, list):
+        return ["passes must be a list"]
+    if not passes:
+        return []
     return validate_passes(passes, lots_by_id)
 
 

@@ -5,4 +5,4 @@ description: >-
 ---
 
 # Role
-Remplir task_plan.md avant de coder. Mettre a jour findings, progress, decisions, verification. Cloturer avec risques, prochaines actions, CURRENT_STATE et RepoMap.
+Remplir task_plan.md avant de coder. Mettre a jour findings, progress, decisions, verification. Lors d'une reprise, copier depuis le `sr_contract.json` canonique les exigences faites, partielles, non faites, les preuves manquantes, les retours utilisateur et les lots rouverts ; aucune exigence ouverte ne peut disparaitre du plan. Regrouper les reparations du meme perimetre produit et du meme niveau de risque dans un bloc coherent. Cloturer avec risques, prochaines actions, CURRENT_STATE et RepoMap.

@@ -11,6 +11,7 @@
 [⭐ Mettre une étoile](https://github.com/syl2042/Aurora_SR_method_codex_pack/stargazers) ·
 [Documentation](https://docs.auroramind.fr/docs/SR_Method) ·
 [Installation](INSTALLATION.fr.md) ·
+[Changelog](CHANGELOG.md) ·
 [Installer avec Codex](prompts/fr/00_install_codex_environment.md) ·
 [Mettre à jour](prompts/fr/05_upgrade_codex_environment.md) ·
 [Vérifier](prompts/fr/06_verify_sr_installation.md)
@@ -149,82 +150,23 @@ Les scripts de lancement Windows/MobaXterm sont disponibles dans [tools/sr-cockp
 
 ---
 
-## Ce qui change en 3.6.0
+## Version cible 3.7.0
 
-La version `3.6.0` ajoute le **UI Verification Harness** pour les travaux UI/UX significatifs.
+La version cible `3.7.0` empeche qu'une demande validee disparaisse derriere un statut global. Le SR Contract 3.1.0 separe `implementation_status` de `evidence_status`, calcule la decision de chaque exigence et le Completion Gate global, herite obligatoirement des exigences ouvertes lors d'une reprise et reserve `user_testing` aux implementations techniquement completes.
 
-La methode distingue maintenant le Design Gate existant de deux gates UI executables : **UI Test Readiness Gate** et **UI Visual Evidence Gate**. Les projets configurent `ui_validation` dans `PROJECT_PROFILE.yaml`, utilisent `scripts/codex/sr_ui_verify.mjs` pour lancer Playwright sur les routes x viewports, puis enregistrent les resultats machine dans `sr_contract.json`. L'ancien `playwright_auth_smoke.mjs` reste conserve comme wrapper de compatibilite.
+Les retours utilisateur sur une fonction existante rouvrent par defaut le lot d'origine et rechargent sa checklist complete. La creation d'un nouveau lot exige de prouver que la demande est hors scope existant. Les contrats 3.0.0 restent lisibles et ne sont pas reecrits en masse ; les registres legacy trop generiques produisent un avertissement de normalisation manuelle.
 
-Les installations neuves recoivent le harness UI complet par defaut. Les projets SR existants sont mis a jour de facon additive : l'absence de `ui_validation` reste un warning legacy pour les taches non UI, mais un lot UI significatif ne peut pas etre cloture en `done` sans readiness et evidence visuelle `pass` lorsque ces gates sont requis.
+L'installation distingue maintenant deux parcours : le prompt `00` est reserve a un repository sans marqueur SR, tandis que le prompt `05` audite et met a niveau chaque repository existant independamment. Si plusieurs dossiers utilisent des versions SR differentes, Codex doit presenter une matrice par cible et ne peut pas deduire un statut global vert depuis seulement certaines cibles. L'installateur refuse le mode neuf `--write` lorsqu'il detecte deja une installation SR.
 
-## Changements historiques precedents
+Les installations neuves et les upgrades sans passes produit commencent maintenant par un registre valide `passes: []`. Aucune passe d'exemple n'est deduite des anciens lots. Les regressions couvrent les layouts officiels representatifs SR 2.2.0, 2.3.0, 2.3.5, 2.4.1 et 3.0.0 ; les layouts inconnus ou adaptes localement restent soumis a un audit fichier par fichier. Le succes de l'installateur ne suffit pas : la cible reste en `repair` tant que `sr_post_install_check.py` n'est pas vert.
 
-Les sections suivantes documentent les anciennes versions. Elles sont conservees pour le contexte d'upgrade uniquement ; la version SR Method active du pack est declaree dans `core/SR_PACK_VERSION.json` et `MANIFEST.json`.
+## Historique des versions
 
-### Ce qui change en 3.5.2
-
-La version `3.5.2` integre le premier retour d'upgrade de projets SR reels plus anciens.
-
-Les contrats de tache historiques dates avant le `2026-08-08` sans `lot_completion_gate` sont maintenant traites comme warnings legacy par `audit_sr_task_contracts.py`, tout en gardant les contrats plus recents stricts. Le prompt `05_upgrade_codex_environment.md` precise aussi qu'un upgrade SR ne doit pas fermer, promouvoir ou requalifier des lots ou passes applicatifs comme effet secondaire implicite. Si l'utilisateur demande explicitement une cloture dans le meme travail, elle doit etre executee comme sous-phase separee validee, avec son propre contrat SR et ses preuves.
-
-### Ce qui change en 3.5.1
-
-La version `3.5.1` renforce le prompt d'upgrade `05_upgrade_codex_environment.md`.
-
-La mise a jour d'un projet existant est maintenant traitee comme un cas heterogene par defaut : la version SR Method installee peut etre ancienne, partielle, inconnue ou adaptee localement. Codex doit diagnostiquer l'installation courante, classer le flux d'upgrade, preserver les fichiers projet, presenter un plan avant mutation, appliquer l'upgrade de facon additive, lancer les controles disponibles, puis realigner `CURRENT_STATE.md` avant toute reprise de developpement applicatif.
-
-### Ce qui change en 3.5.0
-
-La version `3.5.0` ajoute le **Lot Design Evidence Gate**.
-
-Codex peut toujours capturer un travail exploratoire en `proposed`, mais un lot ne peut pas devenir `planned`, `validated`, `in_progress` ou `reopened` tant que son `design_evidence` ne prouve pas que les fichiers candidats ont ete identifies et que les fichiers pertinents ont reellement ete lus, ou n'explique pas pourquoi la lecture code n'est pas applicable. Le nouveau prompt `09_define_sr_lots_from_scope.md` rend cette etape explicite avant la planification des passes.
-
-### Ce qui change en 3.4.0
-
-La version `3.4.0` ajoute le **Pass Runtime Goal** pour Codex CLI `/goal`.
-
-Les passes SR definissent deja quels lots doivent etre executes ensemble, dans quel ordre, avec quel preflight et quelle strategie E2E. Le Pass Runtime Goal transforme une passe validee en objectif runtime borne pour eviter que Codex s'arrete apres un seul lot ou demande les E2E utilisateur trop tot.
-
-La source de verite ne change pas :
-
-```text
-SR_PASSES.yaml / SR_LOTS.yaml / sr_contract.json = source de verite
-pass_runtime_goal.md + /goal = aide runtime d'execution
-```
-
-Nouveaux fichiers et regles :
-
-- `scripts/codex/build_pass_runtime_goal.py` genere `pass_runtime_goal.md` et une commande `/goal` courte.
-- `docs/codex/tasks/_TEMPLATE/pass_runtime_goal.md` documente la forme du goal runtime.
-- Le Goal Length Gate impose `max_goal_command_chars: 1000` et `hard_limit: 4000`.
-- Une passe `planned` peut etre preparee avec `--allow-planned`, mais l'execution exige toujours validation utilisateur et changement de statut SR.
-- Une passe `proposed` ne doit jamais etre executee par goal.
-- Si `e2e_strategy.mode` vaut `grouped_at_pass_end`, Codex accumule les preuves par lot et demande les E2E utilisateur seulement en fin de passe.
-- Une passe atteint son statut final SR correct : `done`, `user_testing`, `repair` ou `blocked`. Elle ne doit pas etre marquee `done` tant qu'un E2E utilisateur ou une validation humaine reste requis.
-- Codex doit stopper a la fin de la passe et proposer la suivante sans l'enchainer silencieusement.
-
-Generer un goal pour une passe validee :
-
-```bash
-python3 scripts/codex/build_pass_runtime_goal.py \
-  --pass-id <PASS_ID> \
-  --output docs/codex/tasks/YYYY-MM-DD_<pass-id>/pass_runtime_goal.md
-```
-
-Dry-run pour une passe planned :
-
-```bash
-python3 scripts/codex/build_pass_runtime_goal.py \
-  --pass-id <PASS_ID> \
-  --output docs/codex/tasks/YYYY-MM-DD_<pass-id>/pass_runtime_goal.md \
-  --allow-planned
-```
-
-Utiliser la commande `/goal` affichee par le script. Ne pas la reecrire a la main sans relancer le controle de longueur.
+Consulter [CHANGELOG.md](CHANGELOG.md) pour l'historique complet version par version, les migrations, la compatibilite et les references des releases source.
 
 ### Premiere installation vs upgrade
 
-Pour une premiere installation sur projet vierge, Codex installe les fichiers SR, verifie le pack, puis s'arrete avant tout developpement applicatif. `SR_PASSES.yaml` et l'outillage Pass Runtime Goal sont installes, mais les goals de passe ne sont normalement generes qu'apres definition des lots et des passes.
+Pour une premiere installation sur projet vierge, Codex installe les fichiers SR, verifie le pack, puis s'arrete avant tout developpement applicatif. `SR_PASSES.yaml` commence par `passes: []` ; l'outillage Pass Runtime Goal est installe, mais les goals ne sont generes qu'apres definition des lots et des passes.
 
 Pour un projet existant avec une ancienne SR Method deja utilisee, Codex doit preserver les fichiers projet, task memories, `SR_LOTS.yaml`, decisions, handoffs et skills locales. L'upgrade est additif : il ajoute ou rafraichit les fichiers methode/scripts, puis demande un realignement SR avant de continuer le developpement. Les anciennes task memories ne sont pas converties en batch sans validation explicite.
 
@@ -242,15 +184,15 @@ Cette sequence vise a eviter les regressions apres mise a jour : Codex doit comp
 
 ---
 
-## Ce qui change en 3.2.1
+## SR Passes et SR Agent Method
 
-La version `3.2.1` porte deux evolutions distinctes :
+La version `3.2.0` a introduit deux evolutions distinctes ; la version `3.2.1` a ensuite renforce les dependances inter-passes ordonnees :
 
 ### SR Passes : regrouper les lots en passes d'execution
 
 SR Passes ajoute une couche d'orchestration au-dessus des lots. Le lot reste l'unite atomique pour le perimetre, les criteres d'acceptation, les chemins autorises, les stop conditions, le statut et la task memory. Une passe regroupe plusieurs lots lies quand ils partagent un socle, un preflight, des dependances ou une validation E2E coherente.
 
-SR 3.2.1 ajoute :
+SR 3.2.0 a ajoute :
 
 - `docs/codex/SR_PASSES.yaml` pour encadrer l'execution multi-lots ;
 - `scripts/codex/validate_pass_contract.py` pour verifier les references de lots et l'ordre de dependances ;
@@ -265,7 +207,7 @@ Cette evolution sert lorsqu'une roadmap, un gros brief ou une phase autonome ne 
 
 ### SR Agent Method : agents runtime sans verrouillage framework
 
-SR 3.2.1 ajoute aussi :
+SR 3.2.0 a aussi ajoute :
 
 - un template de contrat agent runtime fonde sur action produit bornee, representation interne stable, prompt contract, message builder, tools/actions, routing/fallback, validation et traces.
 
@@ -351,7 +293,7 @@ Prompt recommandé :
 | Démarrer une session SR | [01_start_sr_session.md](prompts/fr/01_start_sr_session.md) |
 | Mettre à jour la SR Method | [05_upgrade_codex_environment.md](prompts/fr/05_upgrade_codex_environment.md) |
 | Vérifier l'installation | [06_verify_sr_installation.md](prompts/fr/06_verify_sr_installation.md) |
-| Réaligner l'état après upgrade | [07_realign_sr_state_after_upgrade.md](prompts/07_realign_sr_state_after_upgrade.md) |
+| Réaligner l'état après upgrade | [07_realign_sr_state_after_upgrade.md](prompts/fr/07_realign_sr_state_after_upgrade.md) |
 | Définir les lots SR depuis le cadrage | [09_define_sr_lots_from_scope.md](prompts/fr/09_define_sr_lots_from_scope.md) |
 | Définir des agents IA runtime | [15_define_runtime_agents.md](prompts/fr/15_define_runtime_agents.md) |
 
@@ -680,6 +622,8 @@ Les points d'entrée développeur sont disponibles en plusieurs langues :
 - guides d'installation ;
 - prompts Codex à copier-coller ;
 - prompts de mise à jour, vérification, reprise et agents runtime.
+
+Le jeu public localise et teste comprend les prompts `00`, `01`, `05`, `06`, `07`, `08`, `09` et `15`. Les autres prompts sont des workflows internes canoniques et ne sont pas annonces comme points d'entree traduits.
 
 Un projet installé peut demander à Codex d'échanger avec l'utilisateur en français. La méthode technique reste canonique en anglais.
 

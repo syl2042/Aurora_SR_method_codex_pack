@@ -1,17 +1,20 @@
-# Verificar una instalación SR Method
+# Verificar una instalacion de SR Method
 
-Estás trabajando en un repositorio equipado con la Aurora SR Method.
+No modifiques archivos.
 
-Objetivo: verificar que la instalación o upgrade esté completo, coherente y utilizable antes de retomar el desarrollo.
+Objetivo: demostrar que cada instalacion o upgrade es completa, coherente y utilizable antes de reanudar el desarrollo aplicativo.
 
-Instrucciones:
+1. Leer los marcadores reales de `AGENTS.md`, `docs/codex/SR_PACK_VERSION.json`, metodo, contratos, lotes, pasadas y task memories. No inferir la version de una carpeta desde otra.
+2. Ejecutar `python3 scripts/codex/verify_codex_pack.py`.
+3. Ejecutar `python3 scripts/codex/validate_release_docs.py --root . --json`.
+4. Ejecutar `python3 scripts/codex/audit_codex_pack.py --root . --json`.
+5. Ejecutar `python3 scripts/codex/sr_post_install_check.py --root . --json`.
+6. Ejecutar `python3 scripts/codex/audit_sr_task_contracts.py --root . --json`.
+7. Validar `SR_LOTS.yaml`, `SR_PASSES.yaml`, loop contracts activos y el SR Contract 3.1.0 o contratos legacy 3.0.0 explicitamente identificados.
+8. Verificar `docs/codex/CHANGELOG.md`, version objetivo, prompts publicos localizados y preservacion aditiva de archivos del proyecto.
 
-1. Ejecutar `python3 scripts/codex/verify_codex_pack.py`.
-2. Ejecutar `python3 scripts/codex/audit_codex_pack.py --root . --json`.
-3. Ejecutar `python3 scripts/codex/sr_post_install_check.py --root . --json` si está disponible.
-4. Validar contratos lot, pass, loop y SR cuando existan los scripts.
-5. Ejecutar `python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml` si existe `SR_PASSES.yaml`.
-6. Clasificar warnings restantes como aceptables, a documentar, a corregir con validación o bloqueantes.
-7. Reportar versión, verificaciones, errores, warnings, estado de `SR_PASSES.yaml` y próxima acción recomendada.
+Clasificar cada warning como estado legacy compatible, deuda documental, `repair` o bloqueo externo real. El codigo `0` del instalador no basta.
 
-Esto no es una tarea de desarrollo de aplicación.
+Informar por repositorio version, controles, errores, warnings, contratos, `validated_requests` abiertas, evidencias pendientes y siguiente accion. `user_testing` solo es valido para trabajo tecnicamente completo; implementacion faltante permanece `repair`.
+
+Detenerse sin corregir y pedir validacion exacta para cualquier reparacion.

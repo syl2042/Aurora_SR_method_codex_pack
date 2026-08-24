@@ -24,14 +24,14 @@ Installer ou rendre disponibles comme skills methode principales :
 - `aurora-domain-skill-factory`
 - `aurora-lot-runner`
 
-Ces skills sont transverses, stables et utiles dans tous les projets SR 3.6.0.
+Ces skills sont transverses, stables et utiles dans tous les projets SR 3.6.0 et ulterieurs.
 
-SR 3.6.0 introduit une politique progressive :
+SR 3.6.0 introduit une politique progressive, conservee en 3.7.0 :
 
 - `aurora-to-prd` reste facultative pour un travail explicite de product discovery.
 - `aurora-planning-with-files` est deprecated progressivement, le comportement cible etant absorbe par `aurora-lot-runner`, SR Harness et `sr_contract.json`.
 - `aurora-terminal-token-optimizer` est deprecated progressivement comme skill cognitive; les outils `aurora_token_run`, RTK/TRS et la politique de token optimization restent disponibles via le harness.
-- les dossiers legacy peuvent rester installes pendant l'upgrade pour compatibilite, mais ils ne doivent plus etre traites comme selections automatiques principales sur un projet aligne SR 3.6.0.
+- les dossiers legacy peuvent rester installes pendant l'upgrade pour compatibilite, mais ils ne doivent plus etre traites comme selections automatiques principales sur un projet aligne SR 3.6.0+.
 
 ## Separation methode / projet / outillage
 

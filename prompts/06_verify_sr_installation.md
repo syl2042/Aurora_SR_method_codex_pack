@@ -41,6 +41,12 @@ Etapes :
 python3 scripts/codex/sr_post_install_check.py --root . --json
 ```
 
+1a. Verifier la coherence version, changelog et prompts publics localises :
+
+```bash
+python3 scripts/codex/validate_release_docs.py --root . --json
+```
+
 1b. Verifier aussi la reprise automatique :
 
 ```bash
@@ -53,7 +59,7 @@ python3 scripts/codex/find_next_session_prompt.py --root . --json
 python3 scripts/codex/validate_loop_contract.py --file docs/codex/tasks/_TEMPLATE/loop_contract.json
 ```
 
-1d. Verifier aussi le contrat SR 3.0.0 :
+1d. Verifier aussi le contrat SR 3.1.0 et la compatibilite de lecture 3.0.0 :
 
 ```bash
 python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/_TEMPLATE/sr_contract.json
@@ -133,7 +139,7 @@ Sortie attendue :
 - warnings restants ;
 - dernier `NEXT_SESSION_PROMPT.md` detecte ou absent ;
 - presence et validation du Loop Contract, incluant `conversation_transition` et `resume_protocol` ;
-- presence et validation du SR Contract 3.0.0, incluant `validated_requests` ;
+- presence et validation du SR Contract 3.1.0, ou compatibilite explicite 3.0.0, incluant un registre `validated_requests` granulaire ;
 - resultat de `validate_lot_contract.py --file docs/codex/SR_LOTS.yaml` ;
 - resultat de `validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml` si applicable ;
 - resultat de `audit_sr_task_contracts.py`, avec contrats manquants acceptables en legacy, contrats invalides et migrations eventuelles a valider ;

@@ -18,4 +18,6 @@ Restrições:
 - distinguir tools de inspeção/preparação e ações comprometedoras;
 - nenhum agente fica ativo sem validação.
 
+Exigir um `output schema`, modelos Pydantic para saidas consumidas por aplicacoes Python (ou validador tipado estrito equivalente) e uma `invalid_output_policy` de rejeicao, retry unico, reparacao rastreada ou revisao humana. Uma saida invalida nunca pode acionar uma acao critica.
+
 Nunca permita que um LLM gere e execute SQL livre. Ações críticas exigem validação humana.

@@ -30,13 +30,13 @@ Ce digest ne remplace pas :
 
 ## Skills facultatives et legacy
 
-| Skill | Statut SR 3.6.0 | Usage |
+| Skill | Statut SR 3.6.0+ | Usage |
 |---|---|---|
 | `aurora-to-prd` | Facultative | Product discovery explicite quand le besoin est trop vague pour coder directement. |
 | `aurora-planning-with-files` | Deprecated progressif | Compatibilite avec anciens projets ; comportement cible absorbe par `aurora-lot-runner`, SR Harness et `sr_contract.json`. |
 | `aurora-terminal-token-optimizer` | Deprecated progressif comme skill cognitive | Tooling conserve via `aurora_token_run`, RTK/TRS et politique de token optimization. |
 
-Ne pas supprimer brutalement ces dossiers pendant une migration. Les retirer des selections automatiques par defaut lorsque le projet est aligne sur SR 3.6.0.
+Ne pas supprimer brutalement ces dossiers pendant une migration. Les retirer des selections automatiques par defaut lorsque le projet est aligne sur SR 3.6.0 ou ulterieur.
 
 ## Skills metier Codex locales
 Les skills metier restent locales par defaut dans :

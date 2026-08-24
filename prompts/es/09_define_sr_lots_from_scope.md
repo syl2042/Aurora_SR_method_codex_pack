@@ -2,10 +2,12 @@
 
 Objetivo: convertir un encuadre, una solicitud de usuario o `docs/codex/SR_INBOX.yaml` en lotes SR explicitos en `docs/codex/SR_LOTS.yaml`, sin modificar codigo de aplicacion.
 
+Antes de crear un lote, revisa objetivos, criterios de aceptacion, `validated_requests`, lotes `user_testing` y pasadas validadas. Un alcance existente se clasifica por defecto `existing_requirement_repair` y reabre el lote original. Un lote nuevo exige justificacion explicita fuera de alcance; no crees un micro-lote por criterio.
+
 Reglas:
 
 - No modifiques codigo de aplicacion.
-- No crees un lote `planned`, `validated`, `in_progress` o `reopened` sin Lot Design Evidence Gate.
+- No crees un lote `planned`, `validated`, `in_progress`, `repair` o `reopened` sin Lot Design Evidence Gate.
 - Un lote `proposed` puede seguir exploratorio.
 - Nunca marques un lote como `validated` sin validacion explicita del usuario.
 

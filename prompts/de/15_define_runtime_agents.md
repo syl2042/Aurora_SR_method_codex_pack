@@ -18,4 +18,6 @@ Constraints:
 - Inspection/Preparation Tools von verpflichtenden Actions unterscheiden;
 - kein Agent ist ohne Validierung aktiv.
 
+Ein explizites `output schema`, Pydantic-Modelle fuer von Python-Anwendungen konsumierte Ausgaben (oder gleichwertige strikte Typvalidierung) und eine `invalid_output_policy` fuer Ablehnung, einmaligen Retry, getracte Reparatur oder Human Review verlangen. Ungueltige Ausgabe darf keine kritische Aktion ausloesen.
+
 Ein LLM darf niemals freies SQL erzeugen und ausführen. Kritische Aktionen brauchen menschliche Validierung.

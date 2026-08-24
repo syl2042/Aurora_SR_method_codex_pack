@@ -2,10 +2,12 @@
 
 Ziel: Einen Rahmen, eine Nutzeranfrage oder `docs/codex/SR_INBOX.yaml` in explizite SR-Lose in `docs/codex/SR_LOTS.yaml` umwandeln, ohne Anwendungscode zu aendern.
 
+Vor einem neuen Los Ziele, Akzeptanzkriterien, `validated_requests`, `user_testing` Lose und validierte Passes pruefen. Bestehender Scope ist standardmaessig `existing_requirement_repair` und oeffnet das Ursprungs-Los erneut. Ein neues Los braucht eine explizite Outside-Scope-Begruendung; kein Mikro-Los pro Kriterium.
+
 Regeln:
 
 - Keinen Anwendungscode aendern.
-- Kein `planned`, `validated`, `in_progress` oder `reopened` Los ohne Lot Design Evidence Gate erstellen.
+- Kein `planned`, `validated`, `in_progress`, `repair` oder `reopened` Los ohne Lot Design Evidence Gate erstellen.
 - Ein `proposed` Los darf explorativ bleiben.
 - Ein Los niemals ohne explizite Nutzer-Validierung als `validated` markieren.
 

@@ -39,6 +39,7 @@ Pour chaque agent candidat, produire :
 - source du JSON schema (`generated_from_output_model`, `manual_schema` ou `external_contract`)
 - mode de validation (`pydantic_strict`, `typed_validator_strict` ou `manual_json_schema`)
 - politique d'echec (`reject`, `retry_once`, `repair_with_trace` ou `human_review`)
+- champ machine `invalid_output_policy` aligne sur cette politique
 - traces d'erreur de validation non sensibles
 - cas de test
 - tests de sortie typee :

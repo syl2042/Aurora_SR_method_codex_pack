@@ -39,7 +39,7 @@ Une validation utilisateur d'un lot ou d'une passe engage tout le perimetre decr
 
 Si Codex estime que le lot valide est trop large, trop risque, ambigu ou doit etre decoupe, il doit le declarer avant mutation, proposer le decoupage et attendre une nouvelle validation utilisateur. Il est interdit de livrer un sous-ensemble comme si le lot complet etait couvert.
 
-## SR 3.0.0 - Contrat vivant de lot
+## SR 3.1.0 - Registre persistant des demandes
 
 A partir de SR 3.0.0, la cible machine d'un lot non trivial est un contrat vivant :
 
@@ -49,7 +49,18 @@ docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json
 
 Ce contrat ne remplace pas instantanement l'historique existant. Les fichiers `task_plan.md`, `findings.md`, `progress.md`, `decisions.md`, `verification.md`, `gate_report.md` et `loop_contract.json` restent lisibles pendant la transition, mais la source machine cible devient `sr_contract.json`.
 
-Le contrat 3.0.0 doit porter explicitement :
+Le contrat 3.1.0 garde `validated_requests` comme registre canonique. Une ligne doit representer une intention utilisateur stable, pas un resume global tel que « couvrir les cinq lots ». Il faut distinguer au minimum chaque lot valide, chaque critere produit important, chaque demande UI/UX explicite, chaque exclusion et chaque E2E ou validation humaine attendue.
+
+Chaque ligne separe obligatoirement :
+
+- `implementation_status` : `not_started`, `partial`, `complete` ou `defective` ;
+- `evidence_status`, calcule depuis les preuves attendues et obtenues ;
+- `decision`, calculee pour l'exigence ;
+- le lot et la passe d'origine, les surfaces touchees, le travail et les tests restants, l'historique et toute decision explicite de report, annulation ou deplacement.
+
+Choix de schema : `unit_verified`, `build_verified`, `runtime_verified` et `e2e_verified` ne sont pas des etapes mutuellement exclusives et ne forment pas une progression lineaire. SR 3.1.0 les represente donc comme des entrees typees dans `expected_evidence` et `obtained_evidence`. L'`evidence_status` agrege mesure uniquement la completude (`missing`, `partial`, `failed`, `sufficient`, `awaiting_user_acceptance`, etc.). Cette normalisation evite qu'un build vert ecrase un E2E manquant ou qu'une preuve unitaire soit prise pour une preuve runtime.
+
+Le contrat doit aussi porter explicitement :
 
 - les intentions utilisateur validees dans `validated_requests` ;
 - le scope inclus/exclu ;
@@ -64,9 +75,11 @@ Le contrat 3.0.0 doit porter explicitement :
 - le statut contexte ;
 - la decision de transition conversationnelle.
 
-Regle centrale : un lot ne peut pas etre `done` si une intention validee reste `todo`, `doing`, `requires_e2e` ou `blocked`.
+Regle centrale : le statut du lot et le Completion Gate sont derives des exigences. Une implementation `partial`, `not_started` ou `defective` impose `repair` (ou `blocked` seulement si elle n'a pas commence et depend reellement d'une autorite externe). Une implementation `complete` dont il manque seulement un E2E, une preuve visuelle reelle ou une acceptation humaine autorise `user_testing`. Une verification technique unitaire, build ou runtime manquante reste `repair`. Une preuve rouge impose `repair`.
 
-Regle de completude : avant toute cloture de lot ou de passe, Codex doit produire une table de couverture des exigences validees avec statut, preuve et commentaire. Si une exigence est `partiel`, `non fait`, `blocked` ou `requires_e2e`, le lot ne peut pas etre declare `done`; il doit rester `repair`, `user_testing` ou `blocked`.
+Regle de completude : la table de couverture est une vue derivee, ligne par ligne, du registre ; elle ne peut pas contredire celui-ci. Un gate rouge interdit les affirmations non qualifiees « termine », « complet », « livre » ou « implemente ». La cloture utilisateur commence par `Demande utilisateur | Etat | Preuve | Reste a faire`.
+
+Regle de reprise : un retour sur une fonction deja validee est classe par defaut `existing_requirement_repair`. Il rouvre le lot d'origine, rattache le retour au `requirement_id`, recharge toutes les exigences ouvertes du lot et de la passe, puis organise une reprise consolidee. Un nouveau lot n'est autorise que pour une demande reellement hors scope avec `new_lot_justification` explicite.
 
 Regle de propagation : quand un lot modifie un symbole ou contrat partage (fonction, signature, type, schema, endpoint, champ DB, config, import/export, composant ou agent runtime), Codex doit annoncer avant mutation les consommateurs et surfaces a risque, obtenir la validation humaine requise selon le risque, puis prouver apres mutation que les references, appels, imports/exports, signatures, tests et smokes proportionnes ont ete verifies. Un lot ne peut pas etre `done` si le Propagation Gate requis n'est pas `pass`.
 
@@ -78,7 +91,9 @@ Validation :
 python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json
 ```
 
-La migration des anciennes tasks vers ce format est un lot separe. Tant que ce lot de migration n'a pas ete execute, ne pas supprimer les fichiers legacy.
+Les contrats 3.0.0 restent lisibles. Ils ne sont pas reecrits en masse. Un registre legacy generique doit toutefois produire un avertissement et etre normalise manuellement avant toute reprise ou cloture multi-lots ; il est interdit d'inventer retrospectivement des intentions utilisateur sans source.
+
+La compatibilite d'upgrade concerne aussi le layout installe. Les distributions officielles SR 2.2.0 a 3.0.0 sont testees par fixtures representatives : les fichiers projet sont preserves, le bloc SR de `AGENTS.md` est realigne et une installation sans passes recoit un registre valide `passes: []`. Une installation unknown/partial ou adaptee localement reste auditee fichier par fichier. Le code retour de l'installateur ne prouve pas a lui seul la reussite : un postcheck rouge impose `repair`.
 
 ## Regle de compatibilite
 

@@ -4,6 +4,8 @@ Voce esta trabalhando em um repositorio ja equipado com a SR Method.
 
 Objetivo: propor ou atualizar `docs/codex/SR_PASSES.yaml` a partir de `docs/codex/SR_LOTS.yaml`, sem modificar codigo da aplicacao.
 
+Priorize lotes `repair`/`reopened`, preserve todos os `validated_request_ids` abertos e consolide reparos do mesmo escopo de produto em uma passagem coerente.
+
 Regras:
 
 - Nao modifique codigo da aplicacao.
@@ -25,7 +27,7 @@ Metodo:
 
 1. Validar `SR_LOTS.yaml`.
 2. Classificar lotes por status e dependencias.
-3. Verificar o Lot Design Evidence Gate: excluir de passagens executaveis qualquer lote `planned`, `validated`, `in_progress` ou `reopened` sem `design_evidence.status: pass` ou `not_applicable` justificado. Um lote `proposed` pode permanecer exploratorio.
+3. Verificar o Lot Design Evidence Gate: excluir de passagens executaveis qualquer lote `planned`, `validated`, `in_progress`, `repair` ou `reopened` sem `design_evidence.status: pass` ou `not_applicable` justificado. Um lote `proposed` pode permanecer exploratorio.
 4. Construir o grafo `depends_on`, `blocked_by`, `impacts`, `impacted_by`.
 5. Propor passagens com ordem, rationale, preflight, validacoes humanas, migracoes/acoes externas, fontes compartilhadas, E2E agrupado e stop conditions.
 6. Criar ou atualizar `SR_PASSES.yaml` somente apos validacao se o projeto impuser validacao estrita.

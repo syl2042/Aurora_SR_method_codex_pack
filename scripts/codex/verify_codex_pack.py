@@ -28,7 +28,7 @@ checks={
     'docs/codex/PROJECT_PROFILE.yaml':['require_sr_bootstrap_on_resume','require_agent_runtime_contract','domain_expertise','knowledge:','context_budget:','lot_naming:','require_sr_contract','require_loop_contract','require_conversation_transition_decision','require_propagation_gate_for_reference_changes','ui_validation:','digest:'],
     'docs/codex/SR_BOOTSTRAP.md':['compact/resume','Memoire de tache','Auto-reprise obligatoire','Reprise SR stricte','Validation humaine stricte','Lot Design Evidence Gate','Propagation Gate'],
     'docs/codex/prompts/01_start_sr_session.md':['find_next_session_prompt.py','NEXT_SESSION_PROMPT.md','Reprise SR stricte','SR Contract 3.1.0','validate_sr_contract.py'],
-    'docs/codex/prompts/05_upgrade_codex_environment.md':['https://github.com/syl2042/Aurora_SR_method_codex_pack','commit source','SR_PACK_SOURCE','upgrade_legacy_unknown','Lot Design Evidence Gate','effet secondaire implicite','sous-phase separee','validate_sr_contract.py','audit_sr_task_contracts.py','Propagation Gate'],
+    'docs/codex/prompts/05_upgrade_codex_environment.md':['https://github.com/syl2042/Aurora_SR_method_codex_pack','commit source','SR_PACK_SOURCE','managed_update','already_current','reconciliation_required','release_status','Lot Design Evidence Gate','effet secondaire implicite','sous-phase separee','validate_sr_contract.py','audit_sr_task_contracts.py','Propagation Gate'],
     'docs/codex/SR_HARNESS_METHOD.md':['SR Development Method','SR_INBOX.yaml','SR_LOTS.yaml','SR_PASSES.yaml','Evidence gate','Fact gate','Backlog Mutation Gate','Lot Design Evidence Gate','Global Impact Gate','Lot Dependency Reconciliation','Pass Planning Gate','Lot Completion Gate','Propagation Gate','UI Test Readiness Gate','UI Visual Evidence Gate','Execution multi-lots par defaut','Visibilite utilisateur obligatoire','Modes de connaissance codebase','Self evaluation gate','Loop Contract','SR Contract 3.1.0','validate_sr_contract.py','validate_lot_contract.py','validate_pass_contract.py'],
     'docs/codex/LOT_EXECUTION_METHOD.md':['Boucle lot','Pass Planning Gate','Lot Design Evidence Gate','Backlog Mutation Gate','Global Impact Gate','Lot Completion Gate','Propagation Gate','ui_validation','Design gate minimal','Context budget gate','Self evaluation gate','tests E2E utilisateur','loop_contract.json','sr_contract.json','validate_lot_contract.py','validate_pass_contract.py'],
     'docs/codex/AI_AGENT_RUNTIME_METHOD.md':['SR Agent Method','output JSON schema','Pydantic Output Contract','invalid_output_policy','SQL libre','Human-in-the-loop'],
@@ -48,7 +48,7 @@ checks={
     'scripts/codex/validate_sr_contract.py':['SR 3.0.0','validated_requests','lot_completion_gate','propagation','ui_validation'],
     'scripts/codex/sr_ui_verify.mjs':['ui_test_readiness_gate','ui_visual_evidence_gate','storageState'],
     'scripts/codex/find_next_session_prompt.py':['NEXT_SESSION_PROMPT.md'],
-    'docs/codex/prompts/06_verify_sr_installation.md':['sr_post_install_check.py','--fix-safe','SR Contract 3.1.0','audit_sr_task_contracts.py','Propagation Gate'],
+    'docs/codex/prompts/06_verify_sr_installation.md':['sr_post_install_check.py','read_only','SR Contract 3.1.0','audit_sr_task_contracts.py','Propagation Gate'],
     'docs/codex/prompts/07_realign_sr_state_after_upgrade.md':['audit SR de reprise','audit_sr_task_contracts.py','sr_contract.json'],
     'docs/codex/prompts/60_review_diff_before_close.md':['SR Contract 3.1.0','validate_sr_contract.py','validated_requests','validate_lot_contract.py','Lot Completion Gate','Propagation Gate'],
 }
@@ -59,9 +59,9 @@ if source_mode:
         'core/SR_HARNESS_METHOD.md':['SR_PASSES.yaml','Backlog Mutation Gate','Lot Design Evidence Gate','Global Impact Gate','Lot Dependency Reconciliation','Pass Planning Gate','Pass Runtime Goal','Goal Length Gate','Lot Completion Gate','Propagation Gate','UI Test Readiness Gate','UI Visual Evidence Gate'],
         'core/LOT_EXECUTION_METHOD.md':['Pass Planning Gate','Pass Runtime Goal','Goal Length Gate','Lot Design Evidence Gate','Backlog Mutation Gate','Global Impact Gate','Lot Completion Gate','Propagation Gate','ui_validation','validate_pass_contract.py','build_pass_runtime_goal.py'],
         'core/V3_UPGRADE_TEST_PLAN.md':['SR 3.0.0','Prompt initial pour projet pilote','validate_sr_contract.py','audit_sr_task_contracts.py'],
-        'prompts/05_upgrade_codex_environment.md':['https://github.com/syl2042/Aurora_SR_method_codex_pack','commit source','SR_PACK_SOURCE','upgrade_legacy_unknown','2.2.0','passes: []','sr_post_install_check.py','Lot Design Evidence Gate','effet secondaire implicite','sous-phase separee','Propagation Gate'],
+        'prompts/05_upgrade_codex_environment.md':['https://github.com/syl2042/Aurora_SR_method_codex_pack','commit source','SR_PACK_SOURCE','managed_update','already_current','reconciliation_required','release_status','2.2.0','passes: []','sr_post_install_check.py','Lot Design Evidence Gate','effet secondaire implicite','sous-phase separee','Propagation Gate'],
         'scripts/codex/audit_sr_task_contracts.py':['LEGACY_LOT_COMPLETION_GATE_CUTOFF','legacy_compat'],
-        'scripts/install_codex_pack.py':['default','docs/codex/SR_BOOTSTRAP.md','Fact Gate','Lot Completion Gate','Tests E2E utilisateur','validate_lot_contract.py','Lot Design Evidence Gate','Propagation Gate'],
+        'scripts/install_codex_pack.py':['default','core/AGENTS.template.md','agents_sr_block','build_plan','apply_plan','restore'],
         'blueprints/sr_passes.template.yaml':['passes: []'],
         'scripts/codex/fixtures/install_upgrade/legacy_layouts.json':['2.2.0','2.3.0','2.3.5','2.4.1','3.0.0','unknown_partial'],
         'scripts/codex/audit_codex_pack.py':['TARGET_VERSION'],
@@ -77,8 +77,10 @@ if source_mode:
 checks['CHANGELOG.md' if source_mode else 'docs/codex/CHANGELOG.md']=['[Unreleased]','[3.6.0]','[3.0.4]']
 checks['scripts/codex/validate_release_docs.py']=['PUBLIC_PROMPTS','RELEASE_HISTORY','release_status']
 errors=[]
+from sr_route_check import check, routed_text
+errors.extend(check(Path(".")))
 for path, markers in checks.items():
-    txt=Path(path).read_text(encoding='utf-8')
+    txt=routed_text(Path("."), path)
     for marker in markers:
         if marker not in txt:
             errors.append(f'{path}: missing marker {marker!r}')

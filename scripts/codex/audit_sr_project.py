@@ -188,7 +188,11 @@ def main() -> int:
     errors = []
     warnings = []
     errors.extend(check_markers(profile, REQUIRED_PROFILE_MARKERS, "project_profile"))
-    errors.extend(check_markers(agents, ["SR Bootstrap obligatoire", "Context budget gate", "Self Evaluation Gate"], "agents"))
+    from sr_route_check import check, routed_text
+    errors.extend(check(root))
+    agent_rules = routed_text(root, str(agents.relative_to(root))) if agents.exists() else ""
+    for marker in ["SR Bootstrap obligatoire", "Context budget gate", "Self Evaluation Gate"]:
+        if marker not in agent_rules: errors.append(f"agents routed rules missing {marker}")
     errors.extend(check_markers(repomap, ["CODEBASE_MAP"], "repomap"))
     ui_errors, ui_warnings = check_ui_validation(root, profile)
     errors.extend(f"ui_validation: {err}" for err in ui_errors)

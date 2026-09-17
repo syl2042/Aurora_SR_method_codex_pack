@@ -1,5 +1,24 @@
 # Aurora SR Method Codex Pack
 
+## SR 4.0.0 — published release
+
+Target source: explicitly select `SR_PACK_SOURCE`, either an identified published release or the authorized local SR 4.0.0 candidate. Read `core/SR_PACK_VERSION.json` (`version`, `release_status`); record `source_commit`, Git state and, for a modified clone, a content fingerprint including the untracked source files used. Do not present an `unreleased` candidate as a release. Do not substitute a clone of the latest published release for the candidate; if the requested source is unavailable, stop and clarify before installing.
+
+For this SR 4.0.0 target, the source must declare `version: 4.0.0`. If no 4.0.0 release is published, use only the authorized local candidate or report its absence; never silently install another version.
+
+Paths: fresh installation `00 -> 06`; existing installation `05 -> 06 -> 07`. Prompt `06` only checks; `07` proposes realignment and waits for `je valide` before changing memory. Neither path authorizes application development.
+
+SR 4 loads procedures on demand through `SR_BOOTSTRAP.md` and `SR_ROUTES.json`. Gates, HITL, open requirements and contract schemas remain preserved. The pack version does not force conversion of old contracts.
+
+### First installation
+Inspect local rules; obtain `je valide` for the scope; preview, apply `--write`, then verify. Existing project files are preserved or explicitly merged. Application code is outside this operation.
+
+### Version-agnostic upgrade
+Use `--upgrade` after inspecting actual files. The previous release number is informational, never a prerequisite. Old, unversioned, partial and mixed installations are classified by content. Unknown/customized pack files block replacement: do not delete them to bypass the conflict. Review and authorize reconciliation. Preserve old contracts, open lots, task memories, handoffs and domain skills.
+
+Preview is read-only unless `--plan-out` is explicitly requested. Saved plans contain file contents; keep them local. `--apply-plan` rejects changes made after preview. Transactions back up changed files; `--restore` refuses to overwrite later edits. Never force an upgrade with `--write`. Writing the target version is not installation success: the postcheck must pass.
+
+
 [![GitHub stars](https://img.shields.io/github/stars/syl2042/Aurora_SR_method_codex_pack?style=social)](https://github.com/syl2042/Aurora_SR_method_codex_pack/stargazers)
 [![Forks](https://img.shields.io/github/forks/syl2042/Aurora_SR_method_codex_pack?style=social)](https://github.com/syl2042/Aurora_SR_method_codex_pack/forks)
 [![Issues](https://img.shields.io/github/issues/syl2042/Aurora_SR_method_codex_pack)](https://github.com/syl2042/Aurora_SR_method_codex_pack/issues)
@@ -152,9 +171,9 @@ Windows/MobaXterm launcher scripts are available in [tools/sr-cockpit/scripts/wi
 
 ---
 
-## Target release 3.7.0
+## Target release 4.0.0
 
-Target version `3.7.0` prevents validated requests from disappearing behind a global status. SR Contract 3.1.0 separates `implementation_status` from `evidence_status`, derives each requirement decision and the global Completion Gate, requires open-requirement inheritance on resume, and reserves `user_testing` for technically complete implementations.
+Target version `4.0.0` prevents validated requests from disappearing behind a global status. SR Contract 3.1.0 separates `implementation_status` from `evidence_status`, derives each requirement decision and the global Completion Gate, requires open-requirement inheritance on resume, and reserves `user_testing` for technically complete implementations.
 
 User feedback about an existing function now reopens the original lot by default and reloads its complete checklist. Creating a new lot requires evidence that the request is outside the existing scope. Contracts 3.0.0 remain readable and are not mass-rewritten; overly generic legacy registries receive a manual-normalization warning.
 

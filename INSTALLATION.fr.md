@@ -1,5 +1,68 @@
 # Installation
 
+## SR 4.0.0 — version publiee
+
+Source cible : choisir explicitement `SR_PACK_SOURCE`, soit une version publiee identifiee, soit le candidat local SR 4.0.0 autorise. Lire `core/SR_PACK_VERSION.json` (`version`, `release_status`) et noter `source_commit`, l'etat Git et, si le clone est modifie, une empreinte du contenu source incluant les fichiers non suivis utilises. Un candidat `unreleased` ne doit pas etre presente comme une release. Ne pas remplacer une source candidate par un clone de la derniere version publiee ; si la source demandee manque, s'arreter et clarifier avant installation.
+
+Pour cette cible SR 4.0.0, la source doit annoncer `version: 4.0.0`. Si aucune release 4.0.0 n’est publiee, utiliser uniquement le candidat local autorise ou signaler son absence ; ne pas installer silencieusement une autre version.
+
+Parcours : installation neuve `00 -> 06` ; installation existante `05 -> 06 -> 07`. Le prompt `06` controle seulement ; `07` propose le realignement puis attend `je valide` avant modification de la memoire. Aucun developpement applicatif n'est autorise par ces parcours.
+
+SR 4 charge les procedures selon la tache via `SR_BOOTSTRAP.md` et `SR_ROUTES.json`. Les gates, le HITL, les exigences ouvertes et les schemas de contrats restent preserves. Le numero du pack ne force aucune conversion des anciens contrats.
+
+### Premiere installation
+Inspecter les regles locales; obtenir `je valide` pour le perimetre; previsualiser, appliquer `--write`, puis verifier. Les fichiers projet existants sont conserves ou fusionnes explicitement. Aucun code applicatif ne change.
+
+### Mise a jour agnostique
+Utiliser `--upgrade` apres audit des fichiers reels. La version precedente est informative, jamais un pre-requis : installations anciennes, sans version, partielles ou melangees sont examinees par contenu. Un fichier pack inconnu/personnalise bloque son remplacement; ne pas le supprimer pour forcer le passage. Comparer et faire valider sa reconciliation. Les anciens contrats, lots ouverts, memoires, handoffs et skills metier restent preserves.
+
+La previsualisation est non mutative sauf `--plan-out` explicitement demande. Un plan enregistre contient les contenus des fichiers : le conserver localement. `--apply-plan` refuse les changements intervenus depuis le diagnostic. Une transaction sauvegarde les fichiers modifies; `--restore` refuse d'ecraser une modification ulterieure. Ne jamais utiliser `--write` pour forcer un upgrade. Un numero de version cible ecrit ne prouve pas la reussite : le postcheck doit passer.
+
+Previsualiser avec la commande ci-dessous avant validation ; apres `je valide`, choisir uniquement le mode correspondant au parcours. `--plan-out` ecrit un plan local et exige une autorisation ; `--apply-plan` refuse un diagnostic perime. `--restore` est une operation distincte, sur le journal exact de la transaction, et refuse les modifications ulterieures. Ne pas contourner un conflit en supprimant un fichier.
+
+Previsualisation seule:
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --json
+```
+
+Installation neuve apres validation:
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --write
+```
+
+Installation existante apres validation:
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --upgrade
+```
+
+Verification seule:
+
+```bash
+python3 "$SR_TARGET/scripts/codex/sr_post_install_check.py" --root "$SR_TARGET" --json
+```
+
+Plan local optionnel, apres autorisation:
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --plan-out "$SR_PLAN_FILE"
+```
+
+Application du plan valide, alternative aux commandes directes:
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --apply-plan "$SR_PLAN_FILE"
+```
+
+Restauration distincte, uniquement si necessaire et autorisee:
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --restore "$SR_JOURNAL_FILE"
+```
+
+
 [English](INSTALLATION.md) |
 [Francais](INSTALLATION.fr.md) |
 [Deutsch](INSTALLATION.de.md) |
@@ -12,7 +75,7 @@ Le parcours recommande est **prompt Codex d'abord**. Les scripts Python sont des
 
 | Etat de la cible | Prompt | Mode installateur | Comportement requis |
 |---|---|---|---|
-| Aucun marqueur SR | `00_install_codex_environment` | `--write` | Installer directement SR 3.7.0 |
+| Aucun marqueur SR | `00_install_codex_environment` | `--write` | Installer directement SR 4.0.0 |
 | Marqueur SR existant, ancien ou partiel | `05_upgrade_codex_environment` | `--upgrade` | Auditer puis fusionner additivement |
 | Plusieurs repositories de versions potentiellement differentes | `05_upgrade_codex_environment` | un `--upgrade` par repository | Produire une matrice de version par cible |
 
@@ -20,7 +83,7 @@ Ne jamais supposer que des dossiers voisins utilisent la meme version SR. Lire p
 
 ## Installer dans un projet cible
 
-1. Cloner ce repository.
+1. Selectionner la source locale verifiee selon la section Source cible.
 2. Ouvrir Codex dans le projet cible.
 3. Coller [prompts/fr/00_install_codex_environment.md](prompts/fr/00_install_codex_environment.md).
 4. Laisser Codex installer, verifier et produire le rapport.
@@ -35,17 +98,13 @@ Pour un projet vierge ou jamais equipe SR, Codex doit traiter cette etape comme 
 - lancer les scripts de verification ;
 - stopper avec un rapport et les prochains prompts recommandes.
 
-La cible d'une installation neuve est le pack SR 3.7.0 : `sr_contract` 3.1.0, `loop_contract` 1.1, `SR_LOTS` 0.4 et `SR_PASSES` 0.2. Le contrat SR separe `implementation_status` de `evidence_status`. L'installation ne doit inventer aucune exigence produit validee, aucun lot valide et aucune passe executable.
+La cible d'une installation neuve est le pack SR 4.0.0 : `sr_contract` 3.1.0, `loop_contract` 1.1, `SR_LOTS` 0.4 et `SR_PASSES` 0.2. Le contrat SR separe `implementation_status` de `evidence_status`. L'installation ne doit inventer aucune exigence produit validee, aucun lot valide et aucune passe executable.
 
 Fallback technique :
 
-Sans `--write` ni `--upgrade`, l'installateur effectue une previsualisation en lecture seule. Les deux modes de mutation sont mutuellement exclusifs.
+Sans option de mutation et sans `--plan-out`, l’installateur effectue une previsualisation en lecture seule. `--write`, `--upgrade`, `--apply-plan` et `--restore` sont mutuellement exclusifs.
 
-```bash
-export SR_PACK_SOURCE="$HOME/aurora-sr-method-pack"
-git clone https://github.com/syl2042/Aurora_SR_method_codex_pack.git "$SR_PACK_SOURCE"
-python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target /path/to/project --profile default --write
-```
+Utiliser le clone `SR_PACK_SOURCE` deja selectionne et verifie. Pour une version publiee, cloner la source officielle si necessaire puis selectionner la reference publiee validee ; le clone seul ne selectionne pas SR 4 candidate. Le candidat exige le contenu local explicitement autorise. Definir `SR_TARGET` comme chemin du projet vise avant les commandes.
 
 Les nouvelles installations incluent `docs/codex/SR_PASSES.yaml`. Les passes SR regroupent plusieurs lots dans une execution bornee avec ordre de dependances, preflight commun, validations humaines et tests E2E groupes. Les lots restent l'unite atomique dans `SR_LOTS.yaml`.
 

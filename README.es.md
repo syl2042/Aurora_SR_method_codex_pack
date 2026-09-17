@@ -1,5 +1,24 @@
 # Aurora SR Method Codex Pack
 
+## SR 4.0.0 — version publicada
+
+Fuente objetivo: seleccionar explicitamente `SR_PACK_SOURCE`, una version publicada identificada o el candidato local SR 4.0.0 autorizado. Leer `core/SR_PACK_VERSION.json` (`version`, `release_status`); registrar `source_commit`, estado Git y, si hay cambios locales, una huella del contenido que incluya los archivos fuente no seguidos utilizados. No presentar un candidato `unreleased` como release. No sustituir el candidato por un clon de la ultima version publicada; si falta la fuente solicitada, detenerse y aclarar antes de instalar.
+
+Para este objetivo SR 4.0.0, la fuente debe declarar `version: 4.0.0`. Si no hay release 4.0.0 publicada, usar solo el candidato local autorizado o informar su ausencia; nunca instalar otra version silenciosamente.
+
+Recorridos: instalacion nueva `00 -> 06`; instalacion existente `05 -> 06 -> 07`. El prompt `06` solo verifica; `07` propone el realineamiento y espera `je valide` antes de modificar la memoria. Ningun recorrido autoriza desarrollo aplicativo.
+
+SR 4 carga procedimientos segun la tarea mediante `SR_BOOTSTRAP.md` y `SR_ROUTES.json`. Conserva gates, HITL, requisitos abiertos y esquemas de contratos. La version del paquete no obliga a convertir contratos antiguos.
+
+### Primera instalacion
+Revisar reglas locales; obtener `je valide` para el alcance; previsualizar, aplicar `--write` y verificar. Conservar o fusionar explicitamente los archivos del proyecto. No modificar codigo de la aplicacion.
+
+### Actualizacion independiente de version
+Usar `--upgrade` tras revisar los archivos reales. La version anterior es informativa, nunca obligatoria. Clasificar por contenido instalaciones antiguas, sin version, parciales o mixtas. Un archivo desconocido/personalizado bloquea su sustitucion: no borrarlo para evitar el conflicto. Revisar y autorizar la conciliacion. Conservar contratos, lotes abiertos, memoria, handoffs y skills de dominio.
+
+La previsualizacion solo escribe con `--plan-out` solicitado. Los planes contienen archivos y deben permanecer locales. `--apply-plan` rechaza cambios posteriores al diagnostico. La transaccion guarda copias; `--restore` no sobrescribe cambios posteriores. No forzar upgrades con `--write`. La version escrita no demuestra exito: debe pasar el postcheck.
+
+
 [![GitHub stars](https://img.shields.io/github/stars/syl2042/Aurora_SR_method_codex_pack?style=social)](https://github.com/syl2042/Aurora_SR_method_codex_pack/stargazers)
 [![Forks](https://img.shields.io/github/forks/syl2042/Aurora_SR_method_codex_pack?style=social)](https://github.com/syl2042/Aurora_SR_method_codex_pack/forks)
 [![Issues](https://img.shields.io/github/issues/syl2042/Aurora_SR_method_codex_pack)](https://github.com/syl2042/Aurora_SR_method_codex_pack/issues)
@@ -165,9 +184,9 @@ Así, SR sigue siendo agnóstica al proyecto y evita que impactos transversales 
 
 ---
 
-## Release objetivo 3.7.0
+## Release objetivo 4.0.0
 
-La version objetivo `3.7.0` separa `implementation_status` de `evidence_status`, deriva decisiones y Completion Gate, y reabre por defecto el lote original cuando hay feedback. Los contratos 3.0.0 siguen legibles y no se reescriben en masa. El historial canonico se mantiene en [CHANGELOG.md](CHANGELOG.md).
+La version objetivo `4.0.0` separa `implementation_status` de `evidence_status`, deriva decisiones y Completion Gate, y reabre por defecto el lote original cuando hay feedback. Los contratos 3.0.0 siguen legibles y no se reescriben en masa. El historial canonico se mantiene en [CHANGELOG.md](CHANGELOG.md).
 
 Las instalaciones nuevas y upgrades sin pasadas de producto usan un registro valido `passes: []`. Las regresiones cubren layouts oficiales representativos SR 2.2.0, 2.3.0, 2.3.5, 2.4.1 y 3.0.0; unknown o adaptaciones locales requieren auditoria por archivo. El exito del instalador no basta: el destino sigue en `repair` hasta que `sr_post_install_check.py` este verde.
 

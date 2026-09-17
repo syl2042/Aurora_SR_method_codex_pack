@@ -1,5 +1,7 @@
 # Verifier l'installation SR
 
+Mode `read_only` : aucune modification de fichier, correction automatique, installation ou restauration. Rapporter les ecarts ; toute correction releve d'un perimetre distinct a valider par `je valide`.
+
 Tu travailles dans un repo equipe de la SR Method.
 
 Objectif : verifier que l'installation ou l'upgrade SR est complet, coherent et utilisable avant de reprendre le developpement.
@@ -16,22 +18,7 @@ Regles :
 - Ne renomme pas les lots legacy.
 - Ne supprime pas de consignes projet non balisees sans validation.
 
-Sources a lire :
-
-1. `AGENTS.md`
-2. `docs/codex/PROJECT_PROFILE.yaml`
-3. `docs/codex/SKILL_MAP.md`
-4. `docs/codex/SR_PACK_VERSION.json`
-5. `docs/codex/SR_LOTS.yaml`
-6. `docs/codex/SR_PASSES.yaml` si present
-7. `docs/codex/SR_INBOX.yaml`
-8. `docs/codex/SR_BOOTSTRAP.md`
-9. `docs/codex/SR_HARNESS_METHOD.md`
-10. `docs/codex/LOT_EXECUTION_METHOD.md`
-11. `docs/codex/SR_METHOD.md`
-12. `docs/codex/SR_DEVELOPMENT_METHOD.md`
-13. `docs/codex/SR_AGENT_METHOD.md`
-14. `scripts/codex/sr_ui_verify.mjs`
+Sources : lire `AGENTS.md`, `docs/codex/SR_BOOTSTRAP.md`, le profil et les marqueurs installes. Utiliser les audits ci-dessous pour verifier les contrats, lots, passes, skills et outils. Charger les procedures specialisees uniquement pour comprendre un ecart ou satisfaire un gate applicable ; ne pas relire toute la methode.
 
 Etapes :
 
@@ -91,35 +78,9 @@ node scripts/codex/sr_ui_verify.mjs --help
 
 Pour un projet sans `ui_validation`, classer le resultat en warning legacy. Pour un projet authentifie, ne pas demander de credentials pendant la verification d'installation ; documenter simplement que `storage_state` ou `setup_command` devra etre configure avant un lot UI.
 
-2. Analyser le resultat :
-   - `errors` : bloquant ;
-   - `warnings` : a expliquer ou corriger si mecanique ;
-   - `fixed` : uniquement si `--fix-safe` a ete lance.
-
-3. Si les erreurs sont mecaniques et non applicatives, proposer puis lancer :
-
-```bash
-python3 scripts/codex/sr_post_install_check.py --root . --fix-safe --json
-```
-
-4. Relancer ensuite :
-
-```bash
-python3 scripts/codex/sr_post_install_check.py --root . --json
-```
-
-5. Si des warnings restent, classer :
-   - acceptable legacy ;
-   - a documenter ;
-   - a corriger avec validation ;
-   - bloquant.
-   Les anciennes task memories sans `propagation_gate` sont acceptables legacy si elles precedent l'upgrade. Les nouveaux templates sans Propagation Gate sont bloquants.
-
-Corrections autorisees en `--fix-safe` :
-
-- creer `agents/openai.yaml` manquant dans une skill locale si `SKILL.md` existe ;
-- ajouter des champs SR manquants dans `PROJECT_PROFILE.yaml` sans ecraser l'existant ;
-- creer un rapport dans `docs/codex/tasks/YYYY-MM-DD_sr-post-install-check/`.
+2. Classer chaque erreur comme bloquante et expliquer les warnings : legacy compatible, dette documentaire, correction a valider ou blocage.
+3. Rapporter les corrections proposees sans les appliquer. Toute reparation exige un perimetre distinct valide par `je valide`, puis une nouvelle verification.
+4. Les anciennes task memories sans `propagation_gate` sont acceptables legacy si elles precedent l'upgrade. Les nouveaux templates sans Propagation Gate sont bloquants.
 
 Corrections interdites sans validation :
 
@@ -135,9 +96,9 @@ Sortie attendue :
 
 - version SR installee ;
 - resultat du post-install check ;
-- corrections appliquees, le cas echeant ;
+- corrections proposees, aucune appliquee ;
 - warnings restants ;
-- dernier `NEXT_SESSION_PROMPT.md` detecte ou absent ;
+- `NEXT_SESSION_PROMPT.md` selectionne ou absent ; si `ambiguous`, demander un chemin explicite via `--prompt`, sans choisir `latest` silencieusement ;
 - presence et validation du Loop Contract, incluant `conversation_transition` et `resume_protocol` ;
 - presence et validation du SR Contract 3.1.0, ou compatibilite explicite 3.0.0, incluant un registre `validated_requests` granulaire ;
 - resultat de `validate_lot_contract.py --file docs/codex/SR_LOTS.yaml` ;
@@ -145,3 +106,8 @@ Sortie attendue :
 - resultat de `audit_sr_task_contracts.py`, avec contrats manquants acceptables en legacy, contrats invalides et migrations eventuelles a valider ;
 - points bloquants ;
 - prochaine etape recommandee : reprise normale, realignement SR, ou correction manuelle.
+
+## SR 4
+Voir le parcours contenu/fichiers de `05_upgrade_codex_environment.md`; aucune version precedente requise, preservation des adaptations, sauvegarde et restauration controlee.
+
+Parcours : installation neuve `00 -> 06` ; installation existante `05 -> 06 -> 07`. Le prompt `06` controle seulement ; `07` propose le realignement puis attend `je valide` avant modification de la memoire. Aucun developpement applicatif n'est autorise par ces parcours.

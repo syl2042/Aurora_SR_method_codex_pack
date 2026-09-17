@@ -22,18 +22,7 @@ Utiliser si :
 
 ## Sources a lire
 
-Lire uniquement ce qui est utile :
-
-1. `docs/codex/SR_HARNESS_METHOD.md`
-2. `docs/codex/LOT_EXECUTION_METHOD.md`
-3. `docs/CURRENT_STATE.md`
-4. `docs/codex/SR_LOTS.yaml` si present
-5. `docs/codex/SR_PASSES.yaml` si present
-6. `docs/codex/SR_INBOX.yaml` si present
-7. `docs/codex/SR_CONTEXT_PACK.md` si present
-8. `docs/codex/SKILL_MAP.md`
-9. RepoMap et sources du lot courant
-10. Nexus KG/context pack si `PROJECT_PROFILE.yaml` active le mode `nexus_kg`
+Appliquer SR_BOOTSTRAP et ses routes : charger la procedure du gate applicable, le lot courant, ses dependances et les lots impactes. Elargir selon Global Impact Gate. Les index HARNESS/LOT ne sont pas deux manuels a charger integralement. La seule presence d'un backlog ne justifie pas de lire tout son historique.
 
 ## Classification obligatoire
 
@@ -57,7 +46,7 @@ Un retour sur une fonction validee est par defaut `existing_requirement_repair`,
 5. Appliquer `evidence_gate` avant plan ou faisabilite.
 6. Appliquer `knowledge_gate` : RepoMap/KG -> fichiers candidats -> lecture code reel.
 7. Selectionner les skills utiles :
-   - `aurora-planning-with-files`
+   - `aurora-planning-with-files` uniquement si le projet legacy l’exige
    - `aurora-diagnose` si bug
    - `aurora-tdd` si test automatisable
    - `aurora-architecture-check` si structurant

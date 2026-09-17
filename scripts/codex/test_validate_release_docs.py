@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import shutil
 import sys
 import tempfile
 import unittest
@@ -16,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 LANGUAGES = ("en", "fr", "de", "es", "pt")
 
 
-def materialize_minimal_source(root: Path, *, manifest_version: str = "3.7.0") -> None:
+def materialize_minimal_source(root: Path, *, manifest_version: str = "4.0.0") -> None:
     (root / "core").mkdir(parents=True)
     (root / "MANIFEST.json").write_text(
         json.dumps({"version": manifest_version, "files": ["CHANGELOG.md"]}),
@@ -25,7 +26,7 @@ def materialize_minimal_source(root: Path, *, manifest_version: str = "3.7.0") -
     (root / "core/SR_PACK_VERSION.json").write_text(
         json.dumps(
             {
-                "version": "3.7.0",
+                "version": "4.0.0",
                 "release_status": "unreleased",
                 "released_at": None,
             }
@@ -34,16 +35,16 @@ def materialize_minimal_source(root: Path, *, manifest_version: str = "3.7.0") -
     )
     history = "\n".join(f"## [{version}] - 2026-01-01" for version in RELEASE_HISTORY)
     (root / "CHANGELOG.md").write_text(
-        "# Changelog\n\n## [Unreleased]\n\nTarget version: `3.7.0`.\n\n" + history + "\n",
+        "# Changelog\n\n## [Unreleased]\n\nTarget version: `4.0.0`.\n\n" + history + "\n",
         encoding="utf-8",
     )
     for language in LANGUAGES:
         (root / f"README.{language}.md").write_text(
-            f"SR 3.7.0. [Changelog](CHANGELOG.md). prompts/{language}/07_realign_sr_state_after_upgrade.md\n",
+            f"SR 4.0.0. [Changelog](CHANGELOG.md). prompts/{language}/07_realign_sr_state_after_upgrade.md\n",
             encoding="utf-8",
         )
         (root / f"INSTALLATION.{language}.md").write_text(
-            "SR 3.7.0 SR_LOTS.yaml SR_PASSES.yaml 09_define_sr_lots_from_scope.md "
+            "SR 4.0.0 SR_LOTS.yaml SR_PASSES.yaml 09_define_sr_lots_from_scope.md "
             "08_define_sr_passes_from_lots.md build_pass_runtime_goal.py\n",
             encoding="utf-8",
         )
@@ -51,6 +52,8 @@ def materialize_minimal_source(root: Path, *, manifest_version: str = "3.7.0") -
             path = root / "prompts" / language / prompt
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(" ".join(markers), encoding="utf-8")
+    for prompt, markers in PUBLIC_PROMPTS.items():
+        (root / "prompts" / prompt).write_text(" ".join(markers), encoding="utf-8")
     (root / "README.md").write_text((root / "README.en.md").read_text(encoding="utf-8"), encoding="utf-8")
     (root / "INSTALLATION.md").write_text(
         (root / "INSTALLATION.en.md").read_text(encoding="utf-8"), encoding="utf-8"
@@ -58,6 +61,59 @@ def materialize_minimal_source(root: Path, *, manifest_version: str = "3.7.0") -
 
 
 class ReleaseDocumentationTests(unittest.TestCase):
+    def test_install_prompt_contradictions_are_rejected(self):
+        cases = (
+            ("00_install_codex_environment.md", "# Install SR 3.7\n", "stale SR heading"),
+            ("05_upgrade_codex_environment.md", "upgrade_minor_3x", "version-based upgrade routing"),
+            ("06_verify_sr_installation.md", "Run installer --upgrade", "mutative option in read-only prompt"),
+            ("06_verify_sr_installation.md", "Run postcheck --fix-safe", "mutative option in read-only prompt"),
+            ("07_realign_sr_state_after_upgrade.md", "", "missing marker 'selected'"),
+        )
+        for language in LANGUAGES:
+            for name, injected, expected in cases:
+                with self.subTest(language=language, prompt=name, injected=injected), tempfile.TemporaryDirectory() as tmp:
+                    root = Path(tmp)
+                    materialize_minimal_source(root)
+                    path = root / "prompts" / language / name
+                    text = path.read_text(encoding="utf-8")
+                    if name.startswith("07"):
+                        text = text.replace("selected", "missing_selection")
+                    path.write_text(injected + "\n" + text, encoding="utf-8")
+                    errors = audit(root)
+                    self.assertTrue(any(expected in error for error in errors), errors)
+
+    def test_install_source_provenance_is_required(self):
+        for name in ("00_install_codex_environment.md", "05_upgrade_codex_environment.md"):
+            with self.subTest(prompt=name), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                materialize_minimal_source(root)
+                path = root / "prompts/fr" / name
+                path.write_text(path.read_text(encoding="utf-8").replace("release_status", "missing_status"), encoding="utf-8")
+                self.assertTrue(any("missing marker 'release_status'" in error for error in audit(root)))
+
+    def test_root_public_prompt_is_checked(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            materialize_minimal_source(root)
+            path = root / "prompts/06_verify_sr_installation.md"
+            path.write_text(path.read_text(encoding="utf-8") + "\nRun --fix-safe\n", encoding="utf-8")
+            self.assertTrue(any("mutative option in read-only prompt" in error for error in audit(root)))
+
+    def test_installed_layout_checks_the_same_prompt_policy(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            materialize_minimal_source(root)
+            installed = root / "installed"
+            codex = installed / "docs/codex"
+            codex.mkdir(parents=True)
+            shutil.copy2(root / "core/SR_PACK_VERSION.json", codex / "SR_PACK_VERSION.json")
+            shutil.copy2(root / "CHANGELOG.md", codex / "CHANGELOG.md")
+            shutil.copytree(root / "prompts", codex / "prompts")
+            self.assertEqual([], audit(installed))
+            path = codex / "prompts/pt/05_upgrade_codex_environment.md"
+            path.write_text(path.read_text(encoding="utf-8") + "\nupgrade_standard_235_plus\n", encoding="utf-8")
+            self.assertTrue(any("version-based upgrade routing" in error for error in audit(installed)))
+
     def test_current_source_pack_is_coherent(self):
         self.assertEqual([], audit(ROOT))
 
@@ -99,8 +155,8 @@ class ReleaseDocumentationTests(unittest.TestCase):
             changelog = root / "CHANGELOG.md"
             changelog.write_text(
                 changelog.read_text(encoding="utf-8").replace(
-                    "Target version: `3.7.0`.",
-                    "## [3.7.0] - 2026-08-24",
+                    "Target version: `4.0.0`.",
+                    "## [4.0.0] - 2026-08-24",
                 ),
                 encoding="utf-8",
             )

@@ -8,6 +8,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 
 No unreleased changes yet.
 
+## [4.0.0] - 2026-09-17
+
+Existing SR Contract 3.1.0 / legacy 3.0.0 and Loop Contract 1.1 remain supported.
+
+- Progressive context routing and canonical procedures; preserved authorization, evidence and completion guarantees.
+- Content-based install/upgrade preview, custom-file conflict detection, transaction journal and guarded restoration.
+- Explicit resume selection, compact diagnostics, read-only derived coverage, separate telemetry semantics.
+- Fresh-install and version-agnostic upgrade documentation in five languages.
+- Installation prompts validated in five languages, verification-only checks, and progressive post-upgrade realignment.
+- No application rollout or changes to context stop thresholds.
+
+
 ## [3.7.0] - 2026-08-24
 
 ### Added

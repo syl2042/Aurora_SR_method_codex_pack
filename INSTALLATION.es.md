@@ -1,5 +1,68 @@
 # Instalación
 
+## SR 4.0.0 — version publicada
+
+Fuente objetivo: seleccionar explicitamente `SR_PACK_SOURCE`, una version publicada identificada o el candidato local SR 4.0.0 autorizado. Leer `core/SR_PACK_VERSION.json` (`version`, `release_status`); registrar `source_commit`, estado Git y, si hay cambios locales, una huella del contenido que incluya los archivos fuente no seguidos utilizados. No presentar un candidato `unreleased` como release. No sustituir el candidato por un clon de la ultima version publicada; si falta la fuente solicitada, detenerse y aclarar antes de instalar.
+
+Para este objetivo SR 4.0.0, la fuente debe declarar `version: 4.0.0`. Si no hay release 4.0.0 publicada, usar solo el candidato local autorizado o informar su ausencia; nunca instalar otra version silenciosamente.
+
+Recorridos: instalacion nueva `00 -> 06`; instalacion existente `05 -> 06 -> 07`. El prompt `06` solo verifica; `07` propone el realineamiento y espera `je valide` antes de modificar la memoria. Ningun recorrido autoriza desarrollo aplicativo.
+
+SR 4 carga procedimientos segun la tarea mediante `SR_BOOTSTRAP.md` y `SR_ROUTES.json`. Conserva gates, HITL, requisitos abiertos y esquemas de contratos. La version del paquete no obliga a convertir contratos antiguos.
+
+### Primera instalacion
+Revisar reglas locales; obtener `je valide` para el alcance; previsualizar, aplicar `--write` y verificar. Conservar o fusionar explicitamente los archivos del proyecto. No modificar codigo de la aplicacion.
+
+### Actualizacion independiente de version
+Usar `--upgrade` tras revisar los archivos reales. La version anterior es informativa, nunca obligatoria. Clasificar por contenido instalaciones antiguas, sin version, parciales o mixtas. Un archivo desconocido/personalizado bloquea su sustitucion: no borrarlo para evitar el conflicto. Revisar y autorizar la conciliacion. Conservar contratos, lotes abiertos, memoria, handoffs y skills de dominio.
+
+La previsualizacion solo escribe con `--plan-out` solicitado. Los planes contienen archivos y deben permanecer locales. `--apply-plan` rechaza cambios posteriores al diagnostico. La transaccion guarda copias; `--restore` no sobrescribe cambios posteriores. No forzar upgrades con `--write`. La version escrita no demuestra exito: debe pasar el postcheck.
+
+Previsualizar con el comando siguiente antes de validar; despues de `je valide`, elegir solo el modo correspondiente. `--plan-out` escribe un plan local y requiere autorizacion; `--apply-plan` rechaza diagnosticos obsoletos. `--restore` es una operacion separada con el diario exacto de la transaccion y rechaza cambios posteriores. No borrar archivos para eludir conflictos.
+
+Solo previsualizacion:
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --json
+```
+
+Instalacion nueva tras validacion:
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --write
+```
+
+Instalacion existente tras validacion:
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --upgrade
+```
+
+Solo verificacion:
+
+```bash
+python3 "$SR_TARGET/scripts/codex/sr_post_install_check.py" --root "$SR_TARGET" --json
+```
+
+Plan local opcional tras autorizacion:
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --plan-out "$SR_PLAN_FILE"
+```
+
+Aplicar el plan validado, alternativa a comandos directos:
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --apply-plan "$SR_PLAN_FILE"
+```
+
+Restauracion separada, solo si es necesaria y autorizada:
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --restore "$SR_JOURNAL_FILE"
+```
+
+
 [English](INSTALLATION.md) |
 [Francais](INSTALLATION.fr.md) |
 [Deutsch](INSTALLATION.de.md) |
@@ -10,7 +73,7 @@ El flujo recomendado es **prompt Codex primero**. Los scripts Python son herrami
 
 ## Elegir primero el recorrido correcto
 
-- Sin marcador SR: prompt `00`, instalar SR 3.7.0 con `--write`.
+- Sin marcador SR: prompt `00`, instalar SR 4.0.0 con `--write`.
 - Marcador SR existente, antiguo o parcial: prompt `05`, auditar y actualizar de forma aditiva con `--upgrade`.
 - Varios repositorios: leer versión y marcadores de cada uno, crear una matriz por destino y ejecutar un `--upgrade` por repositorio. Nunca asumir una versión común.
 
@@ -18,20 +81,16 @@ La instalación nueva usa `sr_contract` 3.1.0, `loop_contract` 1.1, `SR_LOTS` 0.
 
 ## Instalar en un proyecto destino
 
-1. Clona este repositorio.
+1. Seleccionar la fuente local verificada segun Fuente objetivo.
 2. Abre Codex en el proyecto destino.
 3. Pega [prompts/es/00_install_codex_environment.md](prompts/es/00_install_codex_environment.md).
 4. Deja que Codex instale, verifique y reporte.
 
 Fallback técnico:
 
-Sin `--write` ni `--upgrade`, el instalador solo muestra una vista previa de lectura. Los dos modos de mutación son mutuamente excluyentes.
+Sin opcion de mutacion ni `--plan-out`, el instalador ofrece una previsualizacion de solo lectura. `--write`, `--upgrade`, `--apply-plan` y `--restore` son mutuamente excluyentes.
 
-```bash
-export SR_PACK_SOURCE="$HOME/aurora-sr-method-pack"
-git clone https://github.com/syl2042/Aurora_SR_method_codex_pack.git "$SR_PACK_SOURCE"
-python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target /path/to/project --profile default --write
-```
+Usar el clon `SR_PACK_SOURCE` ya seleccionado y verificado. Para una version publicada, clonar la fuente oficial si hace falta y seleccionar la referencia publicada validada; clonar no selecciona el candidato SR 4. El candidato requiere el contenido local explicitamente autorizado. Definir `SR_TARGET` como ruta del proyecto destino antes de los comandos.
 
 Las nuevas instalaciones incluyen `docs/codex/SR_PASSES.yaml`. SR Passes agrupa varios lotes SR en una pasada acotada con orden de dependencias, preflight compartido, validaciones humanas y pruebas E2E agrupadas. Los lotes siguen siendo la unidad atomica en `SR_LOTS.yaml`.
 

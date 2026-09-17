@@ -1,5 +1,7 @@
 # Realigner la SR Method avec le projet courant
 
+Commencer en lecture seule. Les reouvertures et mises a jour ci-dessous sont des propositions jusqu'a validation exacte `je valide` du perimetre de realignement ; les appliquer ensuite uniquement dans ce perimetre. Une autorisation d'installation ne vaut pas validation d'une correction applicative.
+
 Tu travailles dans un repo qui vient d'etre installe ou mis a jour avec la SR Method.
 
 Objectif : faire un audit SR de reprise avant de continuer le developpement, pour aligner la memoire SR avec ce qui est reellement implemente dans le code.
@@ -17,27 +19,16 @@ Regles :
 - Verifie dans le code et les tests ce qui est reellement implemente.
 - En SR 3.1.0, `sr_contract.json` est le contrat machine cible de chaque nouvelle task memory ; les contrats 3.0.0 restent lisibles.
 - Les fichiers legacy `task_plan.md`, `findings.md`, `progress.md`, `decisions.md`, `verification.md`, `gate_report.md` et `loop_contract.json` restent historiques.
+- Conserver chaque entree de `validated_requests`, son identifiant stable et son lot/passe d'origine. Distinguer `implementation_status` de `evidence_status`, conserver les preuves, tests manquants et retours utilisateur. Une exigence validee absente, partielle, defectueuse ou regressive rouvre le lot d'origine et sa checklist ouverte complete ; ne pas creer de micro-lot pour ce retour.
 - Ne supprime aucun fichier legacy.
 - Ne cree pas de contrats retroactifs pour toutes les anciennes taches sans validation explicite.
 - Tu peux mettre a jour uniquement la memoire SR si elle est obsolete : `docs/CURRENT_STATE.md`, `docs/codex/SR_LOTS.yaml`, `docs/codex/SR_INBOX.yaml`, `docs/codex/tasks/`, et eventuellement `docs/codex/CODEBASE_MAP.md` si la carte est manifestement perimee.
-- Apres tout changement de version SR, `docs/CURRENT_STATE.md` doit etre mis a jour meme si aucun code applicatif ne change : version SR installee, date de revue, dernier prompt de reprise, warnings, lots significatifs, validations E2E en attente et prochaine etape.
+- Apres tout changement de version SR, `docs/CURRENT_STATE.md` doit etre mis a jour meme si aucun code applicatif ne change : version SR installee, date de revue, prompt de reprise pertinent selectionne, warnings, lots significatifs, validations E2E en attente et prochaine etape.
 - Le `loop_contract.json` de cette passe doit declarer `memory_updates.current_state_updated=true` avant une cloture `done` ou `user_testing`.
 
-Sources a lire :
+Sources et reprise progressive :
 
-1. `AGENTS.md`
-2. `docs/codex/SR_BOOTSTRAP.md`
-3. `docs/codex/SR_HARNESS_METHOD.md`
-4. `docs/CURRENT_STATE.md`
-5. `docs/codex/SR_LOTS.yaml`
-6. `docs/codex/SR_PASSES.yaml` si present
-7. `docs/codex/SR_INBOX.yaml`
-8. `docs/codex/CODEBASE_MAP.md` et `docs/codex/CODEBASE_MAP.generated.md` si presents
-9. `docs/codex/NEXUS_CONTEXT_PACK.md` ou context pack KG si `knowledge.mode: nexus_kg`
-10. La derniere memoire de tache pertinente dans `docs/codex/tasks/`
-11. Le code reel lie aux lots en cours, partiels, reopened ou user_testing
-12. `docs/codex/tasks/_TEMPLATE/loop_contract.json` et `scripts/codex/validate_loop_contract.py`
-13. `docs/codex/tasks/_TEMPLATE/sr_contract.json` et `scripts/codex/validate_sr_contract.py`
+Lire `AGENTS.md`, puis `docs/codex/SR_BOOTSTRAP.md`. Executer `python3 scripts/codex/find_next_session_prompt.py --root . --json` : utiliser `selected`; si `ambiguous`, demander le chemin puis utiliser `--prompt`. Ne jamais choisir `latest` selon la seule date. Lire le `NEXT_SESSION_PROMPT.md` selectionne et ses `sr_contract.json`/`loop_contract.json`, avec toutes les `validated_requests` ouvertes heritees. Sans reprise, inventorier les lots ouverts et proposer le perimetre. Pour ce realignement apres upgrade, lire aussi `docs/CURRENT_STATE.md` et les registres lots/passes afin de detecter les ecarts globaux. Charger ensuite seulement les memoires detaillees, procedures, RepoMap/KG et fichiers code/tests necessaires aux lots concernes ; elargir si une preuve, un gate ou une dependance l'exige.
 
 Methode :
 
@@ -129,3 +120,8 @@ Sortie attendue :
 - SR Contract 3.1.0 de la passe de realignement si requis par le projet ;
 - plan de reprise priorise ;
 - point d'arret avant tout code applicatif.
+
+## SR 4
+Voir le parcours contenu/fichiers de `05_upgrade_codex_environment.md`; aucune version precedente requise, preservation des adaptations, sauvegarde et restauration controlee.
+
+Parcours : installation neuve `00 -> 06` ; installation existante `05 -> 06 -> 07`. Le prompt `06` controle seulement ; `07` propose le realignement puis attend `je valide` avant modification de la memoire. Aucun developpement applicatif n'est autorise par ces parcours.

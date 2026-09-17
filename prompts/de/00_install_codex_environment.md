@@ -1,6 +1,20 @@
-# SR 3.7 in ein neues Zielprojekt installieren
+# SR 4.0.0 in ein neues Zielprojekt installieren
 
-Überprüfbares Ziel: SR Pack 3.7.0 mit `sr_contract` 3.1.0, `loop_contract` 1.1, `SR_LOTS` 0.4 und `SR_PASSES` 0.2 installieren, prüfen und vor jeder Anwendungsentwicklung stoppen.
+## SR 4.0.0 — veroeffentlichte Version
+
+Zielquelle: `SR_PACK_SOURCE` ausdruecklich auswaehlen, entweder eine identifizierte veroeffentlichte Version oder den freigegebenen lokalen SR-4.0.0-Kandidaten. `core/SR_PACK_VERSION.json` (`version`, `release_status`) lesen; `source_commit`, Git-Zustand und bei lokalen Aenderungen einen Inhaltsfingerabdruck einschliesslich verwendeter unversionierter Quelldateien dokumentieren. Einen `unreleased`-Kandidaten nicht als Release ausgeben. Den Kandidaten nicht durch einen Clone der neuesten veroeffentlichten Version ersetzen; fehlt die angeforderte Quelle, vor der Installation stoppen und klaeren.
+
+Fuer dieses SR-4.0.0-Ziel muss die Quelle `version: 4.0.0` angeben. Falls kein Release 4.0.0 veroeffentlicht ist, nur den freigegebenen lokalen Kandidaten verwenden oder sein Fehlen melden; niemals stillschweigend eine andere Version installieren.
+
+Vor Freigabe mit dem folgenden Befehl eine Vorschau erstellen; nach `je valide` nur den passenden Modus waehlen. `--plan-out` schreibt einen lokalen Plan und erfordert Freigabe; `--apply-plan` lehnt veraltete Diagnosen ab. `--restore` ist ein separater Vorgang mit dem exakten Transaktionsjournal und verweigert spaetere Aenderungen. Keine Datei zur Konfliktumgehung loeschen.
+
+Gespeicherte Plaene enthalten Dateiinhalte: lokal aufbewahren. `SR_TARGET` auf den Pfad des Zielrepositorys setzen.
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --json
+```
+
+Überprüfbares Ziel: SR Pack 4.0.0 mit `sr_contract` 3.1.0, `loop_contract` 1.1, `SR_LOTS` 0.4 und `SR_PASSES` 0.2 installieren, prüfen und vor jeder Anwendungsentwicklung stoppen.
 
 Installiere `SR_PASSES.yaml` mit `passes: []`. Dieses leere Register ist gueltig: Eine Neuinstallation darf keine Produkt-Pass erfinden. Prompt `08` schlaegt Passes erst nach Lektuere der Lose und menschlicher Freigabe vor.
 
@@ -26,3 +40,5 @@ Nach Freigabe:
 7. Klassifikation, Version, Commit, Dateien, Prüfungen, Warnungen und unveränderten Anwendungscode berichten.
 
 Pflichtende: Die Methodeninstallation validiert keinen Produktumfang.
+
+Pfade: Neuinstallation `00 -> 06`; bestehende Installation `05 -> 06 -> 07`. Prompt `06` prueft nur; `07` schlaegt Realignment vor und wartet vor Memory-Aenderungen auf `je valide`. Beide Pfade autorisieren keine Anwendungsentwicklung.

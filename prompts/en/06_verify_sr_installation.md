@@ -1,5 +1,9 @@
 # Verify an SR Method installation
 
+## SR 4.0.0 — published release
+
+Mode `read_only`: no file changes, automatic fixes, installation or restoration. Report discrepancies; corrections require a separate scope approved with `je valide`.
+
 Do not modify files.
 
 Objective: prove that each installation or upgrade is complete, coherent, and usable before application development resumes.
@@ -20,3 +24,5 @@ Classify every warning as compatible legacy state, documentation debt, `repair`,
 Report a per-repository table with version, checks, errors, warnings, contract status, open `validated_requests`, missing evidence, and next action. `user_testing` is allowed only for technically complete work; missing implementation remains `repair`.
 
 Stop without applying fixes. Ask for exact validation for any repair scope.
+
+Paths: fresh installation `00 -> 06`; existing installation `05 -> 06 -> 07`. Prompt `06` only checks; `07` proposes realignment and waits for `je valide` before changing memory. Neither path authorizes application development.

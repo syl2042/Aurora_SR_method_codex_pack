@@ -1,5 +1,24 @@
 # Aurora SR Method Codex Pack
 
+## SR 4.0.0 — veroeffentlichte Version
+
+Zielquelle: `SR_PACK_SOURCE` ausdruecklich auswaehlen, entweder eine identifizierte veroeffentlichte Version oder den freigegebenen lokalen SR-4.0.0-Kandidaten. `core/SR_PACK_VERSION.json` (`version`, `release_status`) lesen; `source_commit`, Git-Zustand und bei lokalen Aenderungen einen Inhaltsfingerabdruck einschliesslich verwendeter unversionierter Quelldateien dokumentieren. Einen `unreleased`-Kandidaten nicht als Release ausgeben. Den Kandidaten nicht durch einen Clone der neuesten veroeffentlichten Version ersetzen; fehlt die angeforderte Quelle, vor der Installation stoppen und klaeren.
+
+Fuer dieses SR-4.0.0-Ziel muss die Quelle `version: 4.0.0` angeben. Falls kein Release 4.0.0 veroeffentlicht ist, nur den freigegebenen lokalen Kandidaten verwenden oder sein Fehlen melden; niemals stillschweigend eine andere Version installieren.
+
+Pfade: Neuinstallation `00 -> 06`; bestehende Installation `05 -> 06 -> 07`. Prompt `06` prueft nur; `07` schlaegt Realignment vor und wartet vor Memory-Aenderungen auf `je valide`. Beide Pfade autorisieren keine Anwendungsentwicklung.
+
+SR 4 laedt Verfahren gezielt ueber `SR_BOOTSTRAP.md` und `SR_ROUTES.json`. Gates, HITL, offene Anforderungen und Vertragsschemata bleiben erhalten. Die Paketversion erzwingt keine Konvertierung alter Vertraege.
+
+### Erstinstallation
+Lokale Regeln pruefen; `je valide` fuer den Umfang erhalten; Vorschau, `--write`, danach Pruefung. Vorhandene Projektdateien bleiben erhalten oder werden ausdruecklich zusammengefuehrt. Kein Anwendungscode wird geaendert.
+
+### Versionsunabhaengiges Upgrade
+Nach Inhaltspruefung `--upgrade` verwenden. Die alte Versionsnummer ist nur informativ. Alte, unversionierte, teilweise oder gemischte Installationen werden anhand der Dateien erkannt. Unbekannte oder angepasste Paketdateien blockieren das Ersetzen: nicht loeschen, um den Konflikt zu umgehen. Abgleich pruefen und freigeben. Vertraege, offene Lose, Aufgabenhistorie, Handoffs und Fachskills erhalten.
+
+Die Vorschau schreibt nur bei ausdruecklichem `--plan-out`. Plaene enthalten Dateiinhalte und bleiben lokal. `--apply-plan` verweigert veraltete Plaene. Transaktionen sichern geaenderte Dateien; `--restore` ueberschreibt keine spaeteren Aenderungen. Upgrades nie mit `--write` erzwingen. Die Zielversion allein beweist keinen Erfolg: Postcheck erforderlich.
+
+
 [![GitHub stars](https://img.shields.io/github/stars/syl2042/Aurora_SR_method_codex_pack?style=social)](https://github.com/syl2042/Aurora_SR_method_codex_pack/stargazers)
 [![Forks](https://img.shields.io/github/forks/syl2042/Aurora_SR_method_codex_pack?style=social)](https://github.com/syl2042/Aurora_SR_method_codex_pack/forks)
 [![Issues](https://img.shields.io/github/issues/syl2042/Aurora_SR_method_codex_pack)](https://github.com/syl2042/Aurora_SR_method_codex_pack/issues)
@@ -165,9 +184,9 @@ So bleibt SR projektagnostisch und verhindert zugleich, dass wichtige Querschnit
 
 ---
 
-## Zielrelease 3.7.0
+## Zielrelease 4.0.0
 
-Zielversion `3.7.0` trennt `implementation_status` und `evidence_status`, leitet Requirement-Entscheidungen und Completion Gate ab und oeffnet bei Feedback standardmaessig das urspruengliche Los wieder. Contracts 3.0.0 bleiben lesbar und werden nicht massenhaft umgeschrieben. Die kanonische Versionshistorie steht in [CHANGELOG.md](CHANGELOG.md).
+Zielversion `4.0.0` trennt `implementation_status` und `evidence_status`, leitet Requirement-Entscheidungen und Completion Gate ab und oeffnet bei Feedback standardmaessig das urspruengliche Los wieder. Contracts 3.0.0 bleiben lesbar und werden nicht massenhaft umgeschrieben. Die kanonische Versionshistorie steht in [CHANGELOG.md](CHANGELOG.md).
 
 Neuinstallationen und Upgrades ohne Produkt-Passes verwenden ein gueltiges `passes: []`. Regressionen decken repraesentative offizielle Layouts SR 2.2.0, 2.3.0, 2.3.5, 2.4.1 und 3.0.0 ab; unknown oder lokal angepasste Layouts brauchen ein Datei-Audit. Installer-Erfolg reicht nicht: Bis `sr_post_install_check.py` gruen ist, bleibt das Ziel in `repair`.
 

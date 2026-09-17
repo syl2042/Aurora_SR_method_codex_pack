@@ -1,9 +1,14 @@
 {
   "pack": "auroramind_codex_operating_pack",
-  "version": "3.7.0",
+  "version": "4.0.0",
   "release_status": "released",
-  "released_at": "2026-08-24",
+  "released_at": "2026-09-17",
   "patch_notes": [
+    {
+      "date": "2026-09-17",
+      "scope": "context_architecture_v4",
+      "change": "Progressive routing, preserved contracts and gates, content-based transactional installation, conservative legacy upgrades, derived read-only views and explicit context telemetry semantics. Released as 4.0.0; existing applications require an explicit upgrade."
+    },
     {
       "date": "2026-08-24",
       "scope": "release_documentation_coherence",

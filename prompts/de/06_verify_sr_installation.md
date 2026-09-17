@@ -1,5 +1,9 @@
 # Eine SR-Method-Installation pruefen
 
+## SR 4.0.0 — veroeffentlichte Version
+
+Modus `read_only`: keine Dateiaenderungen, automatischen Korrekturen, Installation oder Wiederherstellung. Abweichungen berichten; Korrekturen brauchen einen getrennten, mit `je valide` freigegebenen Umfang.
+
 Keine Dateien aendern.
 
 Ziel: Fuer jedes Repository nachweisen, dass Installation oder Upgrade vollstaendig, kohaerent und vor weiterer Anwendungsentwicklung nutzbar ist.
@@ -18,3 +22,5 @@ Jede Warnung als kompatiblen Legacy-Zustand, Dokumentationsschuld, `repair` oder
 Pro Repository Version, Kontrollen, Fehler, Warnungen, Contracts, offene `validated_requests`, fehlende Nachweise und naechste Aktion berichten. `user_testing` gilt nur fuer technisch vollstaendige Arbeit; fehlende Implementierung bleibt `repair`.
 
 Ohne Fix stoppen und fuer jeden Repair-Scope exakte Validierung verlangen.
+
+Pfade: Neuinstallation `00 -> 06`; bestehende Installation `05 -> 06 -> 07`. Prompt `06` prueft nur; `07` schlaegt Realignment vor und wartet vor Memory-Aenderungen auf `je valide`. Beide Pfade autorisieren keine Anwendungsentwicklung.

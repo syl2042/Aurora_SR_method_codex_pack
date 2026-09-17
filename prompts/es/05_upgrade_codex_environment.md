@@ -1,8 +1,27 @@
-# Actualizar un proyecto a la SR Method mas reciente
+# Actualizar una instalacion SR existente a la fuente validada
+
+## SR 4.0.0 — version publicada
+
+Fuente objetivo: seleccionar explicitamente `SR_PACK_SOURCE`, una version publicada identificada o el candidato local SR 4.0.0 autorizado. Leer `core/SR_PACK_VERSION.json` (`version`, `release_status`); registrar `source_commit`, estado Git y, si hay cambios locales, una huella del contenido que incluya los archivos fuente no seguidos utilizados. No presentar un candidato `unreleased` como release. No sustituir el candidato por un clon de la ultima version publicada; si falta la fuente solicitada, detenerse y aclarar antes de instalar.
+
+Para este objetivo SR 4.0.0, la fuente debe declarar `version: 4.0.0`. Si no hay release 4.0.0 publicada, usar solo el candidato local autorizado o informar su ausencia; nunca instalar otra version silenciosamente.
+
+Previsualizar con el comando siguiente antes de validar; despues de `je valide`, elegir solo el modo correspondiente. `--plan-out` escribe un plan local y requiere autorizacion; `--apply-plan` rechaza diagnosticos obsoletos. `--restore` es una operacion separada con el diario exacto de la transaccion y rechaza cambios posteriores. No borrar archivos para eludir conflictos.
+
+Los planes guardados contienen archivos: conservarlos localmente. Definir `SR_TARGET` como ruta del repositorio destino.
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --json
+```
+
+```bash
+# je valide
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --upgrade
+```
 
 Estas trabajando en un repositorio de aplicacion que ya contiene una instalacion existente de Aurora SR Method, posiblemente antigua, parcial o adaptada localmente.
 
-Objetivo verificable: actualizar la SR Method a la ultima version oficial disponible, sin regresion, sin modificar codigo de aplicacion, sin sobrescribir adaptaciones del proyecto, y dejando el proyecto en un estado SR realineado antes de reanudar cualquier desarrollo.
+Objetivo verificable: actualizar la SR Method a la fuente objetivo explicitamente seleccionada, sin regresion, sin modificar codigo de aplicacion, sin sobrescribir adaptaciones del proyecto, y dejando el proyecto en un estado SR realineado antes de reanudar cualquier desarrollo.
 
 Este prompt acepta un destino o una lista explicita de repositorios. Con varias carpetas, trata cada repositorio como destino independiente y crea antes de mutar la matriz `repository | marcadores leidos | version detectada | estado | flujo | archivos a preservar | validacion`. Nunca supongas una version comun; actualiza y verifica destino por destino.
 
@@ -42,7 +61,7 @@ Reglas estrictas:
 - Conserva lectura compatible de contratos `sr_contract` 3.0.0. Las nuevas task memories y los lotes reabiertos usan 3.1.0 con `implementation_status` y `evidence_status` separados.
 - No reescribas masivamente `validated_requests` antiguos. Señala contratos multi-lote reducidos a una exigencia global; normaliza solo alcance activo o reabierto tras leer fuentes y obtener validacion humana.
 - El upgrade no debe cerrar, mover ni convertir en lote nuevo ninguna exigencia abierta, parcial o defectuosa.
-- En regimen SR completo, todo cambio de version SR debe actualizar `docs/CURRENT_STATE.md` con version instalada, fecha de revision, checks ejecutados, ultimo `NEXT_SESSION_PROMPT.md`, lotes significativos y siguiente paso.
+- En regimen SR completo, todo cambio de version SR debe actualizar `docs/CURRENT_STATE.md` con version instalada, fecha de revision, checks ejecutados, `NEXT_SESSION_PROMPT.md` pertinente seleccionado, lotes significativos y siguiente paso.
 - Un `loop_contract.json` de tipo `upgrade` no puede cerrarse como `done` con `memory_updates.current_state_updated=false`.
 - Antes de modificar cualquier archivo, presenta el plan de upgrade y espera validacion explicita del usuario.
 
@@ -63,13 +82,14 @@ Paso 1 - Diagnostico de version:
 
 Paso 2 - Clasificacion:
 
-Clasifica el proyecto en un flujo:
+Clasificar por archivos observados y previsualizacion, sin depender del numero anterior:
 
-- `upgrade_minor_3x` si la version instalada ya es `3.x`;
-- `upgrade_standard_235_plus` si la version es `2.3.5+`;
-- `upgrade_legacy_unknown` si la version falta, no se puede leer, es inferior a `2.3.5`, o la instalacion SR es parcial.
+- `fresh_install`: sin marcadores SR; usar el prompt `00`.
+- `managed_update`: archivos gestionados reconocidos, sustituciones y adiciones propuestas sin conflictos.
+- `already_current`: sin cambios propuestos; verificar sin reescribir.
+- `reconciliation_required`: contenido gestionado desconocido/personalizado o instalacion parcial con conflictos; conservar archivos, comparar y validar la reconciliacion antes de aplicar.
 
-Matriz SR 3.7.0: fresh install a schemas 3.1.0/1.1 y lotes 0.4/pasadas 0.2; SR 3.6.x con refresco aditivo; SR 3.0-3.5 con lectura legacy, warnings y normalizacion dirigida de lotes activos/reabiertos; SR 2.x/unknown/partial con backup e inventario archivo por archivo; adaptaciones locales preservadas fuera de bloques SR gestionados.
+Una instalacion parcial sin conflictos puede seguir `managed_update`. Conservar archivos del proyecto, contratos historicos, lotes, memorias y skills locales. La version detectada es informativa; no selecciona ninguna rama de migracion.
 
 Los layouts oficiales representativos SR 2.2.0, 2.3.0, 2.3.5, 2.4.1 y 3.0.0 tienen regresiones de upgrade. Unknown/partial sigue requiriendo auditoria archivo por archivo: la fixture prueba el camino minimo, no toda adaptacion local.
 
@@ -84,7 +104,7 @@ Paso 3 - Fuente oficial:
 
 Paso 4 - Analisis antes de mutacion:
 
-Compara la instalacion actual con la ultima version del pack e identifica:
+Compara la instalacion actual con la fuente objetivo validada e identifica:
 
 - archivos SR faltantes;
 - archivos SR antiguos;
@@ -197,3 +217,5 @@ Informe final esperado:
 - accion siguiente propuesta.
 
 Fin obligatorio: espera validacion antes de cualquier modificacion de aplicacion o ejecucion de pasada.
+
+Recorridos: instalacion nueva `00 -> 06`; instalacion existente `05 -> 06 -> 07`. El prompt `06` solo verifica; `07` propone el realineamiento y espera `je valide` antes de modificar la memoria. Ningun recorrido autoriza desarrollo aplicativo.

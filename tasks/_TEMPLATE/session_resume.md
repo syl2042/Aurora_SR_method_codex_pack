@@ -4,15 +4,9 @@
 Utiliser ce fichier apres compact, resume, handoff ou changement de conversation si la tache continue.
 
 ## Sources relues
-- [ ] AGENTS.md
-- [ ] docs/codex/SR_BOOTSTRAP.md
-- [ ] docs/codex/PROJECT_PROFILE.yaml
-- [ ] docs/CURRENT_STATE.md
-- [ ] docs/codex/WORKFLOW_CODEX.md
-- [ ] docs/codex/SKILL_MAP.md
-- [ ] docs/codex/CODEBASE_MAP.md
-- [ ] docs/codex/AI_AGENT_RUNTIME_METHOD.md si applicable
-- [ ] docs/codex/DOMAIN_EXPERTISE_BOOTSTRAP.md si applicable
+- Point de reprise et contrats associes :
+- Details charges, question resolue et preuve de fraicheur :
+- Routes SR_BOOTSTRAP declenchees :
 
 ## Etat repris
 - Objectif courant :

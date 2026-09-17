@@ -11,7 +11,7 @@ Ce digest ne remplace pas :
 
 ## Lecture minimale
 1. Lire `PROJECT_PROFILE.yaml` pour le mode connaissance et les obligations SR.
-2. Lire `SKILL_MAP.md` pour les skills declarees.
+2. Lire `SKILL_MAP.md` si la declaration des skills pertinentes ne peut pas etre etablie depuis le profil.
 3. Lire ce digest pour choisir les skills candidates.
 4. Lire uniquement les `SKILL.md` selectionnes avant de coder.
 

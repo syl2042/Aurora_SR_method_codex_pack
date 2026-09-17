@@ -16,8 +16,8 @@ Brut obligatoire/fallback pour securite, secrets, migrations, auth, integrations
 `context_budget_report.py` distingue quatre signaux :
 
 - `input_tokens` / `raw_context_percent` : volume brut lu dans `last_token_usage`, information de diagnostic seulement.
-- `effective_context_percent` : estimation de pression active, calculee avec `cached_input_tokens` pondere a 10%, plus les tokens non caches et sorties recentes.
-- `uncached_input_tokens` : volume nouveau non cache, utile pour estimer le cout et le risque de reprise.
+- `effective_context_percent` : score legacy de planification (pas une mesure d’occupation physique), calcule avec `cached_input_tokens` pondere a 10%, plus les tokens non caches et sorties recentes.
+- `uncached_input_tokens` : volume nouveau non cache, volume non cache; ne suffit pas a calculer le cout ou la qualite de reprise.
 - `cache_ratio` : part cachee du prompt ; un ratio eleve evite les coupures trop precoces mais ne justifie pas des conversations infinies.
 
 Le script expose aussi `total_token_usage` et `rate_limits` quand Codex les a enregistres, mais ces valeurs restent des signaux d'observabilite. Le statut SR est base sur le dernier appel utile et la fiabilite de selection de session.
@@ -37,3 +37,6 @@ context=green action=continue raw=49.0% effective=12.0% uncached=10.0k cached=95
 Regle SR : ne pas classer une conversation uniquement sur `input_total` ou sur le cumul `total_token_usage`. Le statut est base sur `effective_context_percent`, les signaux non caches, les tours et les lots. `raw_context_percent` ne doit jamais declencher rouge seul. Les etats `unknown`, `stale` et `ambiguous` restent prioritaires et exigent une reprise stricte ou un `NEXT_SESSION_PROMPT.md`.
 
 En fin d'iteration significative, executer le mode compact. Si le statut est `green`, ne rien afficher a l'utilisateur sauf demande explicite. Si le statut est `yellow`, signaler seulement qu'une reprise est recommandee avant une prochaine tache longue. Si le statut est `orange`, `red`, `unknown`, `stale` ou `ambiguous`, creer ou mettre a jour le `NEXT_SESSION_PROMPT.md` du lot courant et donner un prompt court qui pointe vers ce chemin connu.
+
+## SR 4 : sortie et preuve
+Une sortie courte reste courte; diagnostics dedupliques, erreurs avant avertissements. Si diagnostics tronques, lire le brut avant conclusion. Le code de sortie original est conserve. Le cache reutilise du calcul, il ne compresse pas le contexte. Aucun seuil de stop ne change dans SR 4. Les usages output/reasoning sont rapportes separement; ne pas supposer leur additivite pour la facturation.

@@ -1,12 +1,31 @@
-# Mettre a jour un projet vers la derniere SR Method
+# Mettre a jour une installation SR existante vers la source validee
+
+## SR 4.0.0 — version publiee
+
+Source cible : choisir explicitement `SR_PACK_SOURCE`, soit une version publiee identifiee, soit le candidat local SR 4.0.0 autorise. Lire `core/SR_PACK_VERSION.json` (`version`, `release_status`) et noter `source_commit`, l'etat Git et, si le clone est modifie, une empreinte du contenu source incluant les fichiers non suivis utilises. Un candidat `unreleased` ne doit pas etre presente comme une release. Ne pas remplacer une source candidate par un clone de la derniere version publiee ; si la source demandee manque, s'arreter et clarifier avant installation.
+
+Pour cette cible SR 4.0.0, la source doit annoncer `version: 4.0.0`. Si aucune release 4.0.0 n’est publiee, utiliser uniquement le candidat local autorise ou signaler son absence ; ne pas installer silencieusement une autre version.
+
+Previsualiser avec la commande ci-dessous avant validation ; apres `je valide`, choisir uniquement le mode correspondant au parcours. `--plan-out` ecrit un plan local et exige une autorisation ; `--apply-plan` refuse un diagnostic perime. `--restore` est une operation distincte, sur le journal exact de la transaction, et refuse les modifications ulterieures. Ne pas contourner un conflit en supprimant un fichier.
+
+Les plans enregistres contiennent les contenus des fichiers : les conserver localement. Definir `SR_TARGET` comme chemin du repository cible.
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --json
+```
+
+```bash
+# je valide
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --upgrade
+```
 
 Tu travailles dans un repository applicatif deja equipe d'une version existante de la Aurora SR Method, possiblement ancienne, partielle ou adaptee localement.
 
-Objectif verifiable : mettre a jour la SR Method vers la derniere version officielle disponible, sans regression, sans modifier le code applicatif, sans ecraser les adaptations projet, et en laissant le projet dans un etat SR realigne avant toute reprise de developpement.
+Objectif verifiable : mettre a jour la SR Method vers la source cible explicitement selectionnee, sans regression, sans modifier le code applicatif, sans ecraser les adaptations projet, et en laissant le projet dans un etat SR realigne avant toute reprise de developpement.
 
-Ce prompt accepte une cible unique ou une liste explicite de repositories. Avec plusieurs dossiers, traite chaque repository comme une cible independante : ne suppose jamais une version, une completude ou des adaptations communes. Avant mutation, produis une matrice `repository | marqueurs lus | version detectee | etat | flux propose | fichiers a preserver | validation`. Applique et verifie ensuite l'upgrade repository par repository ; l'echec d'une cible ne doit pas masquer l'etat des autres.
+Ce prompt accepte une cible unique ou plusieurs repositories explicites. Avec plusieurs dossiers, traite chaque repository comme une cible independante et produis avant mutation une matrice `repository | marqueurs lus | version detectee | etat | flux propose | fichiers a preserver | validation`. Ne suppose jamais une version commune ; applique et verifie chaque cible separement.
 
-Si une ligne ne contient aucun marqueur SR, classe-la `fresh_install`, retire-la du flux d'upgrade et applique-lui le prompt `00_install_codex_environment.md` avec sa propre validation.
+Si une cible ne contient aucun marqueur SR, classe-la `fresh_install`, retire-la du flux d'upgrade et utilise `00_install_codex_environment.md` avec sa propre validation.
 
 Source officielle SR Method :
 
@@ -36,16 +55,13 @@ Regles strictes :
 - Preserve `SR_LOTS.yaml`. Si `SR_PASSES.yaml` est absent, ajouter un registre valide `passes: []` ; ne jamais copier une passe d'exemple ni convertir automatiquement les anciens lots ou task memories en passes validees.
 - Ne pas convertir massivement les anciens lots pour ajouter `design_evidence`; ajouter le Lot Design Evidence Gate seulement aux lots crees, promus ou repris apres upgrade.
 - Ajouter l'outillage Pass Runtime Goal de facon additive (`build_pass_runtime_goal.py`, template `pass_runtime_goal.md`, options `sr_passes.pass_runtime_goal`) sans generer de goal tant qu'une passe n'est pas validee.
-- Ajouter l'outillage UI Verification Harness de facon additive (`sr_ui_verify.mjs`, wrapper `playwright_auth_smoke.mjs`, `ui_validation`, skill `aurora-ui-visual-qa`) sans configurer une application specifique ni exiger l'auth pour les projets qui n'en ont pas.
 - Ne jamais lancer `/goal` pendant l'upgrade. L'upgrade prepare la methode ; l'execution par goal ne vient qu'apres realignement, pass planning et validation utilisateur.
 - Ne ferme, ne promeus et ne requalifie aucun lot ou passe applicatif comme effet secondaire implicite de l'upgrade. Si l'utilisateur demande explicitement de cloturer un lot ou une passe dans le meme travail, traite cette cloture comme une sous-phase separee apres l'upgrade, avec perimetre valide, contrat SR propre, preuves et rapport distinct.
 - Preserve les task memories historiques sans `propagation_gate` : les signaler comme legacy warnings, pas comme erreurs bloquantes. Les nouveaux templates et contrats crees apres upgrade doivent inclure le Propagation Gate.
-- Preserve les task memories historiques sans `ui_validation` : les signaler comme legacy warnings, pas comme erreurs bloquantes. Les nouveaux contrats UI crees apres upgrade doivent inclure le UI Test Readiness Gate et le UI Visual Evidence Gate quand requis.
 - Preserve les contrats `sr_contract` 3.0.0 en lecture compatible. Les nouvelles task memories et les lots rouverts utilisent 3.1.0 avec `implementation_status` et `evidence_status` separes.
-- Ne reecris pas massivement les anciens `validated_requests`. Signale tout contrat multi-lots reduit a une exigence globale ; normalise seulement le perimetre actif ou rouvert apres lecture des sources et validation humaine.
+- Ne reecris pas massivement les anciens `validated_requests`. Signale les contrats multi-lots reduits a une exigence globale ; normalise seulement le perimetre actif ou rouvert apres lecture des sources et validation humaine.
 - L'upgrade ne ferme, ne deplace et ne transforme en nouveau lot aucune exigence ouverte, partielle ou defectueuse.
-- Ne jamais ajouter, afficher ou commiter `.playwright/.auth/`, cookies, tokens ou storageState.
-- En SR plein regime, tout changement de version SR doit mettre a jour `docs/CURRENT_STATE.md` avec la version installee, la date de revue, les controles executes, le dernier `NEXT_SESSION_PROMPT.md`, les lots significatifs et la prochaine etape.
+- En SR plein regime, tout changement de version SR doit mettre a jour `docs/CURRENT_STATE.md` avec la version installee, la date de revue, les controles executes, le `NEXT_SESSION_PROMPT.md` pertinent selectionne, les lots significatifs et la prochaine etape.
 - Un `loop_contract.json` de type `upgrade` ne peut pas se cloturer en `done` avec `memory_updates.current_state_updated=false`.
 - Avant toute modification de fichier, expose le plan d'upgrade et attends la validation explicite de l'utilisateur.
 
@@ -66,32 +82,16 @@ Etape 1 - Diagnostic de version :
 
 Etape 2 - Classification :
 
-Classe le projet dans un de ces flux :
+Classer selon les fichiers observes et la previsualisation, independamment du numero precedent :
 
-- `fresh_install` si le projet n'a jamais recu la SR Method ;
-- `upgrade_35x` si la version installee est `3.5.x` ;
-- `upgrade_minor_3x` si la version installee est deja `3.x` ;
-- `upgrade_standard_235_plus` si la version est `2.3.5+` ;
-- `upgrade_legacy_unknown` si la version est absente, illisible, inferieure a `2.3.5`, ou si l'installation SR est partielle.
+- `fresh_install` : aucun marqueur SR ; utiliser le prompt `00`.
+- `managed_update` : fichiers geres reconnus, remplacements et ajouts proposes sans conflit.
+- `already_current` : aucun changement propose ; verifier sans reecrire.
+- `reconciliation_required` : contenu gere inconnu/personnalise ou installation partielle avec conflits ; conserver les fichiers, comparer et faire valider la reconciliation avant application.
 
-Matrice de migration SR 3.7.0 :
-
-- fresh install : schemas 3.1.0/1.1 et blueprints lots 0.4/passes 0.2 directement ;
-- SR 3.6.x : rafraichissement additif des templates, validateurs, prompts et skills, lecture 3.0.0 conservee ;
-- SR 3.0-3.5 : warnings sur registres globaux et normalisation seulement des lots actifs ou rouverts ;
-- SR 2.x, unknown ou partial : sauvegarde, inventaire fichier par fichier, fusion prudente et verification complete ;
-- adaptations locales : preservation hors blocs SR explicitement geres par le pack.
+Une installation partielle sans conflit peut suivre `managed_update`. Les fichiers propres au projet, contrats historiques, lots, memoires et skills locales restent preserves. La version detectee est informative ; elle ne selectionne aucune branche de migration.
 
 Les layouts officiels representatifs SR 2.2.0, 2.3.0, 2.3.5, 2.4.1 et 3.0.0 disposent de regressions d'upgrade. Un layout unknown/partial reste audite fichier par fichier : la fixture prouve le chemin minimal, pas la compatibilite universelle de toute adaptation locale.
-
-Matrice UI SR 3.6.0 :
-
-- fresh install : installer `ui_validation` complet avec auth `none` par defaut ;
-- SR 3.5.x : ajouter runner, skill et `ui_validation` sans ecraser `PROJECT_PROFILE.yaml` ;
-- SR 3.0-3.4 : migration additive, anciens contrats UI en warnings legacy ;
-- legacy/unknown/partial : audit + sauvegarde + plan avant mutation ;
-- backend-only : harness installe, gates UI `not_applicable` ;
-- application authentifiee : harness installe, readiness `blocked` tant que `storage_state` ou `setup_command` n'est pas configure.
 
 Etape 3 - Source officielle :
 
@@ -104,7 +104,7 @@ Etape 3 - Source officielle :
 
 Etape 4 - Analyse avant mutation :
 
-Compare l'installation actuelle avec la derniere version du pack et identifie :
+Compare l'installation actuelle avec la source cible validee et identifie :
 
 - fichiers SR manquants ;
 - fichiers SR anciens ;
@@ -112,14 +112,12 @@ Compare l'installation actuelle avec la derniere version du pack et identifie :
 - fichiers necessitant une fusion prudente ;
 - presence ou absence de `SR_PASSES.yaml` ;
 - presence ou absence de l'outillage Pass Runtime Goal ;
-- presence ou absence de `ui_validation`, `sr_ui_verify.mjs`, `aurora-ui-visual-qa` et wrapper legacy ;
-- risques `.playwright/.auth/` trackes ou non ignores ;
 - presence ou absence du Lot Design Evidence Gate ;
 - risques d'ecrasement ;
 - lots ou passes applicatifs candidats a reprise/cloture, a traiter seulement en sous-phase separee si l'utilisateur l'a explicitement demande ;
 - anciens contrats ou task memories a laisser en legacy warnings.
-- exigences ouvertes et lots `repair`, `reopened` ou `user_testing` a conserver dans la prochaine reprise consolidee ;
-- contrats multi-lots avec un seul `validated_request` generique a signaler pour normalisation ciblee.
+- exigences ouvertes et lots `repair`, `reopened` ou `user_testing` a conserver dans une reprise consolidee ;
+- contrats multi-lots avec un seul `validated_request` generique a signaler.
 
 Important : les anciens lots sans `design_evidence` ne doivent pas etre modifies en masse. Le `design_evidence` doit etre ajoute seulement aux lots crees, promus ou repris apres upgrade.
 
@@ -135,7 +133,6 @@ Avant toute modification, presente un plan court avec :
 - risques identifies ;
 - commandes de verification prevues ;
 - impact attendu sur `SR_LOTS.yaml`, `SR_PASSES.yaml`, `AGENTS.md`, `CURRENT_STATE.md` et `docs/codex/tasks/`.
-- impact attendu sur `PROJECT_PROFILE.yaml.ui_validation`, scripts Playwright, skills methode et `.gitignore`.
 - confirmation qu'aucun lot ou passe applicatif ne sera ferme implicitement par l'upgrade ; toute cloture demandee doit etre isolee comme sous-phase validee.
 
 Attends la validation explicite de l'utilisateur avant de modifier.
@@ -152,18 +149,12 @@ Apres validation seulement :
    - `build_pass_runtime_goal.py`
    - template `pass_runtime_goal.md`
    - options `sr_passes.pass_runtime_goal`
-6. Ajoute l'outillage UI Verification Harness si absent :
-   - `scripts/codex/sr_ui_verify.mjs`
-   - wrapper `scripts/codex/playwright_auth_smoke.mjs`
-   - section `ui_validation` additive
-   - skill `aurora-ui-visual-qa`
-   - templates `sr_contract.json` et `gate_report.md`
-7. Verifie que le Goal Length Gate est present :
+6. Verifie que le Goal Length Gate est present :
    - `max_goal_command_chars: 1000`
    - `hard_limit: 4000`
-8. Verifie que le Lot Design Evidence Gate est documente et actif pour les nouveaux lots ou les lots repris.
-9. Verifie que SR Contract 3.1.0, Loop Contract 1.1, `SR_LOTS` 0.4 et `SR_PASSES` 0.2 sont les cibles des nouveaux artefacts, tout en gardant la lecture des contrats 3.0.0.
-10. Si une demande existante est ouverte, herite son requirement ID, rouvre le lot d'origine si necessaire et conserve toute sa checklist ; ne cree pas de lot de migration produit.
+7. Verifie que le Lot Design Evidence Gate est documente et actif pour les nouveaux lots ou les lots repris.
+8. Verifie les cibles SR Contract 3.1.0, Loop Contract 1.1, `SR_LOTS` 0.4 et `SR_PASSES` 0.2, avec lecture compatible des contrats 3.0.0.
+9. Herite les requirement IDs ouverts et rouvre le lot d'origine si necessaire ; ne cree pas de lot de migration produit.
 
 Etape 7 - Verifications :
 
@@ -179,7 +170,6 @@ Lance les verifications disponibles et adaptees :
 - `python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml` si `SR_PASSES.yaml` existe
 - `python3 scripts/codex/validate_loop_contract.py --file docs/codex/tasks/_TEMPLATE/loop_contract.json` si present
 - `python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/_TEMPLATE/sr_contract.json` si present
-- `node scripts/codex/sr_ui_verify.mjs --help` si present
 - `python3 scripts/codex/audit_sr_task_contracts.py --root .`
 - `python3 scripts/codex/context_budget_report.py --root . --compact`
 - `python3 scripts/codex/validate_skills.py --path ~/.codex/skills` si les skills methode sont installees
@@ -203,7 +193,6 @@ Apres l'upgrade, mets a jour ou propose la mise a jour de `docs/CURRENT_STATE.md
 - statut `SR_PASSES.yaml` ;
 - statut Pass Runtime Goal ;
 - statut Lot Design Evidence Gate ;
-- statut UI Verification Harness ;
 - prochaine etape recommandee.
 
 Etape 9 - Suite recommandee :
@@ -230,6 +219,8 @@ Rapport final attendu :
 - warnings legacy ;
 - lots ou passes applicatifs detectes comme candidats a cloture ou reprise, et statut de toute sous-phase de cloture explicitement demandee ;
 - action suivante proposee.
-- pour plusieurs repositories, resultat et warnings par cible, sans statut global trompeur.
+- si plusieurs repositories sont traites, resultat et warnings par cible, sans statut global trompeur.
 
 Fin obligatoire : attends la validation avant toute modification applicative ou toute execution de passe.
+
+Parcours : installation neuve `00 -> 06` ; installation existante `05 -> 06 -> 07`. Le prompt `06` controle seulement ; `07` propose le realignement puis attend `je valide` avant modification de la memoire. Aucun developpement applicatif n'est autorise par ces parcours.

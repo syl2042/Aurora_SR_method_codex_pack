@@ -1,0 +1,39 @@
+<!-- AURORA_SR_PACK_START -->
+## SR Bootstrap obligatoire
+- Au debut de chaque nouvelle conversation, apres compact, apres resume ou apres handoff, relire `docs/codex/SR_BOOTSTRAP.md` avant toute tache non triviale.
+- Pour une tache non triviale, annoncer l'objectif verifiable, les hypotheses, l'approche simple suffisante, les skills selectionnees et la verification prevue avant de coder.
+- Si le contexte precedent semble connu, verifier quand meme `docs/CURRENT_STATE.md` et la derniere memoire de tache pertinente.
+- Au demarrage ou apres compact/resume, chercher le dernier `NEXT_SESSION_PROMPT.md` avec `python3 scripts/codex/find_next_session_prompt.py --root . --json` si disponible, puis le lire s'il existe.
+- Validation humaine stricte : Codex peut analyser sans validation, mais ne modifie aucun fichier et ne lance aucune action de mutation tant que l'utilisateur n'a pas ecrit exactement `je valide`; cette validation ne couvre que le perimetre decrit juste avant.
+- Annoncer systematiquement le statut de memoire sous la forme : `Memoire SR : existante / absente a creer / non creee car simple question`.
+- Fact Gate obligatoire : avant toute conclusion factuelle non triviale, lire la source locale ou officielle qui peut trancher ; sinon marquer explicitement l'hypothese et la verification minimale restante.
+- Evidence gate obligatoire avant recommandation : lire les fichiers verifiables quand ils peuvent trancher.
+- Ne pas proposer une recommandation technique ou un plan engageant sans avoir lu les fichiers verifiables quand ils peuvent trancher.
+- Declarer les skills utilisees dans `task_plan.md`; utiliser `aurora-lot-runner` pour roadmap, gros brief, plusieurs lots, reprise longue ou phase autonome bornee.
+- Pour une UI/UX significative, utiliser `aurora-ui-visual-qa`, appliquer le Design Gate, le UI Test Readiness Gate et le UI Visual Evidence Gate, puis executer `node scripts/codex/sr_ui_verify.mjs` sur les routes et viewports requis.
+- Utiliser `docs/codex/SKILL_DIGEST.md` comme routeur court pour choisir les skills, puis lire uniquement les `SKILL.md` selectionnes.
+- Avant de creer ou modifier un agent IA applicatif, lire `docs/codex/AI_AGENT_RUNTIME_METHOD.md`.
+- SR Contract 3.1.0 : creer ou mettre a jour `docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json` quand `PROJECT_PROFILE.yaml` declare `require_sr_contract`, suivre chaque demande granulaire, separer implementation et preuve, heriter des exigences ouvertes, puis verifier avec `python3 scripts/codex/validate_sr_contract.py --file <chemin>`. Lire les contrats 3.0.0 en compatibilite.
+- Reprise consolidee : un retour sur une exigence validee rouvre par defaut le lot d'origine ; ne creer un nouveau lot que pour un scope reellement nouveau avec justification explicite.
+- Lot Completion Gate obligatoire : verifier chaque demande validee separement ; une implementation absente, partielle ou defectueuse impose `repair`, tandis que `user_testing` exige une implementation technique complete et seulement une preuve E2E ou acceptation manquante.
+- Loop Contract obligatoire pour toute tache non triviale : creer ou mettre a jour `docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json`, declarer `conversation_transition` et `resume_protocol`, puis verifier avec `python3 scripts/codex/validate_loop_contract.py --file <chemin>`.
+- Pour les skills metier Codex, lire `docs/codex/DOMAIN_EXPERTISE_BOOTSTRAP.md` et `docs/codex/PROJECT_SKILLS_POLICY.md`.
+- Pour les lots SR-Harness, lire `docs/codex/SR_HARNESS_METHOD.md`, `docs/codex/LOT_EXECUTION_METHOD.md`, `docs/codex/SR_LOTS.yaml` et `docs/codex/SR_INBOX.yaml`.
+- Lot Design Evidence Gate : avant de creer ou promouvoir un lot en `planned`, `validated`, `in_progress`, `repair` ou `reopened`, remplir `design_evidence` avec fichiers candidats, fichiers reellement lus, hypotheses et questions; sans preuve suffisante, garder le lot en `proposed`.
+- Pour une execution multi-lots, creer ou verifier une passe dans `docs/codex/SR_PASSES.yaml` avant codage : lots inclus, ordre, preflight, validations humaines, secrets/actions externes, criteres d'arret et E2E groupe.
+- Backlog Mutation Gate : si une demande, une decouverte ou une reparation introduit une fonction structurante ou un impact durable, classer l'evenement, analyser les implications globales, puis mettre a jour `SR_INBOX.yaml` ou `SR_LOTS.yaml`, ou documenter pourquoi aucune mutation n'est requise.
+- Global Impact Gate : avant de cadrer ou coder une fonction structurante, analyser son impact sur le produit global, les parcours, donnees, permissions, API/services, UI, tests, lots existants, dependances, migrations et risques, de facon agnostique au domaine.
+- Lot Dependency Reconciliation : classer les lots existants pertinents comme `unaffected`, `impacted`, `blocked_by`, `reopened`, `superseded`, `split_required` ou `depends_on` avant codage significatif.
+- Propagation Gate : si un changement touche un symbole ou contrat partage, annoncer avant mutation les consommateurs et surfaces a risque, demander validation humaine si le risque depasse le local, puis verifier apres mutation les references, appels, imports/exports, signatures, tests et smokes proportionnes avant toute cloture `done`.
+- Knowledge gate : utiliser `RepoMap/KG -> fichiers candidats -> lecture code reel -> tests/logs`; sans Nexus, `SR Core = RepoMap only`; avec Nexus, `SR Nexus = RepoMap + Nexus KG`.
+- Politique multi-lots par defaut : traiter les lots `repair`/`reopened` puis `validated`, jusqu'a 3 lots si les gates restent verts; stopper sur gate rouge, validation humaine requise ou contexte a risque.
+- Pass Planning Gate : avant toute passe, verifier que les dependances directes sont terminees ou incluses plus tot dans la passe; utiliser `python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml` si disponible.
+- Pass Runtime Goal : pour une passe `validated`/`in_progress`/`repair`/`reopened` executee avec `/goal`, generer `pass_runtime_goal.md` avec `python3 scripts/codex/build_pass_runtime_goal.py`, appliquer le Goal Length Gate (`max_goal_command_chars: 1000`, `hard_limit: 4000`) et ne pas enchainer une passe suivante sans validation utilisateur.
+- Context budget gate : executer `python3 scripts/codex/context_budget_report.py --root .` si disponible avant nouveau lot long; creer `NEXT_SESSION_PROMPT.md` au statut orange/rouge, apres 2 lots ou 20 tours utilisateur; declarer si la prochaine action continue ici ou exige une nouvelle conversation.
+- Self Evaluation Gate : apres patch, relire diff/fichiers critiques, verifier objectif, preuves, risques, oublis possibles, puis decider `done`, `user_testing`, `repair` ou `blocked`.
+- En fin de tache non triviale, indiquer la memoire SR utilisee, les fichiers SR mis a jour, les gates, les tests E2E utilisateur a faire et le prochain lot recommande.
+- Tests E2E utilisateur : les distinguer des tests unitaires et du build ; une implementation technique incomplete reste en `repair` meme si un E2E ou une acceptation manque aussi.
+- Backlog Contract : apres modification de `SR_LOTS.yaml`, executer `python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml` avant cloture.
+- En fin de tache non triviale, indiquer `NEXT_SESSION_PROMPT.md : cree / mis a jour / non requis` avec la raison, puis `Conversation : continuer ici / recommander nouvelle conversation / stopper pour nouvelle conversation`, et donner le prompt exact de reprise si une nouvelle conversation est recommandee.
+- Cloture standard de lot : commencer par `Demande utilisateur | Etat | Preuve | Reste a faire`, puis resultat, verifications, memoire SR et prochaine etape. Ne jamais dire termine/complet/livre/implemente avec un Completion Gate rouge.
+<!-- AURORA_SR_PACK_END -->

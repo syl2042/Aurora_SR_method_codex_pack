@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-EXPECTED_VERSION = "3.7.0"
+EXPECTED_VERSION = "4.0.0"
 VALID_KNOWLEDGE_MODES = {"core", "nexus_kg"}
 
 SKILL_AGENT_TEMPLATE = """\
@@ -158,12 +158,12 @@ def check_markers(root: Path) -> tuple[list[str], list[str]]:
         "docs/codex/tasks/_TEMPLATE/pass_runtime_goal.md": ["Pass Runtime Goal", "max_goal_command_chars: 1000", "hard_limit: 4000", "Pass Completion Gate"],
         "docs/codex/tasks/_TEMPLATE/loop_contract.json": ["schema_version", "status_decision", "requirement_registry", "lot_design_evidence_gate", "backlog_mutation_gate", "global_impact_gate", "propagation_gate", "lot_completion_gate", "e2e_user_tests", "resume_protocol"],
         "docs/codex/tasks/_TEMPLATE/sr_contract.json": ["schema_version", "validated_requests", "implementation_status", "evidence_status", "lineage", "closure", "lot_completion_gate", "design_evidence", "ui_validation", "backlog_mutation", "global_impact", "propagation", "transition"],
-        "docs/codex/prompts/06_verify_sr_installation.md": ["sr_post_install_check.py", "--fix-safe", "SR Contract 3.1.0", "audit_sr_task_contracts.py", "Propagation Gate"],
+        "docs/codex/prompts/06_verify_sr_installation.md": ["sr_post_install_check.py", "read_only", "SR Contract 3.1.0", "audit_sr_task_contracts.py", "Propagation Gate"],
         "docs/codex/prompts/07_realign_sr_state_after_upgrade.md": ["audit SR de reprise", "audit_sr_task_contracts.py", "sr_contract.json"],
         "docs/codex/prompts/08_define_sr_passes_from_lots.md": ["SR_PASSES.yaml", "Lot Design Evidence Gate", "validate_pass_contract.py"],
         "docs/codex/prompts/09_define_sr_lots_from_scope.md": ["SR_LOTS.yaml", "Lot Design Evidence Gate", "validate_lot_contract.py"],
-        "docs/codex/prompts/00_install_codex_environment.md": ["fresh_install", "3.7.0", "implementation_status", "evidence_status", "05_upgrade_codex_environment.md", "--write"],
-        "docs/codex/prompts/05_upgrade_codex_environment.md": ["https://github.com/syl2042/Aurora_SR_method_codex_pack", "commit source", "SR_PACK_SOURCE", "upgrade_legacy_unknown", "Lot Design Evidence Gate", "effet secondaire implicite", "sous-phase separee", "validate_sr_contract.py", "audit_sr_task_contracts.py", "Propagation Gate", "repository | marqueurs lus", "implementation_status", "evidence_status", "validated_requests"],
+        "docs/codex/prompts/00_install_codex_environment.md": ["fresh_install", "4.0.0", "implementation_status", "evidence_status", "05_upgrade_codex_environment.md", "--write"],
+        "docs/codex/prompts/05_upgrade_codex_environment.md": ["https://github.com/syl2042/Aurora_SR_method_codex_pack", "commit source", "SR_PACK_SOURCE", "managed_update", "already_current", "reconciliation_required", "release_status", "Lot Design Evidence Gate", "effet secondaire implicite", "sous-phase separee", "validate_sr_contract.py", "audit_sr_task_contracts.py", "Propagation Gate", "repository | marqueurs lus", "implementation_status", "evidence_status", "validated_requests"],
         "docs/codex/prompts/01_start_sr_session.md": ["find_next_session_prompt.py", "NEXT_SESSION_PROMPT.md", "Reprise SR stricte", "SR Contract 3.1.0", "validate_sr_contract.py", "Propagation Gate"],
         "docs/codex/prompts/60_review_diff_before_close.md": ["SR Contract 3.1.0", "validate_sr_contract.py", "validated_requests", "Lot Completion Gate", "Propagation Gate"],
         "docs/codex/SR_HARNESS_METHOD.md": ["SR_PASSES.yaml", "Pass Planning Gate", "Pass Runtime Goal", "Goal Length Gate", "Lot Completion Gate", "Propagation Gate", "UI Test Readiness Gate", "UI Visual Evidence Gate", "validate_pass_contract.py", "build_pass_runtime_goal.py"],
@@ -179,8 +179,10 @@ def check_markers(root: Path) -> tuple[list[str], list[str]]:
         "scripts/codex/sr_ui_verify.mjs": ["ui_test_readiness_gate", "ui_visual_evidence_gate", "storageState"],
         "scripts/codex/audit_sr_task_contracts.py": ["SR 3.0.0", "legacy task memories", "LEGACY_LOT_COMPLETION_GATE_CUTOFF", "legacy_compat"],
     }
+    from sr_route_check import check, routed_text
+    errors.extend(check(root))
     for rel, markers in marker_checks.items():
-        text = read_text(root / rel)
+        text = routed_text(root, rel) if (root / rel).exists() else ""
         if not text:
             errors.append(f"missing marker target: {rel}")
             continue

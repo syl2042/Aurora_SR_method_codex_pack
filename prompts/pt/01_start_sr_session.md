@@ -4,8 +4,8 @@ Nao programe.
 
 Objetivo: reconstruir todo o escopo validado e propor a proxima acao coerente antes de qualquer mutacao.
 
-1. Ler `AGENTS.md`, `docs/codex/SR_BOOTSTRAP.md` e `docs/CURRENT_STATE.md` quando existir.
-2. Executar `python3 scripts/codex/find_next_session_prompt.py --root . --json` e ler o ultimo `NEXT_SESSION_PROMPT.md` encontrado.
+1. Ler `AGENTS.md` e `docs/codex/SR_BOOTSTRAP.md`; CURRENT_STATE para estado global ou retomada ausente/contraditoria.
+2. Executar `python3 scripts/codex/find_next_session_prompt.py --root . --json`. Usar `selected`; se `ambiguous`, pedir o caminho e usar `--prompt`. Nao escolher `latest` silenciosamente.
 3. Ler o `sr_contract.json` ligado (SR Contract 3.1.0 ou legacy 3.0.0), `loop_contract.json`, task memory, lotes e passes necessarios.
 4. Recarregar todas as entradas abertas herdadas de `validated_requests`; nao retomar apenas pelo ultimo feedback.
 5. Separar requisitos feitos, parciais, nao feitos, defeituosos, bloqueados ou aguardando evidencia.
@@ -16,3 +16,5 @@ Objetivo: reconstruir todo o escopo validado e propor a proxima acao coerente an
 Informar versao SR, memoria usada, pedidos validados, estados de implementacao/evidencia, lotes reabertos, bloqueios, evidencias pendentes, proximo escopo coerente e validacao humana exata necessaria.
 
 Parar e aguardar validacao.
+
+SR 4 : `NEXT_SESSION_PROMPT.md`, `procedures/resume.md`, Reprise SR stricte, `validate_sr_contract.py`, Propagation Gate.

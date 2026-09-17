@@ -1,5 +1,7 @@
 # SR Agent Method
 
+> SR 4 : document conceptuel et de reference. Les definitions normatives et leurs declencheurs ont pour sources canoniques SR_BOOTSTRAP.md et les procedures routees. Les rappels ci-dessous ne prescrivent pas un chargement universel ni une seconde procedure concurrente.
+
 ## Objectif
 
 La SR Agent Method definit comment construire des agents IA runtime dans une application sans rendre le projet dependant d'un framework agent lourd, d'un provider modele, d'un domaine metier, d'une interface ou d'une representation technique particuliere.

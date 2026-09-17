@@ -1,5 +1,24 @@
 # Aurora SR Method Codex Pack
 
+## SR 4.0.0 — version publiee
+
+Source cible : choisir explicitement `SR_PACK_SOURCE`, soit une version publiee identifiee, soit le candidat local SR 4.0.0 autorise. Lire `core/SR_PACK_VERSION.json` (`version`, `release_status`) et noter `source_commit`, l'etat Git et, si le clone est modifie, une empreinte du contenu source incluant les fichiers non suivis utilises. Un candidat `unreleased` ne doit pas etre presente comme une release. Ne pas remplacer une source candidate par un clone de la derniere version publiee ; si la source demandee manque, s'arreter et clarifier avant installation.
+
+Pour cette cible SR 4.0.0, la source doit annoncer `version: 4.0.0`. Si aucune release 4.0.0 n’est publiee, utiliser uniquement le candidat local autorise ou signaler son absence ; ne pas installer silencieusement une autre version.
+
+Parcours : installation neuve `00 -> 06` ; installation existante `05 -> 06 -> 07`. Le prompt `06` controle seulement ; `07` propose le realignement puis attend `je valide` avant modification de la memoire. Aucun developpement applicatif n'est autorise par ces parcours.
+
+SR 4 charge les procedures selon la tache via `SR_BOOTSTRAP.md` et `SR_ROUTES.json`. Les gates, le HITL, les exigences ouvertes et les schemas de contrats restent preserves. Le numero du pack ne force aucune conversion des anciens contrats.
+
+### Premiere installation
+Inspecter les regles locales; obtenir `je valide` pour le perimetre; previsualiser, appliquer `--write`, puis verifier. Les fichiers projet existants sont conserves ou fusionnes explicitement. Aucun code applicatif ne change.
+
+### Mise a jour agnostique
+Utiliser `--upgrade` apres audit des fichiers reels. La version precedente est informative, jamais un pre-requis : installations anciennes, sans version, partielles ou melangees sont examinees par contenu. Un fichier pack inconnu/personnalise bloque son remplacement; ne pas le supprimer pour forcer le passage. Comparer et faire valider sa reconciliation. Les anciens contrats, lots ouverts, memoires, handoffs et skills metier restent preserves.
+
+La previsualisation est non mutative sauf `--plan-out` explicitement demande. Un plan enregistre contient les contenus des fichiers : le conserver localement. `--apply-plan` refuse les changements intervenus depuis le diagnostic. Une transaction sauvegarde les fichiers modifies; `--restore` refuse d'ecraser une modification ulterieure. Ne jamais utiliser `--write` pour forcer un upgrade. Un numero de version cible ecrit ne prouve pas la reussite : le postcheck doit passer.
+
+
 [![GitHub stars](https://img.shields.io/github/stars/syl2042/Aurora_SR_method_codex_pack?style=social)](https://github.com/syl2042/Aurora_SR_method_codex_pack/stargazers)
 [![Forks](https://img.shields.io/github/forks/syl2042/Aurora_SR_method_codex_pack?style=social)](https://github.com/syl2042/Aurora_SR_method_codex_pack/forks)
 [![Issues](https://img.shields.io/github/issues/syl2042/Aurora_SR_method_codex_pack)](https://github.com/syl2042/Aurora_SR_method_codex_pack/issues)
@@ -150,9 +169,9 @@ Les scripts de lancement Windows/MobaXterm sont disponibles dans [tools/sr-cockp
 
 ---
 
-## Version cible 3.7.0
+## Version cible 4.0.0
 
-La version cible `3.7.0` empeche qu'une demande validee disparaisse derriere un statut global. Le SR Contract 3.1.0 separe `implementation_status` de `evidence_status`, calcule la decision de chaque exigence et le Completion Gate global, herite obligatoirement des exigences ouvertes lors d'une reprise et reserve `user_testing` aux implementations techniquement completes.
+La version cible `4.0.0` empeche qu'une demande validee disparaisse derriere un statut global. Le SR Contract 3.1.0 separe `implementation_status` de `evidence_status`, calcule la decision de chaque exigence et le Completion Gate global, herite obligatoirement des exigences ouvertes lors d'une reprise et reserve `user_testing` aux implementations techniquement completes.
 
 Les retours utilisateur sur une fonction existante rouvrent par defaut le lot d'origine et rechargent sa checklist complete. La creation d'un nouveau lot exige de prouver que la demande est hors scope existant. Les contrats 3.0.0 restent lisibles et ne sont pas reecrits en masse ; les registres legacy trop generiques produisent un avertissement de normalisation manuelle.
 

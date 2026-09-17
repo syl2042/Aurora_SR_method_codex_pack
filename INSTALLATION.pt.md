@@ -1,5 +1,68 @@
 # Instalação
 
+## SR 4.0.0 — versao publicada
+
+Fonte alvo: selecionar explicitamente `SR_PACK_SOURCE`, uma versao publicada identificada ou o candidato local SR 4.0.0 autorizado. Ler `core/SR_PACK_VERSION.json` (`version`, `release_status`); registrar `source_commit`, estado Git e, havendo alteracoes locais, uma impressao do conteudo incluindo arquivos fonte nao rastreados utilizados. Nao apresentar um candidato `unreleased` como release. Nao substituir o candidato por um clone da ultima versao publicada; se a fonte solicitada faltar, parar e esclarecer antes de instalar.
+
+Para este alvo SR 4.0.0, a fonte deve declarar `version: 4.0.0`. Se nao houver release 4.0.0 publicada, usar somente o candidato local autorizado ou informar sua ausencia; nunca instalar outra versao silenciosamente.
+
+Percursos: instalacao nova `00 -> 06`; instalacao existente `05 -> 06 -> 07`. O prompt `06` somente verifica; `07` propoe o realinhamento e espera `je valide` antes de alterar a memoria. Nenhum percurso autoriza desenvolvimento da aplicacao.
+
+SR 4 carrega procedimentos conforme a tarefa usando `SR_BOOTSTRAP.md` e `SR_ROUTES.json`. Gates, HITL, requisitos abertos e esquemas de contratos permanecem preservados. A versao do pacote nao exige converter contratos antigos.
+
+### Primeira instalacao
+Inspecionar regras locais; obter `je valide` para o escopo; previsualizar, aplicar `--write` e verificar. Preservar ou mesclar explicitamente arquivos do projeto. Nenhuma alteracao no codigo da aplicacao.
+
+### Atualizacao independente da versao
+Usar `--upgrade` depois da inspecao dos arquivos reais. A versao anterior e informativa, nunca obrigatoria. Classificar por conteudo instalacoes antigas, sem versao, parciais ou mistas. Arquivos desconhecidos/personalizados bloqueiam substituicao: nao remover para contornar conflitos. Revisar e autorizar a conciliacao. Preservar contratos, lotes abertos, memoria, handoffs e skills de dominio.
+
+A previsualizacao so escreve com `--plan-out` solicitado. Planos contem arquivos e devem ficar locais. `--apply-plan` rejeita alteracoes posteriores. Transacoes guardam copias; `--restore` nao sobrescreve edicoes posteriores. Nunca forcar upgrades com `--write`. A versao gravada nao prova sucesso: o postcheck deve passar.
+
+Previsualizar com o comando abaixo antes da validacao; depois de `je valide`, escolher apenas o modo correspondente. `--plan-out` escreve um plano local e exige autorizacao; `--apply-plan` rejeita diagnosticos desatualizados. `--restore` e uma operacao separada com o diario exato da transacao e rejeita edicoes posteriores. Nao excluir arquivos para contornar conflitos.
+
+Somente previsualizacao:
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --json
+```
+
+Instalacao nova apos validacao:
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --write
+```
+
+Instalacao existente apos validacao:
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --upgrade
+```
+
+Somente verificacao:
+
+```bash
+python3 "$SR_TARGET/scripts/codex/sr_post_install_check.py" --root "$SR_TARGET" --json
+```
+
+Plano local opcional apos autorizacao:
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --plan-out "$SR_PLAN_FILE"
+```
+
+Aplicar o plano validado, alternativa aos comandos diretos:
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --apply-plan "$SR_PLAN_FILE"
+```
+
+Restauracao separada, somente se necessaria e autorizada:
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --restore "$SR_JOURNAL_FILE"
+```
+
+
 [English](INSTALLATION.md) |
 [Francais](INSTALLATION.fr.md) |
 [Deutsch](INSTALLATION.de.md) |
@@ -10,7 +73,7 @@ O fluxo recomendado é **prompt Codex primeiro**. Os scripts Python são ferrame
 
 ## Escolher primeiro o percurso correto
 
-- Sem marcador SR: prompt `00`, instalar SR 3.7.0 com `--write`.
+- Sem marcador SR: prompt `00`, instalar SR 4.0.0 com `--write`.
 - Marcador SR existente, antigo ou parcial: prompt `05`, auditar e atualizar de forma aditiva com `--upgrade`.
 - Vários repositórios: ler versão e marcadores de cada alvo, criar uma matriz por repositório e executar um `--upgrade` por alvo. Nunca supor versão comum.
 
@@ -18,20 +81,16 @@ A instalação nova usa `sr_contract` 3.1.0, `loop_contract` 1.1, `SR_LOTS` 0.4 
 
 ## Instalar em um projeto alvo
 
-1. Clone este repositório.
+1. Selecionar a fonte local verificada conforme Fonte alvo.
 2. Abra o Codex no projeto alvo.
 3. Cole [prompts/pt/00_install_codex_environment.md](prompts/pt/00_install_codex_environment.md).
 4. Deixe o Codex instalar, verificar e relatar.
 
 Fallback técnico:
 
-Sem `--write` nem `--upgrade`, o instalador apenas mostra uma prévia somente leitura. Os dois modos de mutação são mutuamente exclusivos.
+Sem opcao de mutacao nem `--plan-out`, o instalador oferece uma previsualizacao somente leitura. `--write`, `--upgrade`, `--apply-plan` e `--restore` sao mutuamente exclusivos.
 
-```bash
-export SR_PACK_SOURCE="$HOME/aurora-sr-method-pack"
-git clone https://github.com/syl2042/Aurora_SR_method_codex_pack.git "$SR_PACK_SOURCE"
-python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target /path/to/project --profile default --write
-```
+Usar o clone `SR_PACK_SOURCE` ja selecionado e verificado. Para uma versao publicada, clonar a fonte oficial se necessario e selecionar a referencia publicada validada; clonar nao seleciona o candidato SR 4. O candidato exige o conteudo local explicitamente autorizado. Definir `SR_TARGET` como caminho do projeto alvo antes dos comandos.
 
 Novas instalacoes incluem `docs/codex/SR_PASSES.yaml`. SR Passes agrupa varios lotes SR em uma passagem limitada com ordem de dependencias, preflight compartilhado, validacoes humanas e testes E2E agrupados. Os lotes continuam sendo a unidade atomica em `SR_LOTS.yaml`.
 

@@ -7,6 +7,7 @@ from pathlib import Path
 
 LANGUAGES = ("en", "fr", "de", "es", "pt")
 RELEASE_HISTORY = (
+    "3.7.0",
     "3.6.0",
     "3.5.2",
     "3.5.1",
@@ -20,7 +21,10 @@ RELEASE_HISTORY = (
 )
 PUBLIC_PROMPTS = {
     "00_install_codex_environment.md": (
-        "3.7.0",
+        "4.0.0",
+        "SR_PACK_SOURCE",
+        "release_status",
+        "source_commit",
         "implementation_status",
         "evidence_status",
         "validated_requests",
@@ -32,19 +36,32 @@ PUBLIC_PROMPTS = {
         "user_testing",
     ),
     "05_upgrade_codex_environment.md": (
-        "3.7.0",
+        "4.0.0",
+        "SR_PACK_SOURCE",
+        "release_status",
+        "source_commit",
+        "managed_update",
+        "already_current",
+        "reconciliation_required",
         "2.2.0",
         "implementation_status",
         "evidence_status",
         "sr_post_install_check.py",
     ),
     "06_verify_sr_installation.md": (
+        "read_only",
         "SR Contract 3.1.0",
         "audit_sr_task_contracts.py",
         "validate_release_docs.py",
         "sr_post_install_check.py",
     ),
     "07_realign_sr_state_after_upgrade.md": (
+        "SR_BOOTSTRAP.md",
+        "find_next_session_prompt.py",
+        "selected",
+        "ambiguous",
+        "--prompt",
+        "je valide",
         "implementation_status",
         "evidence_status",
         "validated_requests",
@@ -60,7 +77,7 @@ PUBLIC_PROMPTS = {
     "15_define_runtime_agents.md": ("Pydantic", "output schema", "invalid_output_policy"),
 }
 INSTALL_MARKERS = (
-    "3.7.0",
+    "4.0.0",
     "SR_LOTS.yaml",
     "SR_PASSES.yaml",
     "09_define_sr_lots_from_scope.md",
@@ -92,6 +109,27 @@ def require_markers(path: Path, markers: tuple[str, ...], errors: list[str]) -> 
     for marker in markers:
         if marker not in text:
             errors.append(f"{path}: missing marker {marker!r}")
+
+
+def validate_prompt_policy(path: Path, version: str | None, errors: list[str]) -> None:
+    """Catch known contradictory instructions, without claiming semantic proof."""
+    if not path.exists():
+        return
+    text = path.read_text(encoding="utf-8")
+    if path.name.startswith(("00_", "05_")):
+        for heading in re.findall(r"^#+ .+$", text, re.MULTILINE):
+            for named_version in re.findall(r"\bSR[ -]+(\d+(?:\.\d+){1,2})\b", heading):
+                if version and named_version != version:
+                    errors.append(f"{path}: stale SR heading {heading!r}; target is {version}")
+    if path.name.startswith("05_"):
+        if re.search(r"\bupgrade_(?:minor_3x|standard_235_plus|legacy_unknown)\b", text):
+            errors.append(f"{path}: version-based upgrade routing conflicts with content-based classification")
+    if path.name.startswith("06_"):
+        # A verification-only prompt routes repairs elsewhere; it must not embed
+        # runnable mutation options, including the old automatic-fix path.
+        for option in ("--write", "--upgrade", "--fix-safe", "--apply-plan", "--plan-out", "--restore"):
+            if re.search(rf"(?<![\w-]){re.escape(option)}(?![\w-])", text):
+                errors.append(f"{path}: mutative option in read-only prompt: {option}")
 
 
 def validate_links(root: Path, paths: list[Path], errors: list[str]) -> None:
@@ -153,9 +191,12 @@ def audit(root: Path) -> list[str]:
         errors.append(f"{version_path}: released_at must be a date string for a released pack")
 
     prompt_root = root / ("prompts" if source_mode else "docs/codex/prompts")
-    for language in LANGUAGES:
+    # Root prompts are public entry points too, and are also installed.
+    for language in ("", *LANGUAGES):
         for prompt, markers in PUBLIC_PROMPTS.items():
-            require_markers(prompt_root / language / prompt, markers, errors)
+            path = prompt_root / language / prompt
+            require_markers(path, markers, errors)
+            validate_prompt_policy(path, version, errors)
 
     if source_mode:
         docs_to_check = [changelog_path]
@@ -164,7 +205,7 @@ def audit(root: Path) -> list[str]:
             installation = source_doc(root, "INSTALLATION", language)
             require_markers(
                 readme,
-                ("3.7.0", "CHANGELOG.md", f"prompts/{language}/07_realign_sr_state_after_upgrade.md"),
+                ("4.0.0", "CHANGELOG.md", f"prompts/{language}/07_realign_sr_state_after_upgrade.md"),
                 errors,
             )
             require_markers(installation, INSTALL_MARKERS, errors)

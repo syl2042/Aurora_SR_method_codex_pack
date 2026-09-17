@@ -1,5 +1,7 @@
 # SR Method
 
+> SR 4 : document conceptuel et de reference. Les definitions normatives et leurs declencheurs ont pour sources canoniques SR_BOOTSTRAP.md et les procedures routees. Les rappels ci-dessous ne prescrivent pas un chargement universel ni une seconde procedure concurrente.
+
 ## Definition
 
 SR signifie **Specification Runtime**.

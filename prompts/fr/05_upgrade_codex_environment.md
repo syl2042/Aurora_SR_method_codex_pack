@@ -1,8 +1,27 @@
-# Mettre a jour un projet vers la derniere SR Method
+# Mettre a jour une installation SR existante vers la source validee
+
+## SR 4.0.0 — version publiee
+
+Source cible : choisir explicitement `SR_PACK_SOURCE`, soit une version publiee identifiee, soit le candidat local SR 4.0.0 autorise. Lire `core/SR_PACK_VERSION.json` (`version`, `release_status`) et noter `source_commit`, l'etat Git et, si le clone est modifie, une empreinte du contenu source incluant les fichiers non suivis utilises. Un candidat `unreleased` ne doit pas etre presente comme une release. Ne pas remplacer une source candidate par un clone de la derniere version publiee ; si la source demandee manque, s'arreter et clarifier avant installation.
+
+Pour cette cible SR 4.0.0, la source doit annoncer `version: 4.0.0`. Si aucune release 4.0.0 n’est publiee, utiliser uniquement le candidat local autorise ou signaler son absence ; ne pas installer silencieusement une autre version.
+
+Previsualiser avec la commande ci-dessous avant validation ; apres `je valide`, choisir uniquement le mode correspondant au parcours. `--plan-out` ecrit un plan local et exige une autorisation ; `--apply-plan` refuse un diagnostic perime. `--restore` est une operation distincte, sur le journal exact de la transaction, et refuse les modifications ulterieures. Ne pas contourner un conflit en supprimant un fichier.
+
+Les plans enregistres contiennent les contenus des fichiers : les conserver localement. Definir `SR_TARGET` comme chemin du repository cible.
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --json
+```
+
+```bash
+# je valide
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --upgrade
+```
 
 Tu travailles dans un repository applicatif deja equipe d'une version existante de la Aurora SR Method, possiblement ancienne, partielle ou adaptee localement.
 
-Objectif verifiable : mettre a jour la SR Method vers la derniere version officielle disponible, sans regression, sans modifier le code applicatif, sans ecraser les adaptations projet, et en laissant le projet dans un etat SR realigne avant toute reprise de developpement.
+Objectif verifiable : mettre a jour la SR Method vers la source cible explicitement selectionnee, sans regression, sans modifier le code applicatif, sans ecraser les adaptations projet, et en laissant le projet dans un etat SR realigne avant toute reprise de developpement.
 
 Ce prompt accepte une cible unique ou plusieurs repositories explicites. Avec plusieurs dossiers, traite chaque repository comme une cible independante et produis avant mutation une matrice `repository | marqueurs lus | version detectee | etat | flux propose | fichiers a preserver | validation`. Ne suppose jamais une version commune ; applique et verifie chaque cible separement.
 
@@ -42,7 +61,7 @@ Regles strictes :
 - Preserve les contrats `sr_contract` 3.0.0 en lecture compatible. Les nouvelles task memories et les lots rouverts utilisent 3.1.0 avec `implementation_status` et `evidence_status` separes.
 - Ne reecris pas massivement les anciens `validated_requests`. Signale les contrats multi-lots reduits a une exigence globale ; normalise seulement le perimetre actif ou rouvert apres lecture des sources et validation humaine.
 - L'upgrade ne ferme, ne deplace et ne transforme en nouveau lot aucune exigence ouverte, partielle ou defectueuse.
-- En SR plein regime, tout changement de version SR doit mettre a jour `docs/CURRENT_STATE.md` avec la version installee, la date de revue, les controles executes, le dernier `NEXT_SESSION_PROMPT.md`, les lots significatifs et la prochaine etape.
+- En SR plein regime, tout changement de version SR doit mettre a jour `docs/CURRENT_STATE.md` avec la version installee, la date de revue, les controles executes, le `NEXT_SESSION_PROMPT.md` pertinent selectionne, les lots significatifs et la prochaine etape.
 - Un `loop_contract.json` de type `upgrade` ne peut pas se cloturer en `done` avec `memory_updates.current_state_updated=false`.
 - Avant toute modification de fichier, expose le plan d'upgrade et attends la validation explicite de l'utilisateur.
 
@@ -63,13 +82,14 @@ Etape 1 - Diagnostic de version :
 
 Etape 2 - Classification :
 
-Classe le projet dans un de ces flux :
+Classer selon les fichiers observes et la previsualisation, independamment du numero precedent :
 
-- `upgrade_minor_3x` si la version installee est deja `3.x` ;
-- `upgrade_standard_235_plus` si la version est `2.3.5+` ;
-- `upgrade_legacy_unknown` si la version est absente, illisible, inferieure a `2.3.5`, ou si l'installation SR est partielle.
+- `fresh_install` : aucun marqueur SR ; utiliser le prompt `00`.
+- `managed_update` : fichiers geres reconnus, remplacements et ajouts proposes sans conflit.
+- `already_current` : aucun changement propose ; verifier sans reecrire.
+- `reconciliation_required` : contenu gere inconnu/personnalise ou installation partielle avec conflits ; conserver les fichiers, comparer et faire valider la reconciliation avant application.
 
-Matrice SR 3.7.0 : fresh install vers schemas 3.1.0/1.1 et lots 0.4/passes 0.2 ; SR 3.6.x par rafraichissement additif ; SR 3.0-3.5 avec warnings et normalisation ciblee des lots actifs/rouverts ; SR 2.x/unknown/partial avec sauvegarde et inventaire fichier par fichier ; adaptations locales preservees hors blocs SR geres.
+Une installation partielle sans conflit peut suivre `managed_update`. Les fichiers propres au projet, contrats historiques, lots, memoires et skills locales restent preserves. La version detectee est informative ; elle ne selectionne aucune branche de migration.
 
 Les layouts officiels representatifs SR 2.2.0, 2.3.0, 2.3.5, 2.4.1 et 3.0.0 disposent de regressions d'upgrade. Un layout unknown/partial reste audite fichier par fichier : la fixture prouve le chemin minimal, pas la compatibilite universelle de toute adaptation locale.
 
@@ -84,7 +104,7 @@ Etape 3 - Source officielle :
 
 Etape 4 - Analyse avant mutation :
 
-Compare l'installation actuelle avec la derniere version du pack et identifie :
+Compare l'installation actuelle avec la source cible validee et identifie :
 
 - fichiers SR manquants ;
 - fichiers SR anciens ;
@@ -202,3 +222,5 @@ Rapport final attendu :
 - si plusieurs repositories sont traites, resultat et warnings par cible, sans statut global trompeur.
 
 Fin obligatoire : attends la validation avant toute modification applicative ou toute execution de passe.
+
+Parcours : installation neuve `00 -> 06` ; installation existante `05 -> 06 -> 07`. Le prompt `06` controle seulement ; `07` propose le realignement puis attend `je valide` avant modification de la memoire. Aucun developpement applicatif n'est autorise par ces parcours.

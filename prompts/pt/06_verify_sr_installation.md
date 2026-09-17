@@ -1,5 +1,9 @@
 # Verificar uma instalacao da SR Method
 
+## SR 4.0.0 — versao publicada
+
+Modo `read_only`: sem alteracoes de arquivos, correcoes automaticas, instalacao ou restauracao. Relatar divergencias; correcoes exigem escopo separado validado com `je valide`.
+
 Nao modifique arquivos.
 
 Objetivo: provar que cada instalacao ou upgrade esta completa, coerente e utilizavel antes de retomar o desenvolvimento da aplicacao.
@@ -18,3 +22,5 @@ Classificar cada warning como estado legacy compativel, divida documental, `repa
 Informar por repositorio versao, controles, erros, warnings, contratos, `validated_requests` abertas, evidencias pendentes e proxima acao. `user_testing` so vale para trabalho tecnicamente completo; implementacao ausente permanece `repair`.
 
 Parar sem corrigir e pedir validacao exata para qualquer reparacao.
+
+Percursos: instalacao nova `00 -> 06`; instalacao existente `05 -> 06 -> 07`. O prompt `06` somente verifica; `07` propoe o realinhamento e espera `je valide` antes de alterar a memoria. Nenhum percurso autoriza desenvolvimento da aplicacao.

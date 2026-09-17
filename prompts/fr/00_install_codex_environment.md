@@ -1,8 +1,22 @@
-# Installer SR 3.7 dans un projet cible neuf
+# Installer SR 4.0.0 dans un projet cible neuf
+
+## SR 4.0.0 — version publiee
+
+Source cible : choisir explicitement `SR_PACK_SOURCE`, soit une version publiee identifiee, soit le candidat local SR 4.0.0 autorise. Lire `core/SR_PACK_VERSION.json` (`version`, `release_status`) et noter `source_commit`, l'etat Git et, si le clone est modifie, une empreinte du contenu source incluant les fichiers non suivis utilises. Un candidat `unreleased` ne doit pas etre presente comme une release. Ne pas remplacer une source candidate par un clone de la derniere version publiee ; si la source demandee manque, s'arreter et clarifier avant installation.
+
+Pour cette cible SR 4.0.0, la source doit annoncer `version: 4.0.0`. Si aucune release 4.0.0 n’est publiee, utiliser uniquement le candidat local autorise ou signaler son absence ; ne pas installer silencieusement une autre version.
+
+Previsualiser avec la commande ci-dessous avant validation ; apres `je valide`, choisir uniquement le mode correspondant au parcours. `--plan-out` ecrit un plan local et exige une autorisation ; `--apply-plan` refuse un diagnostic perime. `--restore` est une operation distincte, sur le journal exact de la transaction, et refuse les modifications ulterieures. Ne pas contourner un conflit en supprimant un fichier.
+
+Les plans enregistres contiennent les contenus des fichiers : les conserver localement. Definir `SR_TARGET` comme chemin du repository cible.
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --json
+```
 
 Tu travailles dans un repository logiciel qui doit recevoir Aurora SR Method pour la premiere fois.
 
-Objectif verifiable : installer le pack SR 3.7.0 et ses contrats cibles (`sr_contract` 3.1.0, `loop_contract` 1.1, `SR_LOTS` 0.4, `SR_PASSES` 0.2), verifier l'installation, puis stopper avant tout developpement applicatif.
+Objectif verifiable : installer le pack SR 4.0.0 et ses contrats cibles (`sr_contract` 3.1.0, `loop_contract` 1.1, `SR_LOTS` 0.4, `SR_PASSES` 0.2), verifier l'installation, puis stopper avant tout developpement applicatif.
 
 `SR_PASSES.yaml` doit etre installe avec `passes: []`. Ce registre vide est valide : aucune passe produit ne doit etre inventee pendant l'installation neuve. Les passes sont proposees ensuite par le prompt `08`, apres lecture des lots et validation humaine.
 
@@ -30,3 +44,5 @@ Apres validation :
 9. Rapporter la classification `fresh_install`, la version cible, le commit source, les fichiers ajoutes/preserves, les controles verts/rouges, les warnings et confirmer qu'aucun fichier applicatif n'a change.
 
 Fin obligatoire : installer la methode ne valide aucun perimetre produit. Attends une demande utilisateur explicite avant de definir ou d'executer des lots applicatifs.
+
+Parcours : installation neuve `00 -> 06` ; installation existante `05 -> 06 -> 07`. Le prompt `06` controle seulement ; `07` propose le realignement puis attend `je valide` avant modification de la memoire. Aucun developpement applicatif n'est autorise par ces parcours.

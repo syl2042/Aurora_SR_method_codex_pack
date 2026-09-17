@@ -1,8 +1,27 @@
-# Upgrade a project to the latest SR Method
+# Upgrade an existing SR installation to the approved source
+
+## SR 4.0.0 — published release
+
+Target source: explicitly select `SR_PACK_SOURCE`, either an identified published release or the authorized local SR 4.0.0 candidate. Read `core/SR_PACK_VERSION.json` (`version`, `release_status`); record `source_commit`, Git state and, for a modified clone, a content fingerprint including the untracked source files used. Do not present an `unreleased` candidate as a release. Do not substitute a clone of the latest published release for the candidate; if the requested source is unavailable, stop and clarify before installing.
+
+For this SR 4.0.0 target, the source must declare `version: 4.0.0`. If no 4.0.0 release is published, use only the authorized local candidate or report its absence; never silently install another version.
+
+Preview with the command below before approval; after `je valide`, choose only the mode matching the path. `--plan-out` writes a local plan and requires authorization; `--apply-plan` rejects stale diagnostics. `--restore` is a separate operation using the exact transaction journal and rejects later edits. Never delete a file to bypass a conflict.
+
+Saved plans contain file contents: keep them local. Set `SR_TARGET` to the target repository path.
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --json
+```
+
+```bash
+# je valide
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --upgrade
+```
 
 You are working in an application repository that already contains an existing Aurora SR Method installation, possibly old, partial, or locally adapted.
 
-Verifiable objective: upgrade the SR Method to the latest official version without regression, without changing application code, without overwriting project-owned adaptations, and leave the project in a realigned SR state before any development resumes.
+Verifiable objective: upgrade the SR Method to the explicitly selected target source without regression, without changing application code, without overwriting project-owned adaptations, and leave the project in a realigned SR state before any development resumes.
 
 This prompt accepts one target or an explicit list of repositories. For multiple folders, treat every repository as an independent target and produce a pre-mutation matrix: `repository | markers read | detected version | install state | proposed path | files to preserve | validation`. Never assume a shared version; apply and verify each target separately.
 
@@ -42,7 +61,7 @@ Strict rules:
 - Preserve `sr_contract` 3.0.0 contracts through compatible reading. New task memories and reopened lots use 3.1.0 with separate `implementation_status` and `evidence_status`.
 - Do not mass-rewrite legacy `validated_requests`. Flag multi-lot contracts reduced to one global requirement; normalize only active or reopened scope after reading sources and obtaining human validation.
 - The upgrade must not close, move, or turn any open, partial, or defective requirement into a new lot.
-- In full SR regime, every SR version change must update `docs/CURRENT_STATE.md` with installed version, review date, checks run, latest `NEXT_SESSION_PROMPT.md`, significant lots, and next step.
+- In full SR regime, every SR version change must update `docs/CURRENT_STATE.md` with installed version, review date, checks run, selected relevant `NEXT_SESSION_PROMPT.md`, significant lots, and next step.
 - An `upgrade` `loop_contract.json` cannot close as `done` with `memory_updates.current_state_updated=false`.
 - Before any file mutation, present the upgrade plan and wait for explicit user validation.
 
@@ -63,13 +82,14 @@ Step 1 - Version diagnosis:
 
 Step 2 - Classification:
 
-Classify the project into one flow:
+Classify from observed files and preview, independently of the previous version number:
 
-- `upgrade_minor_3x` when the installed version is already `3.x`;
-- `upgrade_standard_235_plus` when the version is `2.3.5+`;
-- `upgrade_legacy_unknown` when the version is missing, unreadable, lower than `2.3.5`, or the SR installation is partial.
+- `fresh_install`: no SR markers; use prompt `00`.
+- `managed_update`: recognized managed files, proposed replacements and additions without conflicts.
+- `already_current`: no proposed changes; verify without rewriting.
+- `reconciliation_required`: unknown/customized managed content or a partial installation with conflicts; preserve files, compare and obtain approval for reconciliation before applying.
 
-SR 3.7.0 migration matrix: fresh installs target schemas 3.1.0/1.1 and lots 0.4/passes 0.2; SR 3.6.x gets an additive refresh; SR 3.0-3.5 keeps legacy reading with warnings and targeted normalization of active/reopened lots; SR 2.x/unknown/partial requires backup and file-by-file inventory; local adaptations remain preserved outside managed SR blocks.
+A partial installation without conflicts can follow `managed_update`. Preserve project-owned files, historical contracts, lots, memories and local skills. The detected version is informational; it selects no migration branch.
 
 Representative official SR 2.2.0, 2.3.0, 2.3.5, 2.4.1, and 3.0.0 layouts have upgrade regressions. An unknown/partial layout still requires file-by-file audit: the fixture proves the minimal path, not universal compatibility with every local adaptation.
 
@@ -84,7 +104,7 @@ Step 3 - Official source:
 
 Step 4 - Analysis before mutation:
 
-Compare the current installation with the latest pack version and identify:
+Compare the current installation with the approved target source and identify:
 
 - missing SR files;
 - old SR files;
@@ -202,3 +222,5 @@ Expected final report:
 - for multiple repositories, result and warnings per target, without a misleading global status.
 
 Mandatory end: wait for validation before any application modification or pass execution.
+
+Paths: fresh installation `00 -> 06`; existing installation `05 -> 06 -> 07`. Prompt `06` only checks; `07` proposes realignment and waits for `je valide` before changing memory. Neither path authorizes application development.

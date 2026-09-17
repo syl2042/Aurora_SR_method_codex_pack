@@ -1,78 +1,28 @@
 # NEXT_SESSION_PROMPT
 
-## Role
+## Identite et autorisation
+- Projet / task memory :
+- Objectif et perimetre valide (source de validation) :
+- Exclusions / autorisations sensibles :
+- Etat et derniere action terminee :
 
-Ce fichier est un point de reprise court. Il peut etre colle dans une nouvelle conversation, mais la SR Method demande aussi a Codex de le detecter automatiquement au demarrage avec :
+## Prochaine action
+- prochain ensemble coherent :
+- Blocages / decision humaine attendue :
+- Risques et decisions actives :
+- Fichiers principaux :
+- Derniere verification (source, date, environnement, limites) :
 
-```bash
-python3 scripts/codex/find_next_session_prompt.py --root . --json
-```
-
-Ne pas creer ce fichier pour chaque micro-tache. Le creer ou le rafraichir quand le risque de perte de contexte devient reel : contexte orange/rouge, pause utilisateur, fin de batch multi-lots, changement de macro-fonction, upgrade, realignement ou decision structurante.
-
-## Prompt a copier dans la prochaine conversation
-
-Utiliser ce prompt apres un stop contexte `orange`, `red`, `unknown`, `stale` ou `ambiguous`, sauf si l'utilisateur veut explicitement continuer le developpement. Le chemin du `NEXT_SESSION_PROMPT.md` est toujours connu : le preciser dans le prompt.
-
-```text
-Reprise SR stricte. Projet : <chemin absolu du projet>. Lis docs/codex/tasks/YYYY-MM-DD_slug/NEXT_SESSION_PROMPT.md et les contrats associes. Resume l'etat, ne code pas avant validation.
-```
-
-Si l'utilisateur ecrit seulement `reprends`, `resume`, `continue` ou une phrase vague apres une nouvelle conversation, appliquer ce mode `Reprise SR stricte` par defaut.
-
-## A lire par Codex dans une nouvelle conversation
-
-```text
-Reprends cette session avec la methode SR-Harness.
-
-Lis dans cet ordre :
-1. AGENTS.md
-2. docs/codex/SR_BOOTSTRAP.md
-3. docs/codex/SR_HARNESS_METHOD.md
-4. docs/CURRENT_STATE.md
-5. docs/codex/SR_LOTS.yaml
-6. docs/codex/CODEBASE_MAP.md
-7. docs/codex/SR_CONTEXT_PACK.md si present
-8. Nexus KG/context pack si le projet est en mode nexus_kg
-9. La task memory indiquee ci-dessous
-
-Task memory a reprendre :
-- docs/codex/tasks/YYYY-MM-DD_slug/
-
-Contexte court :
-- objectif courant :
-- exigences validees :
-- exigences faites :
-- exigences partielles ou defectueuses :
-- exigences non faites :
-- preuves et tests manquants :
+## Sources ciblees
+- sr_contract.json canonique / parent :
+- requirement_id ouverts : exigences partielles ou defectueuses, exigences non faites, lots repair/reopened :
+- preuves et tests manquants (references) :
 - retours utilisateur rattaches aux requirement_id :
-- lots rouverts :
-- prochain ensemble coherent a traiter :
-- decisions actives :
-- interdits :
+- loop_contract.json :
+- Details a lire pour la prochaine action :
 
-Avant de coder :
-- si la demande utilisateur est vague (`reprends`, `resume`, `continue`), appliquer `Reprise SR stricte` : lire ce fichier, resumer, puis attendre validation ;
-- charger `sr_contract.json` 3.1.0 et verifier que toutes les exigences ouvertes du parent sont heritees ;
-- traiter par defaut tout retour sur une fonction validee comme `existing_requirement_repair`, rattache au lot d'origine ;
-- ne pas proposer un nouveau micro-lot ou seulement le prochain gate cible si une exigence techniquement incomplete de la passe precedente reste ouverte ;
-- appliquer evidence_gate ;
-- appliquer knowledge_gate : RepoMap/KG -> fichiers candidats -> lecture code reel ;
-- mettre a jour SR_INBOX/SR_LOTS si ma demande modifie le backlog ;
-- demander validation si le lot est seulement proposed/planned ou si une action sensible apparait.
-- utiliser aurora-lot-runner si plusieurs lots sont ouverts ;
-- traiter jusqu'a 3 lots `repair`/`reopened` puis `validated` si les gates restent verts ;
-- executer `context_budget_report.py --root . --compact` avant toute reponse de cloture ou d'avancement significatif ; ne rien afficher si le statut est `green` ;
-- appliquer self_evaluation_gate apres patch ;
-- donner les tests E2E utilisateur apres chaque lot livre.
-```
+## Reprise
+Appliquer SR_BOOTSTRAP.md puis lire les contrats associes et les details necessaires. Conserver toutes les exigences ouvertes, distinguer implementation_status et evidence_status. Un retour existant rouvre le lot d'origine, pas un micro-lot de substitution.
+Une demande vague implique Reprise SR stricte : resumer, ne pas muter avant validation. Ce fichier n'est pas une autorisation. En cas de contradiction, verifier la source canonique. Ne recopier ni les procedures SR ni tout l'historique.
 
-## Notes de reprise
-
-- `sr_contract.json` canonique :
-- contrat parent :
-- requirement_id ouverts :
-- lots `repair`/`reopened` :
-- retours utilisateur :
-- reprise consolidee :
+Prompt : Reprise SR stricte. Projet : <chemin>. Lis <chemin exact NEXT_SESSION_PROMPT.md> et ses contrats. Resume l'etat, ne code pas avant validation.

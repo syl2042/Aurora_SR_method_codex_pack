@@ -4,8 +4,8 @@ Do not code.
 
 Objective: reconstruct the complete validated scope and propose the next coherent action before any mutation.
 
-1. Read `AGENTS.md`, `docs/codex/SR_BOOTSTRAP.md`, and `docs/CURRENT_STATE.md` when present.
-2. Run `python3 scripts/codex/find_next_session_prompt.py --root . --json` and read the latest `NEXT_SESSION_PROMPT.md` when found.
+1. Read `AGENTS.md` and `docs/codex/SR_BOOTSTRAP.md`; read CURRENT_STATE for global state, missing or conflicting resume information.
+2. Run `python3 scripts/codex/find_next_session_prompt.py --root . --json`. Use `selected`; when `ambiguous`, ask for the path and use `--prompt`. Never silently select `latest`.
 3. Read the linked `sr_contract.json` (SR Contract 3.1.0 or legacy 3.0.0), `loop_contract.json`, task memory, lots, and passes needed to understand open work.
 4. Reload every inherited open entry in `validated_requests`; never resume from only the most recent feedback item.
 5. Separate requirements that are done, partial, not done, defective, blocked, or awaiting evidence.
@@ -22,3 +22,5 @@ Report:
 - the exact human validation required before coding.
 
 Stop and wait for validation.
+
+SR 4 : `NEXT_SESSION_PROMPT.md`, `procedures/resume.md`, Reprise SR stricte, `validate_sr_contract.py`, Propagation Gate.

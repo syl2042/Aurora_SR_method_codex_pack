@@ -1,0 +1,476 @@
+{
+  "AGENTS.md": [
+    "9dfb9a0017202d31d5c71a0b92303ae942b0ef0ddb4fef1bd46a6a84fa98545c"
+  ],
+  "AGENTS.md#block": [
+    "6f940680346e9028405d9406eaaddc34616ccd2976ef895d18a257c192ee0e44"
+  ],
+  "DESIGN.md": [
+    "5a5ab335df0a17e283cec85ad2d6e7502cb2ad2b3041f64ade0062ce7ad280ab"
+  ],
+  "docs/CURRENT_STATE.md": [
+    "3f97a31f0cfb1a3066559add49e0fccad5503d4b32db21727e046eca0bbfc14b"
+  ],
+  "docs/adr/ADR_TEMPLATE.md": [
+    "4d4771d157c30599d69f5efb95043182eb3aee9b6333a5499c6ecd8ce8dd7c74"
+  ],
+  "docs/codex/AI_AGENT_RUNTIME_METHOD.md": [
+    "5d1616b17ed680429b2af5bbc8248d9d66608dd81177a2be6a72d95e46416489"
+  ],
+  "docs/codex/CHANGELOG.md": [
+    "52a133463b92edce22a9a2d5e8659a324cb6fec35c5e4cc3327eb22774f4c260"
+  ],
+  "docs/codex/CODEBASE_MAP.generated.md": [
+    "47b52567e94345cb4fc993086f1030757a53f56e3bb10c31afa3d3b3e357a986"
+  ],
+  "docs/codex/CODEBASE_MAP.md": [
+    "ac0b53b8bcb13d677ee761adc24d1d4006501f08520ad7a19482f3f991e4c32c"
+  ],
+  "docs/codex/DOMAIN_EXPERTISE_BOOTSTRAP.md": [
+    "d8126fe281a1efab1b639e7ab626be4d11932a3a73e96fffb4a885022b1b154f"
+  ],
+  "docs/codex/LOT_EXECUTION_METHOD.md": [
+    "80e340bdbe50fbf559d7e3997262dc33b15298dccde2939c72aed34ccc004e33"
+  ],
+  "docs/codex/NEXUS_CONTEXT_PACK.template.md": [
+    "c074f5fca3bcef4085bd39dc2ee7aad082c5da7aa34b36d7614b21c5bf631f77"
+  ],
+  "docs/codex/PROJECT_PROFILE.yaml": [
+    "11ea0a1d9131c0af9fe0bd1ff28ce0fb094ab002ef1ddc7448f12936997340e3"
+  ],
+  "docs/codex/PROJECT_SKILLS_POLICY.md": [
+    "5d4fcf90f4abb38e36e578b5b193fd681cc2324eef28269ed6cda1b835bdf74d"
+  ],
+  "docs/codex/REPO_MAP_POLICY.md": [
+    "6dcc45e46c0a969674c65aa771293bfe7bbfecc7e5a08ed9fffa667b6bd6e943"
+  ],
+  "docs/codex/SKILL_DIGEST.md": [
+    "fe239754720af69ca23d1ca01355d6f9edef83164ce3e8322f888b1959f04990"
+  ],
+  "docs/codex/SKILL_MAP.md": [
+    "a4cca679a1664b83f1a7ad41cf89110972e0e48ebe75ed605cfe6f3af69c4ef3"
+  ],
+  "docs/codex/SKILL_MAP.md#block": [
+    "bd42e2c5fb28d74de1f1d2380bc27fc50a5348a7063a4f27007405c2e3a0142a"
+  ],
+  "docs/codex/SR_AGENT_METHOD.md": [
+    "32627f4297bf4e5771294e6d1a8c138f18adf680431dbd6658ecdc9cf0fafb65"
+  ],
+  "docs/codex/SR_BOOTSTRAP.md": [
+    "b1296276dbea7bb382a2f3f2b2cda6d8765709823087cbdf057d5262f0e48e48"
+  ],
+  "docs/codex/SR_DEVELOPMENT_METHOD.md": [
+    "10ae332155cc19a38326dfab3a4da7f80d18677c6dc29688ca26eafb9a551e5f"
+  ],
+  "docs/codex/SR_HARNESS_METHOD.md": [
+    "ec9cf7094f2e124cf673bec2d62224395a5c11b2732fb718148ac31d4af41e7a"
+  ],
+  "docs/codex/SR_INBOX.yaml": [
+    "6373e00f0bf9bbe3e26ff86bb44f876dde0daa82ee20f22a6c1576b171045966"
+  ],
+  "docs/codex/SR_LOTS.yaml": [
+    "6b26f0052c6f8903991c198682c638ee517e8a170617cc21df7bd1603b54cf8d"
+  ],
+  "docs/codex/SR_METHOD.md": [
+    "d7f0190c048601173f80a28d145b4beb6ac8444f2597200b9894b7ec15c26a81"
+  ],
+  "docs/codex/SR_PACK_VERSION.json": [
+    "151f463dc4c1a1dc3bf6b5a6cc618a201c728b50e9e4440710cd92e240e1b426"
+  ],
+  "docs/codex/SR_PASSES.yaml": [
+    "b17124377105f60e2378a9c7e589df31c68d0ead6775cc5025aa6e4102ca5d3e"
+  ],
+  "docs/codex/TOKEN_OPTIMIZATION.md": [
+    "4fe38d32e3b9b9af3aa8d9f9a8416502eed8292aed83513045c2ac8a3594d5e6"
+  ],
+  "docs/codex/V3_UPGRADE_TEST_PLAN.md": [
+    "5f8b8a67b64fe1cb378fe248cff072050785ec7f45728157a14c9fc7a3181a74"
+  ],
+  "docs/codex/WORKFLOW_CODEX.md": [
+    "45abb3879b38a8690adb4e0119705d06e322c4e6c5ba819aac5601cfeec21b8c"
+  ],
+  "docs/codex/project-skills/README.md": [
+    "68c9b06f90b2844ea43bec358f882e1f097b72206faeb29efe9bddd7e0c850ed"
+  ],
+  "docs/codex/prompts/00_install_codex_environment.md": [
+    "41127a6603c861948fbe8f4d316d8a7b3669671d0381ee19a4fc640a3c1edd32"
+  ],
+  "docs/codex/prompts/01_start_sr_session.md": [
+    "0795461dc0e6690eacdb344fc16e335808fdf86ec48ac1bcfd24e7fab4f7b038"
+  ],
+  "docs/codex/prompts/05_upgrade_codex_environment.md": [
+    "857de4506b798b437e212ea9228de8a56e2310e22a7009657d4b967b84ad8503"
+  ],
+  "docs/codex/prompts/06_verify_sr_installation.md": [
+    "b72e9769948a6d92c605d65b660fd54b1b9891da09db415c95634ef4c497fb38"
+  ],
+  "docs/codex/prompts/07_realign_sr_state_after_upgrade.md": [
+    "f47d0878f44c99519b4a03574a91f257bf32bce454d7bdd4fe65d8c6f1c7eb78"
+  ],
+  "docs/codex/prompts/08_define_sr_passes_from_lots.md": [
+    "492139ec7115da8a0788eed240b872ab9a46280e9ac254510936e64e2362e5e9"
+  ],
+  "docs/codex/prompts/09_define_sr_lots_from_scope.md": [
+    "22ddb941ba27347f39e8b98e5722e26b576d29882101cb657760b76e1e004f4e"
+  ],
+  "docs/codex/prompts/10_define_domain_skills_from_cis.md": [
+    "1558614b1dcf1e378eab324c58abc4007cc25f493c4c321705bc619968915df0"
+  ],
+  "docs/codex/prompts/15_define_runtime_agents.md": [
+    "b2df430476566ee16b83e90f87d8ebf7a91d9ae30e2d6c212afc1c8a32a25ae7"
+  ],
+  "docs/codex/prompts/20_generate_domain_skills.md": [
+    "ed3d79bccdda6b80b038f592d4856050f58afcb99c76bda2fa28f3f36fa109b7"
+  ],
+  "docs/codex/prompts/30_review_generated_skills.md": [
+    "7040123c7642adaad56b785911f26611156db4ff482e2d206e3438395c1efcbf"
+  ],
+  "docs/codex/prompts/40_transition_existing_project.md": [
+    "c646d80347bbc20dd4e42b09a0ca15bb628d33ff27cac7ee63feb560429072e4"
+  ],
+  "docs/codex/prompts/50_refresh_repomap.md": [
+    "7e663eee925f38db879d930f96b256c267247e6e190a18e31b2a4832d10e00ef"
+  ],
+  "docs/codex/prompts/60_review_diff_before_close.md": [
+    "d3f5736588b7d44d5fc1823f3484e1dca88ef1060401dcfbc55eaab3c6505741"
+  ],
+  "docs/codex/prompts/de/00_install_codex_environment.md": [
+    "d3725bc91452dca7dc5fb9b94eb609005b9efdc23b556f4efa16a1a0c0521199"
+  ],
+  "docs/codex/prompts/de/01_start_sr_session.md": [
+    "11e55f62d2210ca8723f7e0099cc019bee85117d9eb1d703e692c3f343be4702"
+  ],
+  "docs/codex/prompts/de/05_upgrade_codex_environment.md": [
+    "10418b65034ed884144d8b98b0552f0883acf8a0c74f8be3e57309edbbd67608"
+  ],
+  "docs/codex/prompts/de/06_verify_sr_installation.md": [
+    "b3b250b2fbe1d564bc43adb37f3a02f02ef67e2f1391c730c83321cd27bfdd21"
+  ],
+  "docs/codex/prompts/de/07_realign_sr_state_after_upgrade.md": [
+    "7a2596cea06526ae7f774a3d5e4366e9508063461d841138c776654e5ea2f410"
+  ],
+  "docs/codex/prompts/de/08_define_sr_passes_from_lots.md": [
+    "ee677b3539956a4d6a12921f8b9b9d8c147e420899c0cdb0bda408060843dc54"
+  ],
+  "docs/codex/prompts/de/09_define_sr_lots_from_scope.md": [
+    "097a355f2a047e0a71a959ae9bb40b78010eada096b12f4f1772382d3c00a98d"
+  ],
+  "docs/codex/prompts/de/15_define_runtime_agents.md": [
+    "1a28b7bb1c1628e18f05e9af865aba0bb8fd2bdc4ce59db71af61bd321ce35b4"
+  ],
+  "docs/codex/prompts/en/00_install_codex_environment.md": [
+    "b51a34db10eaa651d3e2056dafe94d5ac582ed77ed8f66d1b45f1c423d803aed"
+  ],
+  "docs/codex/prompts/en/01_start_sr_session.md": [
+    "ecfa9a0e385831c52716848a1e23e0b0370731f4e333263cb9efd3c710763a28"
+  ],
+  "docs/codex/prompts/en/05_upgrade_codex_environment.md": [
+    "3f7622cd50d8eecef2246a6ff4f37b177cea3d0333cf948267cc8fba4aa9e970"
+  ],
+  "docs/codex/prompts/en/06_verify_sr_installation.md": [
+    "76cc041192cb2efcb7a181eb4ba5e45042dbd0adcd09246d2ade31a2ba2e3ed7"
+  ],
+  "docs/codex/prompts/en/07_realign_sr_state_after_upgrade.md": [
+    "787acc38876580cb930f51dc770de84518ddb2ef78d11baabb419ced5e66e3ef"
+  ],
+  "docs/codex/prompts/en/08_define_sr_passes_from_lots.md": [
+    "261600e3979671518e5e392e7335fcf8c8ed0a0fd4240c2f67e7662a01690500"
+  ],
+  "docs/codex/prompts/en/09_define_sr_lots_from_scope.md": [
+    "9d7032998164e6431b36493694b094f9a784c449a9550acd1f0c2d44384836c5"
+  ],
+  "docs/codex/prompts/en/15_define_runtime_agents.md": [
+    "51e5caf5e27a0a82fa52485d1aa096b8cf0b24581dbe007c8058f51f0ac34a91"
+  ],
+  "docs/codex/prompts/es/00_install_codex_environment.md": [
+    "1391c8cb5feb5766996549e99f026be191b908485844e2be867f784c3c852fa8"
+  ],
+  "docs/codex/prompts/es/01_start_sr_session.md": [
+    "e52d5cc20d6dcc7d09d00715891ff06107d6ea82d1fd634075c6b8cfdb83373a"
+  ],
+  "docs/codex/prompts/es/05_upgrade_codex_environment.md": [
+    "56525d02c83bbdfca36fd715e75df77dadf4e6f63a6442e813fd664db69da1f4"
+  ],
+  "docs/codex/prompts/es/06_verify_sr_installation.md": [
+    "4861c1dc7bb329440b672163f79a6e3ef5e735d643fcadc5a283d02cf242c9a8"
+  ],
+  "docs/codex/prompts/es/07_realign_sr_state_after_upgrade.md": [
+    "d1f66896e3bbdb62172a5a8df10f774bbaa0ce708ad6d1ff76a88d340bf3afa9"
+  ],
+  "docs/codex/prompts/es/08_define_sr_passes_from_lots.md": [
+    "65c84c7cf5a38d6c5da43cfff17f17910fe92a63106384b5fe25d93c7442b820"
+  ],
+  "docs/codex/prompts/es/09_define_sr_lots_from_scope.md": [
+    "52df5a7c04d2d12ad20a06dca13a5e1b66df69c69b7c179e26b3bca9e5b171ee"
+  ],
+  "docs/codex/prompts/es/15_define_runtime_agents.md": [
+    "6fe8961b5c95859528ab2192d62a2319734269666347c7b5b17f86e7b267476e"
+  ],
+  "docs/codex/prompts/fr/00_install_codex_environment.md": [
+    "d970eff1107fdf16eb7118ff19dc7fa5f4635b9b4a53b3bf5475d9ebdae63be5"
+  ],
+  "docs/codex/prompts/fr/01_start_sr_session.md": [
+    "a986fe622dd511260f28ae85d5f4b59bcef9b81661f226eb65c84332487aa8b6"
+  ],
+  "docs/codex/prompts/fr/05_upgrade_codex_environment.md": [
+    "4328b6dbc0c836e8204e95fac33dc51e4c8fe80503e01f724ad0d67550f26e42"
+  ],
+  "docs/codex/prompts/fr/06_verify_sr_installation.md": [
+    "8da273ec19fd00a6d3332147e967290051303a3d569e247188d65733f589a732"
+  ],
+  "docs/codex/prompts/fr/07_realign_sr_state_after_upgrade.md": [
+    "2261269cd5c5db5d39bf802e4054ee7324b8e2ff7c187be7340e01533812a823"
+  ],
+  "docs/codex/prompts/fr/08_define_sr_passes_from_lots.md": [
+    "88f64a878b5f595effc8bc3bfa928445b149af0d4b526d0e56c25178612bfcd0"
+  ],
+  "docs/codex/prompts/fr/09_define_sr_lots_from_scope.md": [
+    "c9b3076d784740255a4f87d298132edaf8810656cc00442ebfffad8a3d1675df"
+  ],
+  "docs/codex/prompts/fr/15_define_runtime_agents.md": [
+    "65f3d82fc4f69adcec89da124aea35a2a84fb4462dea655cd8f18cf8aa5e9a7c"
+  ],
+  "docs/codex/prompts/pt/00_install_codex_environment.md": [
+    "ce55011252a0b594ce1554e11e15c0ede37e0bcf3a7d9cb1d429aaffdb7170d0"
+  ],
+  "docs/codex/prompts/pt/01_start_sr_session.md": [
+    "0ee10025b890ae86b7db91731e157e2c2bdfe0108d10cb8cbee80abb29cc887d"
+  ],
+  "docs/codex/prompts/pt/05_upgrade_codex_environment.md": [
+    "3354f21fc5792e7c13663e22f5940de5a9ee8cab362b75ee15e307ff5fff1f54"
+  ],
+  "docs/codex/prompts/pt/06_verify_sr_installation.md": [
+    "63c04a26d96c3c20a941829b34ea02993a3d3657444e29e458a72c0ad9087843"
+  ],
+  "docs/codex/prompts/pt/07_realign_sr_state_after_upgrade.md": [
+    "9f81a40ba7fd6d0e8880b2a02edb9005d7fee7a209aeb87119703abb3895e676"
+  ],
+  "docs/codex/prompts/pt/08_define_sr_passes_from_lots.md": [
+    "932470524a22609b09f2d7f13cb67b5696c93ab57edd8fd83e9aa4bb2c7b3d13"
+  ],
+  "docs/codex/prompts/pt/09_define_sr_lots_from_scope.md": [
+    "5c69b5d6ee6829124d9697993d71c564f64fab32cb0941647c848030fa038321"
+  ],
+  "docs/codex/prompts/pt/15_define_runtime_agents.md": [
+    "447724cce47eae8bfe52cd7bdf7867db1a099c452c894c40adf3b1368f382f1a"
+  ],
+  "docs/codex/skills-method/aurora-architecture-check/SKILL.md": [
+    "e126510645a8b13c58e88692d579b77374e8c0941a5913fb26b5f21ca4de4db7"
+  ],
+  "docs/codex/skills-method/aurora-architecture-check/agents/openai.yaml": [
+    "56f561d7c8d98b42590ada73842ab00c28850e6782dc21f8df68ca16093cdb69"
+  ],
+  "docs/codex/skills-method/aurora-diagnose/SKILL.md": [
+    "7458340cb934cf0aa78e765826fa7d58a90e7a2be6eca5b6ba848c1db40b644e"
+  ],
+  "docs/codex/skills-method/aurora-diagnose/agents/openai.yaml": [
+    "b594274aca37ec8577d3913cb21957b1ed3fcf8f1ea9301068907bd12d6192cc"
+  ],
+  "docs/codex/skills-method/aurora-domain-skill-factory/SKILL.md": [
+    "c4022d8a37319aa790500ef037b564713d452553abfb57e5c8486755a907f04a"
+  ],
+  "docs/codex/skills-method/aurora-domain-skill-factory/agents/openai.yaml": [
+    "675a3c263e371c81e3bfb41582cabaf032dc27b444cfdf535f6dfb2b3a5b13e0"
+  ],
+  "docs/codex/skills-method/aurora-lot-runner/SKILL.md": [
+    "7d6f901da840edd9dd25deea5a3363cf97772870b8aec4c95ba4059104f89d87"
+  ],
+  "docs/codex/skills-method/aurora-lot-runner/agents/openai.yaml": [
+    "e234a6a70da116426d6294fee1258d3d88c8e3473d6798ae90ee57c1850a031c"
+  ],
+  "docs/codex/skills-method/aurora-planning-with-files/SKILL.md": [
+    "30c8ca1bb46524e12cf285c9064b870a725d89f1cc80b60718a20ae35096185d"
+  ],
+  "docs/codex/skills-method/aurora-planning-with-files/agents/openai.yaml": [
+    "5dcece36c52e9a121d845f2cecf5c07dfb6890860780dfb85e2d1ca647776be0"
+  ],
+  "docs/codex/skills-method/aurora-repomap-maintainer/SKILL.md": [
+    "63074d086c68e5d7aa05ee97113b608f775e6fd7b7044e1d1f2b6d2e331d58ac"
+  ],
+  "docs/codex/skills-method/aurora-repomap-maintainer/agents/openai.yaml": [
+    "ef2e9a716221078a7dba62d9f904da712cdfb3c06fe23801db46af2281f29686"
+  ],
+  "docs/codex/skills-method/aurora-review-diff/SKILL.md": [
+    "98e54a0864039059d02b133c19f1577938ead230e6ba5f8d4f8a970b6d25108e"
+  ],
+  "docs/codex/skills-method/aurora-review-diff/agents/openai.yaml": [
+    "af285a94aee8fcc98ff9ed634565e46b1ee3106b21e18f00194d223e811cfa67"
+  ],
+  "docs/codex/skills-method/aurora-tdd/SKILL.md": [
+    "9fb0132dba6f16b1dbf67a37cd6333e351de28478a17735dd070a23f38b179e7"
+  ],
+  "docs/codex/skills-method/aurora-tdd/agents/openai.yaml": [
+    "230cf76573641e640b46f05cb5251fc65bd10940caca82f600b52fd94f399c35"
+  ],
+  "docs/codex/skills-method/aurora-terminal-token-optimizer/SKILL.md": [
+    "46906062206f3e21edcc564d9ff2bbe90cfd0cd7b00d17f0b68c84b89896c9c0"
+  ],
+  "docs/codex/skills-method/aurora-terminal-token-optimizer/agents/openai.yaml": [
+    "c2824f477b8d672de7dffdab270f4dd0c674ab7c78e5cb6786b354731c1aaf9f"
+  ],
+  "docs/codex/skills-method/aurora-to-prd/SKILL.md": [
+    "d09b7bcb9ca23bcb938023425437d2166c1ef377c1fe99cc838a343ed1c50e33"
+  ],
+  "docs/codex/skills-method/aurora-to-prd/agents/openai.yaml": [
+    "98f8ed9d5acda5e84815af57f4199fd16fa76dba9c6892c471b77e98092f03dd"
+  ],
+  "docs/codex/skills-method/aurora-ui-visual-qa/SKILL.md": [
+    "51380accae60ac343637e47961f3ce6af244fcadf806aaf8d4ed2b5171e37e2f"
+  ],
+  "docs/codex/skills-method/aurora-ui-visual-qa/agents/openai.yaml": [
+    "a79daf87f4df1f86064e37507f2a4c1cc95c0fceca8ed848d817a18c76f0021c"
+  ],
+  "docs/codex/tasks/_TEMPLATE/NEXT_SESSION_PROMPT.md": [
+    "5d65d7b3eafde3ba45c1715c80bccfbf73138bb728b2bb04a6b5bc47f70af78a"
+  ],
+  "docs/codex/tasks/_TEMPLATE/context_pack.md": [
+    "6ff825943cd8722a4f88b25f4add00107f1b5bbbc614c9391cc34627faad6f9e"
+  ],
+  "docs/codex/tasks/_TEMPLATE/decisions.md": [
+    "bb9ddb016f2b0700d9e4b389b8147e52849f2e85ddff710b6554eec3a230b68a"
+  ],
+  "docs/codex/tasks/_TEMPLATE/findings.md": [
+    "8ac3fd1936cd8cb4264930c1ab13ded5b292b41ce284ab513832f1799f57c644"
+  ],
+  "docs/codex/tasks/_TEMPLATE/gate_report.md": [
+    "027115c36b4730bd166f66f90572e62a23c9cb7e7a7b8440718db774d55a1adf"
+  ],
+  "docs/codex/tasks/_TEMPLATE/loop_contract.json": [
+    "09a50742cf600a8ef7d118012c3902dd2c4edfc3f21b92f564ba05c8889de8f3"
+  ],
+  "docs/codex/tasks/_TEMPLATE/pass_runtime_goal.md": [
+    "03ff6952b7776e5bb3d46b02e4ecb49863ca050bf4d13531f3797b1cbf696014"
+  ],
+  "docs/codex/tasks/_TEMPLATE/progress.md": [
+    "3af2d11521fae79b8f11a21b197db7b7db3a00f280d02573f09bef209b7a5320"
+  ],
+  "docs/codex/tasks/_TEMPLATE/session_resume.md": [
+    "1806edee6468e132fde8174e2340954dec147eb2e5d473b3a3f77f8ed221d607"
+  ],
+  "docs/codex/tasks/_TEMPLATE/sr_contract.json": [
+    "4e2cfd20671f0d48a6811b317e716381ee6bce5e6eb4b3e03438d5ed6b8c7d7a"
+  ],
+  "docs/codex/tasks/_TEMPLATE/task_plan.md": [
+    "f8785c63572a9f1310aa77246a260091d87afbcf906d22f9167e1baa82a97dbc"
+  ],
+  "docs/codex/tasks/_TEMPLATE/verification.md": [
+    "f3bde167f1d679f3e22c97844d8d5e4e3db35e18f6d6d3baf5a86207ae205125"
+  ],
+  "scripts/codex/audit_codex_pack.py": [
+    "d224b165266d6b2dd5b631da4311088f9edcbe14e9f9da05d4ba592ff310ee20"
+  ],
+  "scripts/codex/audit_sr_project.py": [
+    "c132d4aec6a5d8bdf31a463697c1fe673439fe3b8b0c00682a9a493b71d2925f"
+  ],
+  "scripts/codex/audit_sr_task_contracts.py": [
+    "0d12d729ba3af5f5ceef4aabd2deb948ec0e99b7c98e912777a176bb7cc54045"
+  ],
+  "scripts/codex/aurora_token_run.py": [
+    "b6b13789436d1d5b42140657277610b3ff0ec9d61436d4934b11efc64043fb40"
+  ],
+  "scripts/codex/build_pass_runtime_goal.py": [
+    "5e0dfcdbfed7425c72f30c799e9da4c121e1350e7914a4cf576581faa8ae26c7"
+  ],
+  "scripts/codex/context_budget_report.py": [
+    "8ed51cef63b0333a05894ca81b0a78473f3d649e9aee8d3579f2c070fda1f0c3"
+  ],
+  "scripts/codex/find_next_session_prompt.py": [
+    "8daf07e5ba190b8dc49f7992ddd9e124317bd339fe75bfc2045a2f9189f6088e"
+  ],
+  "scripts/codex/fixtures/install_upgrade/legacy_layouts.json": [
+    "86265a4e77542615e1aadfcec5afc7c934f1be4224b454bc7368e10ba8c5974a"
+  ],
+  "scripts/codex/fixtures/requirement_traceability/scenario_a_five_lots_one_partial.json": [
+    "7e45af94ec22f097ac2d1d163042f32a661e5038c630b67f7ad33570de3415e9"
+  ],
+  "scripts/codex/fixtures/requirement_traceability/scenario_b_complete_e2e_pending.json": [
+    "60718f1937f32ac2889bfac4b7205c774ccc4bedb895585a42312c0461ed77b4"
+  ],
+  "scripts/codex/fixtures/requirement_traceability/scenario_c_existing_requirement_feedback.json": [
+    "0c5ca53c0c6f0cf054f3c0c6abba7b1a4e37afd08d170ef69a1e593be3f0e75b"
+  ],
+  "scripts/codex/fixtures/requirement_traceability/scenario_d_new_document_library.json": [
+    "c085f1620b6580437cf3c8922fce3ff378eca73abb2573ea8f74e5c34e2cf8b7"
+  ],
+  "scripts/codex/fixtures/requirement_traceability/scenario_e_contract_contradiction.json": [
+    "508ebab0c1ee08995340a229c70e8e58a21d356f8bb0ea4d637861bf0cd1c4be"
+  ],
+  "scripts/codex/fixtures/requirement_traceability/scenario_f_handoff_inheritance.json": [
+    "896c7c6a2f14971524522d461ad4bf2e02c388fd9fd7cd73d2f5cf7421b8a439"
+  ],
+  "scripts/codex/generate_repo_map.py": [
+    "4788c7f72332e7995f894803b44c037b187880944504d65df486b67156694f90"
+  ],
+  "scripts/codex/playwright_auth_smoke.mjs": [
+    "627770600a3912c0b068cf71f1d7ffa4be4236589506b246dae206cddd0947e2"
+  ],
+  "scripts/codex/sr_completion_rules.py": [
+    "84f3eb456c71171c6461ed1bf2d76181087b0b635418cdd080bb8a5127c41c53"
+  ],
+  "scripts/codex/sr_post_install_check.py": [
+    "683770a7c9ae98b9eaf5ef9f9125b5a5186c3b484ba6c0392e1027f9016649c3"
+  ],
+  "scripts/codex/sr_ui_verify.mjs": [
+    "a46e1e59f2aac90d8f57d3874e7e2535c23990b01938d388fad34852298d8088"
+  ],
+  "scripts/codex/test_audit_sr_task_contracts.py": [
+    "9481c814fb1d6c4f6aae8d28d784b559325dee05ccfc90d42e2f56926d836088"
+  ],
+  "scripts/codex/test_build_pass_runtime_goal.py": [
+    "190f2407a0b683aa9c4e99593a4db2708ffb4ddedd55ce1bcb7cfa28272aa10b"
+  ],
+  "scripts/codex/test_context_budget_report.py": [
+    "8273514ea749767c41795c7358c8beb4367eb46df2537d0735c2bd00d061e35a"
+  ],
+  "scripts/codex/test_install_upgrade_workflows.py": [
+    "0168f441a10aa1e84d9fd70f45fbf6640b796619d2aa2859804a4e3cee18158e"
+  ],
+  "scripts/codex/test_requirement_traceability.py": [
+    "4b410e2788f3d0aee0f2611d68d8f0f9af4d73b61f19019746bae1ed63b57ffa"
+  ],
+  "scripts/codex/test_sr_ui_verify.mjs": [
+    "80c9ecd6981980795022d00d1da8f53a2666414b8cd8d3502581943baffdedf3"
+  ],
+  "scripts/codex/test_validate_loop_contract.py": [
+    "c8510974a884da0bd082fa5719b99c4232ec2c574f1be2763fc4a5483a6cdf80"
+  ],
+  "scripts/codex/test_validate_lot_contract.py": [
+    "dba38774e203b3fcf605277c02c094f841a9e7eb7ec4b2b0a08b9f1bce76a968"
+  ],
+  "scripts/codex/test_validate_pass_contract.py": [
+    "f1b89d28f5db9efb3af11aa5e3286f747705e68630284994bf20f80d337a148a"
+  ],
+  "scripts/codex/test_validate_release_docs.py": [
+    "b366474bbf1cb6982639e2ce9434a74e97e125b3c5d0a9e9083c1e2cb6fb0e38"
+  ],
+  "scripts/codex/test_validate_sr_contract.py": [
+    "53f3f3374d0d28c70f54e4f96f8c9d42e35144e5dadf6d226f07a6ea728235b3"
+  ],
+  "scripts/codex/validate_loop_contract.py": [
+    "c207c564befc8e0b7678aebf1226020137e20b51fa8c6e6bbaa46bad729b0db2"
+  ],
+  "scripts/codex/validate_lot_contract.py": [
+    "f0fb3b7370fd9378221a96e1b80d6f73eea80cee2d2092a9e1d84666c82210d5"
+  ],
+  "scripts/codex/validate_pass_contract.py": [
+    "a722c39934e94f0cb6a2a1ae5dbf98a4ac9229e96c982337a2c9ec198c8a463f"
+  ],
+  "scripts/codex/validate_release_docs.py": [
+    "dd2a734c7f81b5840a8f21ff62ff472f2e2f424f126d0cdacd9393ce4f7415b8"
+  ],
+  "scripts/codex/validate_scope.py": [
+    "0adedb76796c36fbf1f8ed2f01d2c9b2b48ff9555ca1bf95199f65555e8ddda1"
+  ],
+  "scripts/codex/validate_skills.py": [
+    "21e59255a97bd63d571101efe30e483d4456e51f8a2d44881343c6792ef1a014"
+  ],
+  "scripts/codex/validate_sr_contract.py": [
+    "bbb8b61d99c0cd78908a030491abf54714db9c22cf2d116cca1c6fd24fc7e974"
+  ],
+  "scripts/codex/verify_codex_pack.py": [
+    "2d72aab96b4b048addce06209a3398992139df541dcbf2eb57f67dfcc0f0ac1c"
+  ],
+  "scripts/codex/verify_rtk.sh": [
+    "e2e98d0519039f9d2ffc9839fa006ad95542557608d09572f6d48f31224c39f5"
+  ]
+}

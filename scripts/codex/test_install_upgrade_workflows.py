@@ -69,14 +69,8 @@ def materialize_legacy_layout(target: Path, layout: dict) -> dict[str, str]:
         (codex / "SR_PACK_VERSION.json").write_text(
             json.dumps({"version": layout["source_release"]}), encoding="utf-8"
         )
-    agents = (
-        "# Local project rules\n\n"
-        "USER_LOCAL_RULE: keep this instruction.\n\n"
-        "<!-- AURORA_SR_PACK_START -->\n"
-        "## SR Bootstrap obligatoire\n"
-        "- Legacy managed block.\n"
-        "<!-- AURORA_SR_PACK_END -->\n"
-    )
+    block = (ROOT / 'scripts/codex/fixtures/install_upgrade/legacy_agents_block.md').read_text().strip()
+    agents = "# Local project rules\n\nUSER_LOCAL_RULE: keep this instruction.\n\n" + block + "\n"
     lots = legacy_lots_yaml(layout)
     task_progress = "OPEN_USER_REQUIREMENT: preserve this validated request.\n"
     handoff = "Legacy handoff: resume the open user requirement.\n"
@@ -125,14 +119,14 @@ class InstallUpgradeWorkflowTests(unittest.TestCase):
             self.assertIn("dry run: no files written", result.stdout)
             self.assertEqual([], list(target.iterdir()))
 
-    def test_fresh_install_targets_sr_370_contracts(self):
+    def test_fresh_install_targets_sr_400_contracts(self):
         with tempfile.TemporaryDirectory() as tmp:
             target = Path(tmp) / "fresh"
             target.mkdir()
             result = run_installer(target, "--write")
             self.assertEqual(result.returncode, 0, result.stderr)
             version = json.loads((target / "docs/codex/SR_PACK_VERSION.json").read_text())
-            self.assertEqual(version["version"], "3.7.0")
+            self.assertEqual(version["version"], "4.0.0")
             contract = (target / "docs/codex/tasks/_TEMPLATE/sr_contract.json").read_text()
             self.assertIn('"implementation_status"', contract)
             self.assertIn('"evidence_status"', contract)
@@ -181,7 +175,7 @@ class InstallUpgradeWorkflowTests(unittest.TestCase):
                 result = run_installer(target, "--upgrade")
                 self.assertEqual(result.returncode, 0, result.stderr)
                 version = json.loads((target / "docs/codex/SR_PACK_VERSION.json").read_text())
-                self.assertEqual(version["version"], "3.7.0")
+                self.assertEqual(version["version"], "4.0.0")
                 self.assertEqual(
                     (target / "docs/codex/SR_LOTS.yaml").read_text(encoding="utf-8"),
                     expected_lots,
@@ -201,7 +195,10 @@ class InstallUpgradeWorkflowTests(unittest.TestCase):
                 self.assertIn("USER_LOCAL_RULE", (target / "AGENTS.md").read_text(encoding="utf-8"))
                 self.assertIn("Fact Gate", (target / "AGENTS.md").read_text(encoding="utf-8"))
                 self.assertIn("Lot Completion Gate", (target / "AGENTS.md").read_text(encoding="utf-8"))
-                self.assertIn("## [3.7.0]", (target / "docs/codex/CHANGELOG.md").read_text(encoding="utf-8"))
+                self.assertEqual(
+                    (ROOT / "CHANGELOG.md").read_text(encoding="utf-8"),
+                    (target / "docs/codex/CHANGELOG.md").read_text(encoding="utf-8"),
+                )
                 self.assertEqual((target / "docs/codex/SR_LOTS.yaml").read_text(encoding="utf-8"), before["lots"])
                 self.assertEqual(
                     (target / "docs/codex/tasks/2026-01-01_user-legacy/progress.md").read_text(encoding="utf-8"),
@@ -279,14 +276,14 @@ class InstallUpgradeWorkflowTests(unittest.TestCase):
             upgrade = (ROOT / f"prompts/{language}/05_upgrade_codex_environment.md").read_text()
             installation = (ROOT / f"INSTALLATION.{language}.md").read_text() if language != "en" else (ROOT / "INSTALLATION.md").read_text()
             readme = (ROOT / f"README.{language}.md").read_text() if language != "en" else (ROOT / "README.md").read_text()
-            for marker in ("3.7.0", "3.1.0", "implementation_status", "evidence_status", "--write"):
+            for marker in ("4.0.0", "3.1.0", "implementation_status", "evidence_status", "--write"):
                 self.assertIn(marker, fresh, f"{language} fresh prompt missing {marker}")
                 self.assertIn(marker, installation, f"{language} installation guide missing {marker}")
             self.assertIn("passes: []", fresh, f"{language} fresh prompt must keep the pass registry empty")
             self.assertIn("passes: []", installation, f"{language} installation guide must explain the empty pass registry")
-            for marker in ("repository", "2.2.0", "3.7.0", "3.1.0", "implementation_status", "evidence_status", "validated_requests", "passes: []", "sr_post_install_check.py"):
+            for marker in ("repository", "2.2.0", "4.0.0", "3.1.0", "implementation_status", "evidence_status", "validated_requests", "passes: []", "sr_post_install_check.py"):
                 self.assertIn(marker, upgrade, f"{language} upgrade prompt missing {marker}")
-            self.assertIn("3.7.0", readme, f"{language} README missing 3.7.0")
+            self.assertIn("4.0.0", readme, f"{language} README missing 4.0.0")
             self.assertIn("2.2.0", readme, f"{language} README missing legacy upgrade coverage")
 
 

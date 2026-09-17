@@ -86,7 +86,7 @@ def normalize_usage(usage: dict[str, Any] | None) -> dict[str, int]:
 
 
 def effective_context_for_usage(usage: dict[str, int]) -> dict[str, Any]:
-    """Approximate active context pressure with cached input discounted."""
+    """Legacy scheduling score, NOT a measurement of occupied context. Thresholds unchanged."""
     cached_weight = HYBRID_THRESHOLDS["cached_input_weight_percent"] / 100
     cached_effective = round(usage["cached_input_tokens"] * cached_weight)
     effective_tokens = (
@@ -116,7 +116,8 @@ def session_summary(path: Path, root: Path) -> dict[str, Any] | None:
     root_text = str(root.resolve())
 
     try:
-        lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
+        # Stream records rather than retaining the entire session in memory.
+        lines = path.open(encoding="utf-8", errors="ignore")
     except OSError:
         return None
 
@@ -161,6 +162,7 @@ def session_summary(path: Path, root: Path) -> dict[str, Any] | None:
         if item_type == "event_msg" and payload_type == "user_message":
             user_turns += 1
 
+    lines.close()
     if not session_cwd:
         return None
 
@@ -466,6 +468,14 @@ def main() -> int:
             "thresholds": HYBRID_THRESHOLDS,
         }
 
+    result["measurement_semantics"] = {
+        "raw_context_percent": "last recorded input divided by window; diagnostic, not a live occupancy probe",
+        "effective_context_percent": "legacy scheduling score with discounted cache; not physical context occupancy",
+        "cache": "compute reuse, not context compression",
+        "output_and_reasoning": "reported separately; inclusion semantics depend on telemetry producer",
+        "billing": "not calculated; rates and cache-write accounting unavailable",
+        "policy": "legacy thresholds and status decisions unchanged",
+    }
     if args.compact:
         print(compact_report(result))
     elif args.json:

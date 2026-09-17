@@ -4,8 +4,8 @@ Nicht coden.
 
 Ziel: Den gesamten validierten Scope rekonstruieren und vor jeder Mutation die naechste kohaerente Aktion vorschlagen.
 
-1. `AGENTS.md`, `docs/codex/SR_BOOTSTRAP.md` und, falls vorhanden, `docs/CURRENT_STATE.md` lesen.
-2. `python3 scripts/codex/find_next_session_prompt.py --root . --json` ausfuehren und den letzten `NEXT_SESSION_PROMPT.md` lesen.
+1. `AGENTS.md` und `docs/codex/SR_BOOTSTRAP.md` lesen; CURRENT_STATE nur fuer globalen Zustand oder fehlende/widerspruechliche Wiederaufnahme.
+2. `python3 scripts/codex/find_next_session_prompt.py --root . --json` ausfuehren. `selected` verwenden; bei `ambiguous` nach dem Pfad fragen und `--prompt` nutzen. `latest` nicht stillschweigend auswaehlen.
 3. Den verknuepften `sr_contract.json` (SR Contract 3.1.0 oder Legacy 3.0.0), `loop_contract.json`, Task Memory, Lots und Passes lesen.
 4. Alle geerbten offenen Eintraege aus `validated_requests` laden; nicht nur das letzte Benutzerfeedback fortsetzen.
 5. Erledigte, partielle, fehlende, defekte, blockierte und nur auf Nachweis wartende Anforderungen trennen.
@@ -16,3 +16,5 @@ Ziel: Den gesamten validierten Scope rekonstruieren und vor jeder Mutation die n
 SR-Version, verwendete Memory, validierte Anforderungen, Implementierungs-/Nachweisstatus, wiedereroeffnete Lots, Blocker, fehlende Nachweise, naechsten kohaerenten Scope und die genaue menschliche Validierung berichten.
 
 Stoppen und auf Validierung warten.
+
+SR 4 : `NEXT_SESSION_PROMPT.md`, `procedures/resume.md`, Reprise SR stricte, `validate_sr_contract.py`, Propagation Gate.

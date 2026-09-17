@@ -4,7 +4,7 @@
 Guider l'upgrade SR 3.x d'un repository cible et le premier test de reprise sans modifier le code applicatif.
 
 ## Perimetre V3
-SR 3.0.0 est la base de schema V3 ; le pack courant 3.7.0 conserve sa lecture et cible `sr_contract` 3.1.0, `loop_contract` 1.1, `SR_LOTS` 0.4 et `SR_PASSES` 0.2 pour les nouveaux artefacts. Il distribue aussi les controles contexte, Fact Gate, CURRENT_STATE plein regime, Pydantic Output Contract, Backlog Mutation Gate, Global Impact Gate, SR Passes, UI Verification Harness et la methode agents runtime agnostique. SR V3 ajoute notamment :
+SR 3.0.0 est la base de schema V3 ; le pack courant 4.0.0 conserve sa lecture et cible `sr_contract` 3.1.0, `loop_contract` 1.1, `SR_LOTS` 0.4 et `SR_PASSES` 0.2 pour les nouveaux artefacts. Il distribue aussi les controles contexte, Fact Gate, CURRENT_STATE plein regime, Pydantic Output Contract, Backlog Mutation Gate, Global Impact Gate, SR Passes, UI Verification Harness et la methode agents runtime agnostique. SR V3 ajoute notamment :
 - `sr_contract.json` comme contrat vivant de lot ;
 - `validate_sr_contract.py` et `audit_sr_task_contracts.py` ;
 - `SKILL_DIGEST.md` comme routeur court de selection skills ;
@@ -69,7 +69,7 @@ Le `07` est obligatoire apres tout changement de version SR. Pour un upgrade min
 
 ## Test V3 minimal
 Le test minimal attendu apres upgrade :
-- `SR_PACK_VERSION.json` indique `3.7.0` ;
+- `SR_PACK_VERSION.json` indique `4.0.0` ;
 - `docs/codex/SKILL_DIGEST.md` existe et est reference par `AGENTS.md` / `SKILL_MAP.md` ;
 - le template `sr_contract.json` est present et valide ;
 - le template separe `implementation_status` et `evidence_status` et son Completion Gate est derive de `validated_requests` ;
@@ -89,7 +89,7 @@ Le test minimal attendu apres upgrade :
 Utilise la methode SR.
 
 Projet cible : /path/to/project
-Objectif verifiable : mettre a jour uniquement la SR Method vers la version 3.7.0 depuis le repo officiel, verifier chaque installation cible, puis stopper avant tout developpement applicatif.
+Objectif verifiable : mettre a jour uniquement la SR Method vers la version 4.0.0 depuis le repo officiel, verifier chaque installation cible, puis stopper avant tout developpement applicatif.
 
 Source officielle :
 https://github.com/syl2042/Aurora_SR_method_codex_pack

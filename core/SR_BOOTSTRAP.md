@@ -1,233 +1,40 @@
-# SR_BOOTSTRAP.md
+# SR_BOOTSTRAP — entree canonique SR 4
 
-## Objectif
-Garantir que Codex reprend systematiquement la methode SR apres nouvelle conversation, compact, resume, handoff ou changement de contexte.
+## Activation et autorite
+Appliquer avant toute tache non triviale et apres nouvelle conversation, compact, resume ou handoff. Les conditions d'activation SR et les garanties ne changent pas. Les regles projet et les autorisations explicites priment; aucune procedure ne permet de reduire le perimetre valide.
+Validation humaine stricte : avant mutation, verifier l'autorisation `je valide` et sa portee. Une passe validee autorise tous ses lots annonces; seules une extension, un gate rouge ou une decision humaine manquante imposent un arret. Preserver les exceptions explicites autorisees, dont BUILD-CYCLE-V2.
 
-## Declenchement obligatoire
-Executer ce bootstrap mentalement et explicitement avant toute tache non triviale :
-- debut de conversation dans un repo installe ;
-- reprise apres compact ;
-- reprise apres `resume` ou handoff ;
-- demande multi-fichiers, metier, architecture, securite, agents IA, DB ou integration ;
-- doute sur l'etat courant du projet.
+## Auto-reprise obligatoire / Reprise SR stricte
+Chercher `python3 scripts/codex/find_next_session_prompt.py --root . --json` si present. Un chemin fourni explicitement prime (`--prompt`). En cas de plusieurs candidats sans choix explicite, signaler l'ambiguite et demander lequel reprendre; ne pas confondre mtime et tache active.
+Annoncer `NEXT_SESSION_PROMPT detecte : <chemin>` apres selection. Lire le NEXT_SESSION_PROMPT pertinent et les contrats associes (sr_contract.json avant legacy), retrouver objectif, perimetre autorise, exigences ouvertes, decisions, preuves manquantes et prochaine action. Un simple `reprends` exige resume puis validation avant mutation. Un prompt de reprise ne constitue pas une autorisation nouvelle.
+Ne charger les details que pour resoudre une question de la prochaine action. Apres compact, reverifier ce point d'entree et l'etat courant pertinent; un resume n'est pas preuve du code ou du runtime. Lire CURRENT_STATE si etat global requis, absence de reprise fiable ou contradiction. Conserver toutes les exigences ouvertes du parent.
 
-## Sources a relire en premier
-1. `AGENTS.md`
-2. `docs/codex/PROJECT_PROFILE.yaml`
-3. `docs/CURRENT_STATE.md`
-4. `docs/codex/WORKFLOW_CODEX.md`
-5. `docs/codex/SR_METHOD.md` si present
-6. `docs/codex/SR_DEVELOPMENT_METHOD.md` si present
-7. `docs/codex/SR_AGENT_METHOD.md` si present
-8. `docs/codex/SKILL_MAP.md`
-9. `docs/codex/SKILL_DIGEST.md` pour choisir les skills sans charger tous les `SKILL.md`
-10. `docs/codex/CODEBASE_MAP.md`
-11. `docs/codex/CODEBASE_MAP.generated.md` si present
-12. `docs/codex/NEXUS_CONTEXT_PACK.md` ou context pack KG si `knowledge.mode: nexus_kg`
-13. `docs/codex/AI_AGENT_RUNTIME_METHOD.md` si agents IA, LLM, prompts, tools ou orchestration
-14. `docs/codex/DOMAIN_EXPERTISE_BOOTSTRAP.md` si metier, donnees metier, workflow ou verticale
-15. `docs/codex/SR_HARNESS_METHOD.md`, `docs/codex/LOT_EXECUTION_METHOD.md` et `docs/codex/SR_PASSES.yaml` si gros brief, roadmap, lots, reprise longue, passe ou autonomie bornee
+## Routage obligatoire et progressif
+Lire PROJECT_PROFILE pour les politiques effectives. Lire SKILL_DIGEST puis les seules skills declarees et selectionnees. Declaration dans task_plan; lire SKILL_MAP si la declaration n'est pas resolue par profil/digest. Un manque de skill metier declenche DOMAIN_EXPERTISE_BOOTSTRAP, pas une invention metier.
+Avant action annoncer objectif, hypotheses, approche couvrant le scope, skills methode/metier (ou absence justifiee), digest, mode core/nexus_kg et verification. Memoire SR : existante / absente a creer / non creee car simple question.
+Les anciennes listes de documents citees dans les procedures sont des destinations conditionnelles selon ce routeur, jamais une seconde checklist universelle. Les routes ci-dessous sont cumulatives; reevaluer apres toute decouverte. Un document absent ou un declencheur incertain ne vaut jamais gate vert : charger la procedure, verifier ou signaler le blocage. SR_ROUTES.json fournit les memes destinations aux outils. `python3 scripts/codex/sr_route_check.py --root . --events fact recommendation` retourne les sources pour des evenements explicitement identifies; ce calcul ne declare aucun gate vert et ne remplace pas la classification fondee sur les preuves.
 
-## Auto-reprise obligatoire
+| Evenement | Source a charger |
+|---|---|
+| Avant mutation ou action sensible | procedures/authority.md ; autorisation et perimetre |
+| Fait verifiable dans une reponse non triviale | procedures/fact.md, puis source locale/officielle qui tranche |
+| Recommandation technique ou plan engageant | procedures/evidence.md ; RepoMap/KG si navigation necessaire puis code/tests/logs |
+| Creation/reprise de memoire avant mutation non triviale | procedures/memory.md et procedures/contracts.md ; cinq fichiers detail seulement pour leur contenu requis |
+| Nouvelle demande, retour utilisateur, lot executable | procedures/design-evidence.md et procedures/execution.md ; Lot Design Evidence Gate, intake, scope/spec/security/architecture et limites d'autonomie |
+| Fonction structurante / mutation backlog / dependances | procedures/impact.md ; Global Impact Gate, Backlog Mutation Gate, Lot Dependency Reconciliation, lots pertinents puis elargissement selon impact |
+| Symbole, schema, API, config ou composant partage change | procedures/propagation.md avant ET apres mutation |
+| UI significative | DESIGN.md, procedures/ui.md et skill UI ; Design Gate, UI Test Readiness Gate, UI Visual Evidence Gate |
+| Plusieurs lots / passe | procedures/passes.md ; Pass Planning Gate, SR_PASSES et dependances |
+| Passe executee avec /goal | procedures/runtime-goal.md ; Pass Runtime Goal et Goal Length Gate |
+| Agent IA / LLM / prompt / RAG / outil runtime | AI_AGENT_RUNTIME_METHOD.md et procedures/skills.md |
+| Domaine, workflow, donnees ou validation metier | DOMAIN_EXPERTISE_BOOTSTRAP.md, skill et sources domaine concernees |
+| Apres patch / verification | procedures/verification.md ; tests proportionnes, diff, preuves et consommateurs |
+| Cloture / changement de statut | procedures/completion.md et procedures/contracts.md ; Lot Completion Gate, Self Evaluation Gate, validateurs, memoire et propagation |
+| Avancement significatif / cloture / risque de contexte | procedures/context.md ; context_budget_report.py --root . --compact, seuils legacy inchanges |
+| Pause, handoff, prochaine conversation | procedures/resume.md et procedures/context.md ; prompt court, exigences ouvertes, contrats associes |
 
-Au debut d'une conversation ou apres compact/resume, chercher automatiquement le dernier `NEXT_SESSION_PROMPT.md` :
+Charger les sources plus larges si la preuve, le risque ou une dependance l'exige. Ne pas reread une source comprise et inchangee dans le contexte courant; apres compact, verifier la reprise. Ni le cache ni une ancienne preuve ne dispensent de verifier un runtime ayant change.
 
-```bash
-python3 scripts/codex/find_next_session_prompt.py --root . --json
-```
-
-Si un prompt est detecte, le lire avant de proposer la suite et annoncer :
-
-```text
-NEXT_SESSION_PROMPT detecte : <chemin>
-```
-
-Si plusieurs prompts existent, lire le plus recent et signaler les autres comme candidats secondaires. Si aucun prompt n'existe, continuer avec les sources SR standard.
-
-## Reprise SR stricte
-
-Si l'utilisateur ouvre une nouvelle conversation et dit seulement `reprends`, `resume`, `continue`, `on reprend` ou une formule vague equivalente, Codex doit appliquer la reprise stricte :
-
-1. executer `python3 scripts/codex/find_next_session_prompt.py --root . --json` ;
-2. lire uniquement le dernier `NEXT_SESSION_PROMPT.md` detecte ;
-3. lire le `loop_contract.json` associe si le prompt ou la task memory l'indique ;
-   si un `sr_contract.json` SR 3.1.0 ou legacy 3.0.0 est indique ou present dans la meme memoire, le lire aussi avant les fichiers legacy ;
-4. repondre avec l'etat precedent, les tests E2E utilisateur, le prochain lot recommande, les blockers et la decision attendue ;
-5. ne pas coder ;
-6. ne pas lancer le prochain lot ;
-7. attendre une validation explicite.
-
-Ne lire `SR_LOTS.yaml`, `CODEBASE_MAP.md`, les docs methode completes ou le code reel qu'apres validation utilisateur ou demande explicite de continuer. Cette regle reduit les tokens et evite de transformer une reprise vague en execution de lot.
-
-## Rituel minimal avant action
-Pour toute tache non triviale, Codex doit annoncer :
-- objectif verifiable ;
-- hypotheses retenues ;
-- approche simple suffisante pour couvrir tout le perimetre valide, sans reduction silencieuse ;
-- skills methode selectionnees ;
-- skills metier Codex selectionnees ou raison de leur absence ;
-- digest skills consulte ou raison de non-consultation ;
-- mode connaissance detecte (`core` ou `nexus_kg`) ;
-- methode de verification prevue.
-
-## Validation humaine stricte
-
-Quand un `AGENTS.md`, un lot, une reprise ou l'utilisateur active le mode strict, Codex peut analyser, lire et recommander sans validation, mais ne doit modifier aucun fichier ni lancer d'action de mutation tant que l'utilisateur n'a pas ecrit exactement `je valide`.
-
-Cette validation ne couvre que l'action ou le plan decrit juste avant. Toute extension de perimetre, dependance, migration, configuration, donnees, agent IA runtime, backlog, publication Git, action destructive ou changement metier exige une nouvelle validation explicite.
-
-Une validation explicite d'un lot, d'une passe ou d'un plan engage tout le perimetre decrit juste avant validation. Les principes `solution simple`, `changements chirurgicaux`, `scope minimal` et `eviter les refactors` ne peuvent jamais reduire ce perimetre ; ils guident seulement l'implementation de chaque exigence validee.
-
-Si Codex estime qu'un lot valide doit etre reduit, decoupe, reporte ou clarifie, il doit stopper avant mutation, signaler les exigences concernees, proposer un nouveau decoupage et attendre une nouvelle validation. Aucune livraison partielle ne doit etre presentee comme cloture du lot valide.
-
-Si la demande modifie un backlog de lots, Codex doit classer la demande et proposer la mise a jour de `SR_INBOX.yaml` ou `SR_LOTS.yaml` avant de coder.
-
-Si la demande lance ou valide plusieurs lots, Codex doit verifier ou proposer une passe SR dans `SR_PASSES.yaml` avant codage significatif. Le Pass Planning Gate verifie l'ordre, les dependances, le preflight commun, les validations humaines et l'E2E groupe.
-
-Pass Runtime Goal : si une passe validee doit etre executee avec Codex CLI `/goal`, Codex doit generer `pass_runtime_goal.md` avec `scripts/codex/build_pass_runtime_goal.py`, appliquer le Goal Length Gate (`max_goal_command_chars: 1000`, `hard_limit: 4000`), puis utiliser la commande courte produite. Le goal ne remplace jamais les fichiers SR et ne doit pas enchainer une passe suivante sans validation utilisateur.
-
-Avant une recommandation technique engageante, appliquer le knowledge gate :
-
-```text
-RepoMap/KG -> fichiers candidats -> lecture code reel -> tests/logs
-```
-
-Avant de creer ou promouvoir un lot en `planned`, `validated`, `in_progress`, `repair` ou `reopened`, appliquer aussi le Lot Design Evidence Gate :
-
-- identifier les fichiers candidats ;
-- lire les fichiers qui peuvent confirmer ou infirmer le cadrage ;
-- declarer les routes, composants, services, schemas, tests ou logs verifies ;
-- lister les hypotheses restantes et questions bloquantes ;
-- garder le lot au statut `proposed` si cette evidence manque, sauf cas `not_applicable` justifie.
-
-Un lot `proposed` peut documenter une piste exploratoire sans lecture exhaustive. Un lot pret a executer ne doit pas reposer sur une supposition verifiable non lue.
-
-## Fact Gate
-
-Avant toute reponse non triviale, appliquer un gate deterministe sur les faits utilises dans la reponse.
-
-Classification obligatoire :
-
-- `opinion/methode` : conseil general, preference ou explication methodologique ; source locale non obligatoire ;
-- `fait_verifiable` : affirmation sur un repo, produit, code, API, migration, flux UI, donnee, configuration, etat projet ou comportement existant ;
-- `hypothese_non_verifiee` : piste utile mais non encore prouvee.
-
-Regle :
-
-- si une source locale ou officielle peut trancher un `fait_verifiable`, la lire avant de repondre ;
-- si la source est accessible mais non lue, ne pas conclure et repondre `Fact Gate non satisfait : je dois verifier <source> avant de conclure.` ;
-- si la verification est impossible ou disproportionnee, garder le statut `hypothese_non_verifiee` et indiquer la verification minimale ;
-- les termes probabilistes ne remplacent jamais une preuve quand le repo, les logs, les fichiers SR ou la documentation officielle peuvent trancher.
-
-Sources attendues :
-
-- comportement applicatif : code reel, tests, logs, diff ;
-- methode SR ou etat projet : fichiers SR, task memory, contrats, backlog, `CURRENT_STATE.md` ;
-- API ou outil externe : documentation officielle ou source primaire ;
-- donnees metier : source metier documentee ou validation humaine.
-
-## Memoire de tache
-Creer ou reprendre :
-
-```text
-docs/codex/tasks/YYYY-MM-DD_slug/
-  sr_contract.json
-  task_plan.md
-  findings.md
-  progress.md
-  decisions.md
-  verification.md
-  loop_contract.json
-```
-
-En SR 3.1.0, `sr_contract.json` est la cible machine du lot. Il doit lister les intentions utilisateur granulaires dans `validated_requests`, separer implementation et preuve, heriter des demandes ouvertes lors d'une reprise et etre valide avec :
-
-```bash
-python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json
-```
-
-Pendant la transition, les fichiers legacy restent crees ou maintenus si le projet les exige. Ne pas les supprimer sans lot de migration explicite.
-
-Le `task_plan.md` doit contenir au minimum :
-- objectif verifiable ;
-- hypotheses ;
-- sources lues ;
-- skills utilisees ;
-- fichiers candidats puis fichiers confirmes apres lecture ;
-- perimetre valide et table de couverture prevue si un lot ou une passe a ete valide ;
-- Propagation Gate preflight si un symbole ou contrat partage peut changer : consommateurs, surfaces a risque, niveau de risque, validation humaine requise et verifications prevues ;
-- risques ;
-- plan court ;
-- verification prevue.
-
-## Budget contexte par iteration
-
-Si `scripts/codex/context_budget_report.py` existe, l'executer avant chaque reponse de cloture ou d'avancement significatif :
-
-```bash
-python3 scripts/codex/context_budget_report.py --root . --compact
-```
-
-Cette commande exploite les evenements `token_count` Codex/OpenAI de la session locale : `last_token_usage`, `total_token_usage`, `cached_input_tokens`, `output_tokens`, `reasoning_output_tokens`, `model_context_window` et `rate_limits` quand ils sont disponibles. Ne jamais afficher le JSON complet sauf diagnostic.
-
-Regle de sortie :
-- `green` : ne rien afficher a l'utilisateur sauf s'il demande explicitement le statut contexte ;
-- `yellow` : signaler sobrement qu'une reprise sera recommandee si la prochaine tache est longue ;
-- `orange`, `red`, `unknown`, `stale` ou `ambiguous` : creer ou mettre a jour le `NEXT_SESSION_PROMPT.md` du lot courant avant de conclure et donner un prompt court avec le chemin explicite.
-
-Prompt court recommande quand le chemin est connu :
-
-```text
-Reprise SR stricte. Projet : <chemin absolu du projet>. Lis docs/codex/tasks/YYYY-MM-DD_slug/NEXT_SESSION_PROMPT.md et les contrats associes. Resume l'etat, ne code pas avant validation.
-```
-
-## Regle compact/resume
-Apres compact ou resume, ne pas supposer que le contexte precedent suffit.
-Relire les sources SR ci-dessus et reprendre la derniere memoire de tache pertinente avant de modifier des fichiers.
-
-Le statut hybride tient compte de `effective_context_percent`, `uncached_input_tokens`, `cache_ratio`, tours utilisateur et lots traites ; ne pas couper une conversation uniquement sur `input_total` ou `raw_context_percent` quand la majorite est cachee. `raw_context_percent` est un signal de diagnostic, pas un seuil de coupure autonome. Un statut `unknown`, `stale` ou `ambiguous` ne doit jamais etre traite comme `green`.
-
-`NEXT_SESSION_PROMPT.md` n'est pas systematique. Il est obligatoire si :
-- contexte `orange` ou `red` ;
-- contexte `stale` ou `ambiguous` ;
-- fin de batch multi-lots ou apres 2-3 lots dans la session ;
-- pause longue ou arret annonce par l'utilisateur ;
-- changement de macro-fonction ;
-- upgrade SR ou realignement SR ;
-- decision structurante importante ;
-- prochain lot fortement dependant des decisions courantes.
-
-Il est recommande si le contexte est `yellow` et que la prochaine tache est longue. Il n'est pas necessaire pour une question simple, une micro-correction ou une session courte en contexte `green`.
-
-En cloture d'une tache non triviale, la decision doit etre visible dans `loop_contract.json` :
-
-- `continue_current` : conversation saine, prochain lot court ou contexte green ;
-- `recommend_new_conversation` : contexte yellow, fin de lot significatif, pause probable ou prochaine action longue ;
-- `stop_for_new_conversation` : contexte orange/red, changement de macro-fonction risque, decisions nombreuses ou reprise fragile.
-
-Si la decision est `recommend_new_conversation` ou `stop_for_new_conversation`, creer ou mettre a jour `NEXT_SESSION_PROMPT.md` et indiquer son chemin.
-Le `loop_contract.json` doit aussi renseigner `resume_protocol` avec le prompt utilisateur exact a copier dans la prochaine conversation.
-
-## Exceptions
-Pour une question simple ou une commande ponctuelle sans modification, la memoire de tache peut etre omise. Si la demande devient multi-etapes, revenir au bootstrap complet.
-
-## Cloture obligatoire
-Avant de conclure une tache non triviale :
-- completer `verification.md` ;
-- creer ou mettre a jour `loop_contract.json` ;
-- creer ou mettre a jour `sr_contract.json` si le projet declare SR 3.1.0 ; lire les contrats 3.0.0 en compatibilite ;
-- appliquer le Lot Completion Gate : table de couverture des exigences validees, statut `fait/partiel/non fait/bloque/hors perimetre valide/requires_e2e`, preuve et commentaire ;
-- appliquer le Propagation Gate si un symbole ou contrat partage a change : references ancien/nouveau nom recherchees, consommateurs verifies, imports/exports/signatures controles, references restantes justifiees, verification proportionnee executee ;
-- refuser le statut `done` si `propagation_gate.required` ou `propagation.required` vaut `true` et que le gate n'est pas `pass` ;
-- refuser le statut `done` si une exigence validee reste partielle, non faite, bloquee ou requiert un E2E non execute ;
-- pour toute exigence UI/UX explicite, fournir une preuve visuelle ou E2E ciblee ; si l'implementation est complete mais la preuve manque, utiliser `user_testing`, sinon `repair`, jamais `done` ;
-- executer `python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json` si le contrat existe ;
-- executer `python3 scripts/codex/validate_loop_contract.py --file docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json` si le script existe ;
-- executer ou documenter la verification impossible ;
-- appliquer le Self Evaluation Gate : objectif atteint, preuves suffisantes, risques, oublis possibles, statut `done/user_testing/repair/blocked` ;
-- utiliser `aurora-review-diff` ;
-- mettre a jour `docs/CURRENT_STATE.md` pour tout upgrade SR, realignement SR, changement de version SR, creation de `NEXT_SESSION_PROMPT.md`, modification structurante de `SR_LOTS.yaml`, lot applicatif significatif passe en `done` ou `user_testing`, ou fin de session significative ;
-- indiquer si `docs/CURRENT_STATE.md` a ete mis a jour et pourquoi ;
-- indiquer si `docs/codex/CODEBASE_MAP.md` doit etre mis a jour.
-- indiquer `NEXT_SESSION_PROMPT.md : cree / mis a jour / non requis` avec la raison ;
-- indiquer `Conversation : continuer ici / recommander nouvelle conversation / stopper pour nouvelle conversation`.
+## Cloture et continuite
+Toute tache non triviale garde ses contrats et sa memoire. Mettre a jour uniquement les informations changees, sans recopier logs et historique dans chaque document. Les vues derivees ne creent jamais de preuve ni d'acceptation. CURRENT_STATE est mis a jour aux evenements prescrits dans completion; RepoMap si structure changee. Aucun `done` si gate requis rouge, implementation partielle ou preuve obligatoire manquante.
+Annoncer resultat, preuves/limites, memoire mise a jour, E2E restant, decision de conversation et NEXT_SESSION_PROMPT cree/mis a jour/non requis. Question simple sans mutation ni investigation significative : reponse directe, memoire omissible.

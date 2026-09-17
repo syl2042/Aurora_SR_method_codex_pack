@@ -1,8 +1,27 @@
-# Projekt auf die neueste SR Method aktualisieren
+# Bestehende SR-Installation auf die freigegebene Quelle aktualisieren
+
+## SR 4.0.0 — veroeffentlichte Version
+
+Zielquelle: `SR_PACK_SOURCE` ausdruecklich auswaehlen, entweder eine identifizierte veroeffentlichte Version oder den freigegebenen lokalen SR-4.0.0-Kandidaten. `core/SR_PACK_VERSION.json` (`version`, `release_status`) lesen; `source_commit`, Git-Zustand und bei lokalen Aenderungen einen Inhaltsfingerabdruck einschliesslich verwendeter unversionierter Quelldateien dokumentieren. Einen `unreleased`-Kandidaten nicht als Release ausgeben. Den Kandidaten nicht durch einen Clone der neuesten veroeffentlichten Version ersetzen; fehlt die angeforderte Quelle, vor der Installation stoppen und klaeren.
+
+Fuer dieses SR-4.0.0-Ziel muss die Quelle `version: 4.0.0` angeben. Falls kein Release 4.0.0 veroeffentlicht ist, nur den freigegebenen lokalen Kandidaten verwenden oder sein Fehlen melden; niemals stillschweigend eine andere Version installieren.
+
+Vor Freigabe mit dem folgenden Befehl eine Vorschau erstellen; nach `je valide` nur den passenden Modus waehlen. `--plan-out` schreibt einen lokalen Plan und erfordert Freigabe; `--apply-plan` lehnt veraltete Diagnosen ab. `--restore` ist ein separater Vorgang mit dem exakten Transaktionsjournal und verweigert spaetere Aenderungen. Keine Datei zur Konfliktumgehung loeschen.
+
+Gespeicherte Plaene enthalten Dateiinhalte: lokal aufbewahren. `SR_TARGET` auf den Pfad des Zielrepositorys setzen.
+
+```bash
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --json
+```
+
+```bash
+# je valide
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --upgrade
+```
 
 Du arbeitest in einem Anwendungs-Repository, das bereits eine Aurora SR Method Installation enthaelt, moeglicherweise alt, unvollstaendig oder lokal angepasst.
 
-Nachweisbares Ziel: Die SR Method auf die neueste offizielle Version aktualisieren, ohne Regression, ohne Anwendungscode zu aendern, ohne projektspezifische Anpassungen zu ueberschreiben, und das Projekt vor jeder Entwicklungsfortsetzung in einen neu ausgerichteten SR-Zustand bringen.
+Nachweisbares Ziel: Die SR Method auf die ausdruecklich ausgewaehlte Zielquelle aktualisieren, ohne Regression, ohne Anwendungscode zu aendern, ohne projektspezifische Anpassungen zu ueberschreiben, und das Projekt vor jeder Entwicklungsfortsetzung in einen neu ausgerichteten SR-Zustand bringen.
 
 Dieser Prompt akzeptiert ein Ziel oder eine explizite Repository-Liste. Behandle bei mehreren Ordnern jedes Repository als unabhaengiges Ziel und erstelle vor jeder Mutation die Matrix `repository | gelesene Marker | erkannte Version | Installationszustand | Upgrade-Flow | zu erhaltende Dateien | Freigabe`. Nimm niemals eine gemeinsame Version an; aktualisiere und pruefe Ziel fuer Ziel.
 
@@ -42,7 +61,7 @@ Strikte Regeln:
 - Erhalte `sr_contract` 3.0.0 lesekompatibel. Neue Task Memories und wiedereroeffnete Lose verwenden 3.1.0 mit getrenntem `implementation_status` und `evidence_status`.
 - Schreibe alte `validated_requests` nicht massenhaft um. Markiere Multi-Lot-Contracts mit nur einer globalen Anforderung; normalisiere nur aktive oder wiedereroeffnete Umfaenge nach Quellenpruefung und menschlicher Freigabe.
 - Das Upgrade darf offene, partielle oder defekte Anforderungen weder schliessen noch verschieben oder in neue Lose umwandeln.
-- Im vollen SR-Betrieb muss jede SR-Versionsaenderung `docs/CURRENT_STATE.md` mit installierter Version, Review-Datum, ausgefuehrten Checks, letztem `NEXT_SESSION_PROMPT.md`, wichtigen Losen und naechstem Schritt aktualisieren.
+- Im vollen SR-Betrieb muss jede SR-Versionsaenderung `docs/CURRENT_STATE.md` mit installierter Version, Review-Datum, ausgefuehrten Checks, ausgewaehltem relevantem `NEXT_SESSION_PROMPT.md`, wichtigen Losen und naechstem Schritt aktualisieren.
 - Ein `loop_contract.json` vom Typ `upgrade` darf nicht als `done` geschlossen werden, wenn `memory_updates.current_state_updated=false` ist.
 - Vor jeder Dateiaenderung den Upgrade-Plan vorlegen und explizite Benutzerfreigabe abwarten.
 
@@ -63,13 +82,14 @@ Schritt 1 - Versionsdiagnose:
 
 Schritt 2 - Klassifizierung:
 
-Klassifiziere das Projekt in einen Flow:
+Nach vorhandenen Dateien und Vorschau klassifizieren, unabhaengig von der vorherigen Versionsnummer:
 
-- `upgrade_minor_3x`, wenn die installierte Version bereits `3.x` ist;
-- `upgrade_standard_235_plus`, wenn die Version `2.3.5+` ist;
-- `upgrade_legacy_unknown`, wenn die Version fehlt, unlesbar ist, unter `2.3.5` liegt oder die SR-Installation unvollstaendig ist.
+- `fresh_install`: keine SR-Marker; Prompt `00` verwenden.
+- `managed_update`: bekannte verwaltete Dateien, Ersetzungen und Ergaenzungen ohne Konflikte.
+- `already_current`: keine Aenderungen vorgesehen; ohne Neuschreiben pruefen.
+- `reconciliation_required`: unbekannte/angepasste verwaltete Inhalte oder Teilinstallation mit Konflikten; Dateien erhalten, vergleichen und Abgleich vor Anwendung freigeben lassen.
 
-SR-3.7.0-Matrix: Neuinstallation auf Schemas 3.1.0/1.1 und Lots 0.4/Passes 0.2; SR 3.6.x additiv auffrischen; SR 3.0-3.5 mit Legacy-Lesen, Warnungen und gezielter Normalisierung aktiver/wiedereroeffneter Lose; SR 2.x/unknown/partial mit Backup und Datei-Inventar; lokale Anpassungen ausserhalb verwalteter SR-Bloecke erhalten.
+Eine konfliktfreie Teilinstallation kann `managed_update` folgen. Projektdateien, historische Contracts, Lots, Memories und lokale Skills erhalten. Die erkannte Version ist informativ und waehlt keinen Migrationszweig.
 
 Fuer repraesentative offizielle Layouts SR 2.2.0, 2.3.0, 2.3.5, 2.4.1 und 3.0.0 bestehen Upgrade-Regressionstests. Unknown/partial bleibt ein Datei-Audit; die Fixture beweist den Minimalpfad, nicht jede lokale Anpassung.
 
@@ -84,7 +104,7 @@ Schritt 3 - Offizielle Quelle:
 
 Schritt 4 - Analyse vor Mutation:
 
-Vergleiche die aktuelle Installation mit der neuesten Pack-Version und identifiziere:
+Vergleiche die aktuelle Installation mit der freigegebenen Zielquelle und identifiziere:
 
 - fehlende SR-Dateien;
 - alte SR-Dateien;
@@ -197,3 +217,5 @@ Erwarteter Abschlussbericht:
 - vorgeschlagene naechste Aktion.
 
 Pflichtabschluss: vor jeder Anwendungsaenderung oder Pass-Ausfuehrung auf Validierung warten.
+
+Pfade: Neuinstallation `00 -> 06`; bestehende Installation `05 -> 06 -> 07`. Prompt `06` prueft nur; `07` schlaegt Realignment vor und wartet vor Memory-Aenderungen auf `je valide`. Beide Pfade autorisieren keine Anwendungsentwicklung.

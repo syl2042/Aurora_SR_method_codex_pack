@@ -10,14 +10,14 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from validate_release_docs import PUBLIC_PROMPTS, RELEASE_HISTORY, audit
+from validate_release_docs import PUBLIC_PROMPTS, RELEASE_HISTORY, ROOT_ONLY_PROMPTS, audit
 
 
 ROOT = Path(__file__).resolve().parents[2]
 LANGUAGES = ("en", "fr", "de", "es", "pt")
 
 
-def materialize_minimal_source(root: Path, *, manifest_version: str = "4.0.0") -> None:
+def materialize_minimal_source(root: Path, *, manifest_version: str = "4.1.0") -> None:
     (root / "core").mkdir(parents=True)
     (root / "MANIFEST.json").write_text(
         json.dumps({"version": manifest_version, "files": ["CHANGELOG.md"]}),
@@ -26,7 +26,7 @@ def materialize_minimal_source(root: Path, *, manifest_version: str = "4.0.0") -
     (root / "core/SR_PACK_VERSION.json").write_text(
         json.dumps(
             {
-                "version": "4.0.0",
+                "version": "4.1.0",
                 "release_status": "unreleased",
                 "released_at": None,
             }
@@ -35,17 +35,16 @@ def materialize_minimal_source(root: Path, *, manifest_version: str = "4.0.0") -
     )
     history = "\n".join(f"## [{version}] - 2026-01-01" for version in RELEASE_HISTORY)
     (root / "CHANGELOG.md").write_text(
-        "# Changelog\n\n## [Unreleased]\n\nTarget version: `4.0.0`.\n\n" + history + "\n",
+        "# Changelog\n\n## [Unreleased]\n\nTarget version: `4.1.0`.\n\n" + history + "\n",
         encoding="utf-8",
     )
     for language in LANGUAGES:
         (root / f"README.{language}.md").write_text(
-            f"SR 4.0.0. [Changelog](CHANGELOG.md). prompts/{language}/07_realign_sr_state_after_upgrade.md\n",
+            f"SR 4.1.0. [Changelog](CHANGELOG.md). prompts/{language}/07_realign_sr_state_after_upgrade.md\n",
             encoding="utf-8",
         )
         (root / f"INSTALLATION.{language}.md").write_text(
-            "SR 4.0.0 SR_LOTS.yaml SR_PASSES.yaml 09_define_sr_lots_from_scope.md "
-            "08_define_sr_passes_from_lots.md build_pass_runtime_goal.py\n",
+            "SR 4.1.0 SR_LOTS.yaml SR_PASSES.yaml MCP_POLICY.yaml task_state.yaml --upgrade\n",
             encoding="utf-8",
         )
         for prompt, markers in PUBLIC_PROMPTS.items():
@@ -53,6 +52,8 @@ def materialize_minimal_source(root: Path, *, manifest_version: str = "4.0.0") -
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(" ".join(markers), encoding="utf-8")
     for prompt, markers in PUBLIC_PROMPTS.items():
+        (root / "prompts" / prompt).write_text(" ".join(markers), encoding="utf-8")
+    for prompt, markers in ROOT_ONLY_PROMPTS.items():
         (root / "prompts" / prompt).write_text(" ".join(markers), encoding="utf-8")
     (root / "README.md").write_text((root / "README.en.md").read_text(encoding="utf-8"), encoding="utf-8")
     (root / "INSTALLATION.md").write_text(
@@ -98,6 +99,14 @@ class ReleaseDocumentationTests(unittest.TestCase):
             path = root / "prompts/06_verify_sr_installation.md"
             path.write_text(path.read_text(encoding="utf-8") + "\nRun --fix-safe\n", encoding="utf-8")
             self.assertTrue(any("mutative option in read-only prompt" in error for error in audit(root)))
+
+    def test_obsolete_lot_design_gate_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            materialize_minimal_source(root)
+            path = root / "prompts/09_define_sr_lots_from_scope.md"
+            path.write_text(path.read_text(encoding="utf-8") + "\nLot Design Evidence Gate\n", encoding="utf-8")
+            self.assertTrue(any("obsolete autonomous gate instruction" in error for error in audit(root)))
 
     def test_installed_layout_checks_the_same_prompt_policy(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -155,8 +164,8 @@ class ReleaseDocumentationTests(unittest.TestCase):
             changelog = root / "CHANGELOG.md"
             changelog.write_text(
                 changelog.read_text(encoding="utf-8").replace(
-                    "Target version: `4.0.0`.",
-                    "## [4.0.0] - 2026-08-24",
+                    "Target version: `4.1.0`.",
+                    "## [4.1.0] - 2026-08-24",
                 ),
                 encoding="utf-8",
             )

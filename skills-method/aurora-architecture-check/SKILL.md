@@ -1,8 +1,8 @@
 ---
 name: aurora-architecture-check
 description: >-
-  utiliser avant tout changement structurant: modele db, migration, integration externe, orchestration ia, rag, service backend, refactor, dependance, docker, build ou changement d’architecture.
+  Review a durable structural decision: schema, migration, dependency, external integration, or orchestration boundary.
 ---
 
 # Role
-Analyser impact, alternatives, securite, DB, Docker, tests et rollback. Documenter ADR si durable.
+Check boundaries, affected consumers, reversibility, security and final evidence. Document an ADR only when the decision is durable and alternatives matter.

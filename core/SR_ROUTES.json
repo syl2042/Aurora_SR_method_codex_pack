@@ -1,130 +1,66 @@
 {
-  "schema_version": 1,
-  "reevaluate_on_discovery": true,
+  "schema_version": 2,
+  "policy": "Load only routes whose trigger is true; simple questions load none.",
   "routes": [
     {
-      "trigger": "Avant mutation ou action sensible",
-      "sources": [
-        "procedures/authority.md"
-      ],
-      "requirement": "Verifier autorisation et perimetre, exceptions explicites de session",
-      "event": "mutation"
+      "event": "mutation",
+      "trigger": "Non-trivial mutation or sensitive action",
+      "sources": ["procedures/authority.md"],
+      "requirement": "Confirm authority, scope, protected state and smallest sufficient change."
     },
     {
-      "trigger": "Fait verifiable dans une reponse non triviale",
-      "sources": [
-        "procedures/fact.md"
-      ],
-      "requirement": "procedures/fact.md, puis source locale/officielle qui tranche",
-      "event": "fact"
+      "event": "diagnosis",
+      "trigger": "Observed bug, runtime error, failed check or integration problem",
+      "sources": ["procedures/evidence.md"],
+      "requirement": "Use decisive local evidence; do not manufacture a failure."
     },
     {
-      "trigger": "Recommandation technique ou plan engageant",
-      "sources": [
-        "procedures/evidence.md"
-      ],
-      "requirement": "procedures/evidence.md ; RepoMap/KG si navigation necessaire puis code/tests/logs",
-      "event": "recommendation"
+      "event": "architecture",
+      "trigger": "Durable schema, dependency, external integration or orchestration decision",
+      "sources": ["procedures/impact.md", "procedures/propagation.md"],
+      "requirement": "Check consumers, reversibility, security and final verification."
     },
     {
-      "trigger": "Creation/reprise de memoire avant mutation non triviale",
-      "sources": [
-        "procedures/memory.md",
-        "procedures/contracts.md"
-      ],
-      "requirement": "procedures/memory.md et procedures/contracts.md ; cinq fichiers detail seulement pour leur contenu requis",
-      "event": "memory"
+      "event": "ui",
+      "trigger": "Significant UI behavior or layout change",
+      "sources": ["procedures/ui.md"],
+      "requirement": "Use the existing visual verifier on affected routes only."
     },
     {
-      "trigger": "Nouvelle demande, retour utilisateur, lot executable",
-      "sources": [
-        "procedures/design-evidence.md",
-        "procedures/execution.md"
-      ],
-      "requirement": "procedures/design-evidence.md et procedures/execution.md ; Lot Design Evidence Gate, intake, scope/spec/security/architecture et limites d'autonomie",
-      "event": "lot"
+      "event": "pass",
+      "trigger": "Validated multi-lot execution or long resume",
+      "sources": ["procedures/passes.md", "procedures/execution.md"],
+      "requirement": "Execute the bounded pass without micro-gates while scope remains stable."
     },
     {
-      "trigger": "Fonction structurante / mutation backlog / dependances",
-      "sources": [
-        "procedures/impact.md"
-      ],
-      "requirement": "procedures/impact.md ; Global Impact Gate, Backlog Mutation Gate, Lot Dependency Reconciliation, lots pertinents puis elargissement selon impact",
-      "event": "structural"
+      "event": "knowledge",
+      "trigger": "Target files are unknown or PROJECT_PROFILE knowledge.mode is nexus_kg",
+      "sources": ["procedures/evidence.md"],
+      "requirement": "Use RepoMap only when navigation is needed; use MCP only under MCP_POLICY.yaml."
     },
     {
-      "trigger": "Symbole, schema, API, config ou composant partage change",
-      "sources": [
-        "procedures/propagation.md"
-      ],
-      "requirement": "procedures/propagation.md avant ET apres mutation",
-      "event": "shared"
+      "event": "memory",
+      "trigger": "Continuity is useful for a non-trivial task",
+      "sources": ["procedures/memory.md"],
+      "requirement": "Maintain one compact task_state.yaml; read legacy contracts only when present."
     },
     {
-      "trigger": "UI significative",
-      "sources": [
-        "procedures/ui.md"
-      ],
-      "requirement": "DESIGN.md, procedures/ui.md et skill UI ; Design Gate, UI Test Readiness Gate, UI Visual Evidence Gate",
-      "event": "ui"
+      "event": "verification",
+      "trigger": "Final result is ready to prove",
+      "sources": ["procedures/verification.md"],
+      "requirement": "Choose the least expensive final evidence that covers the risk."
     },
     {
-      "trigger": "Plusieurs lots / passe",
-      "sources": [
-        "procedures/passes.md"
-      ],
-      "requirement": "procedures/passes.md ; Pass Planning Gate, SR_PASSES et dependances",
-      "event": "pass"
+      "event": "activation",
+      "trigger": "Build, restart, deploy or runtime activation explicitly requested",
+      "sources": ["procedures/build.md"],
+      "requirement": "Protect the active runtime and one rollback; distinguish every proof layer."
     },
     {
-      "trigger": "Passe executee avec /goal",
-      "sources": [
-        "procedures/runtime-goal.md"
-      ],
-      "requirement": "procedures/runtime-goal.md ; Pass Runtime Goal et Goal Length Gate",
-      "event": "goal"
-    },
-    {
-      "trigger": "Agent IA / LLM / prompt / RAG / outil runtime",
-      "sources": [
-        "procedures/skills.md"
-      ],
-      "requirement": "AI_AGENT_RUNTIME_METHOD.md et procedures/skills.md",
-      "event": "agent"
-    },
-    {
-      "trigger": "Apres patch / verification",
-      "sources": [
-        "procedures/verification.md"
-      ],
-      "requirement": "procedures/verification.md ; tests proportionnes, diff, preuves et consommateurs",
-      "event": "verification"
-    },
-    {
-      "trigger": "Cloture / changement de statut",
-      "sources": [
-        "procedures/completion.md",
-        "procedures/contracts.md"
-      ],
-      "requirement": "procedures/completion.md et procedures/contracts.md ; Lot Completion Gate, Self Evaluation Gate, validateurs, memoire et propagation",
-      "event": "closure"
-    },
-    {
-      "trigger": "Avancement significatif / cloture / risque de contexte",
-      "sources": [
-        "procedures/context.md"
-      ],
-      "requirement": "procedures/context.md ; context_budget_report.py --root . --compact, seuils legacy inchanges",
-      "event": "context"
-    },
-    {
-      "trigger": "Pause, handoff, prochaine conversation",
-      "sources": [
-        "procedures/resume.md",
-        "procedures/context.md"
-      ],
-      "requirement": "procedures/resume.md et procedures/context.md ; prompt court, exigences ouvertes, contrats associes",
-      "event": "resume"
+      "event": "resume",
+      "trigger": "Context handoff, compaction or significant interruption",
+      "sources": ["procedures/resume.md"],
+      "requirement": "Load the compact open state and unresolved evidence only."
     }
   ]
 }

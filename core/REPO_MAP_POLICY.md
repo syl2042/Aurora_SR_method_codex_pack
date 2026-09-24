@@ -1,23 +1,7 @@
-# REPO_MAP_POLICY.md
+# RepoMap policy — SR 4.1
 
-Le RepoMap aide Codex a naviguer dans le code sans relire tout le repo.
+RepoMap is a navigation aid, not mandatory context.
 
-- `CODEBASE_MAP.md` : carte courte, humaine, stable, 200-400 lignes.
-- `CODEBASE_MAP.generated.md` : carte generee automatiquement.
+Use it when target files or structural consumers are unknown. Skip it for a known local change. Update the generated map only after a structural change; update the human map only when the explanation of the codebase changed.
 
-## SR Core et SR Nexus
-
-En mode `core`, RepoMap est la carte principale du codebase.
-
-En mode `nexus_kg`, RepoMap reste obligatoire comme synthese humaine courte, mais Nexus KG devient la carte technique profonde et requetable.
-
-Ordre de connaissance attendu :
-
-```text
-RepoMap/KG -> fichiers candidats -> lecture code reel -> tests/logs
-```
-
-Mettre a jour si route, endpoint, modele, migration, service, composant central, integration ou script build/test change.
-Si Nexus KG est actif, indiquer en cloture si le KG doit etre mis a jour ou a ete mis a jour.
-
-Le code reel confirme toujours la carte.
+In `nexus_kg` mode, KG may guide navigation under `MCP_POLICY.yaml`; real source and final verification remain decisive.

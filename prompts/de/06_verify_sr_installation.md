@@ -1,26 +1,12 @@
-# Eine SR-Method-Installation pruefen
+# Eine SR-4.1-Installation pruefen
 
-## SR 4.0.0 — veroeffentlichte Version
+Modus `read_only`. Keine Datei aendern, installieren, restaurieren oder reparieren.
 
-Modus `read_only`: keine Dateiaenderungen, automatischen Korrekturen, Installation oder Wiederherstellung. Abweichungen berichten; Korrekturen brauchen einen getrennten, mit `je valide` freigegebenen Umfang.
+```bash
+python3 scripts/codex/verify_codex_pack.py
+python3 scripts/codex/validate_release_docs.py --root . --json
+python3 scripts/codex/audit_codex_pack.py --root . --json
+python3 scripts/codex/sr_post_install_check.py --root . --json
+```
 
-Keine Dateien aendern.
-
-Ziel: Fuer jedes Repository nachweisen, dass Installation oder Upgrade vollstaendig, kohaerent und vor weiterer Anwendungsentwicklung nutzbar ist.
-
-1. Reale Marker in `AGENTS.md`, `docs/codex/SR_PACK_VERSION.json`, Methode, Contracts, Lots, Passes und Task Memories lesen. Keine Version von einem Nachbarordner ableiten.
-2. `python3 scripts/codex/verify_codex_pack.py` ausfuehren.
-3. `python3 scripts/codex/validate_release_docs.py --root . --json` ausfuehren.
-4. `python3 scripts/codex/audit_codex_pack.py --root . --json` ausfuehren.
-5. `python3 scripts/codex/sr_post_install_check.py --root . --json` ausfuehren.
-6. `python3 scripts/codex/audit_sr_task_contracts.py --root . --json` ausfuehren.
-7. `SR_LOTS.yaml`, `SR_PASSES.yaml`, aktive Loop Contracts und den SR Contract 3.1.0 oder explizit erkannte Legacy-3.0.0-Contracts validieren.
-8. `docs/codex/CHANGELOG.md`, Zielversion, lokalisierte oeffentliche Prompts und additive Erhaltung projektspezifischer Dateien pruefen.
-
-Jede Warnung als kompatiblen Legacy-Zustand, Dokumentationsschuld, `repair` oder echten externen Blocker klassifizieren. Installer-Code `0` allein reicht nicht.
-
-Pro Repository Version, Kontrollen, Fehler, Warnungen, Contracts, offene `validated_requests`, fehlende Nachweise und naechste Aktion berichten. `user_testing` gilt nur fuer technisch vollstaendige Arbeit; fehlende Implementierung bleibt `repair`.
-
-Ohne Fix stoppen und fuer jeden Repair-Scope exakte Validierung verlangen.
-
-Pfade: Neuinstallation `00 -> 06`; bestehende Installation `05 -> 06 -> 07`. Prompt `06` prueft nur; `07` schlaegt Realignment vor und wartet vor Memory-Aenderungen auf `je valide`. Beide Pfade autorisieren keine Anwendungsentwicklung.
+`4.1.0`, `AGENTS.md`, Routen, `MCP_POLICY.yaml`, `task_state.yaml`, Lots, Paesse, lokalisierte Dokumentation und Erhalt pruefen. SR Contract 3.1.0, 3.0.0-Vertraege und `audit_sr_task_contracts.py` bleiben legacy-lesbar. Nachweise, Warnungen, Konflikte und Grenzen melden, dann ohne Reparatur stoppen.

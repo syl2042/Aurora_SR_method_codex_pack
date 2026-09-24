@@ -1,711 +1,82 @@
 # Aurora SR Method Codex Pack
 
-## SR 4.0.0 — version publiee
+SR Method 4.1 est un harness d’exécution allégé pour Codex : noyau permanent court, procédures conditionnelles, déclencheurs de skills précis, état compact et vérification finale proportionnée.
 
-Source cible : choisir explicitement `SR_PACK_SOURCE`, soit une version publiee identifiee, soit le candidat local SR 4.0.0 autorise. Lire `core/SR_PACK_VERSION.json` (`version`, `release_status`) et noter `source_commit`, l'etat Git et, si le clone est modifie, une empreinte du contenu source incluant les fichiers non suivis utilises. Un candidat `unreleased` ne doit pas etre presente comme une release. Ne pas remplacer une source candidate par un clone de la derniere version publiee ; si la source demandee manque, s'arreter et clarifier avant installation.
+Statut : **4.1.0 (`released`)**, publiée le 2026-09-24.
 
-Pour cette cible SR 4.0.0, la source doit annoncer `version: 4.0.0`. Si aucune release 4.0.0 n’est publiee, utiliser uniquement le candidat local autorise ou signaler son absence ; ne pas installer silencieusement une autre version.
+**FR** · [English](README.md) · [Deutsch](README.de.md) · [Español](README.es.md) · [Português](README.pt.md)
 
-Parcours : installation neuve `00 -> 06` ; installation existante `05 -> 06 -> 07`. Le prompt `06` controle seulement ; `07` propose le realignement puis attend `je valide` avant modification de la memoire. Aucun developpement applicatif n'est autorise par ces parcours.
+[Installation](INSTALLATION.fr.md) · [Changelog](CHANGELOG.md) · [Installer](prompts/fr/00_install_codex_environment.md) · [Mettre à jour](prompts/fr/05_upgrade_codex_environment.md) · [Vérifier](prompts/fr/06_verify_sr_installation.md) · [Réaligner](prompts/fr/07_realign_sr_state_after_upgrade.md)
 
-SR 4 charge les procedures selon la tache via `SR_BOOTSTRAP.md` et `SR_ROUTES.json`. Les gates, le HITL, les exigences ouvertes et les schemas de contrats restent preserves. Le numero du pack ne force aucune conversion des anciens contrats.
+## Ce qui change en 4.1
 
-### Premiere installation
-Inspecter les regles locales; obtenir `je valide` pour le perimetre; previsualiser, appliquer `--write`, puis verifier. Les fichiers projet existants sont conserves ou fusionnes explicitement. Aucun code applicatif ne change.
+- `AGENTS.md` est réconcilié et raccourci au lieu de recevoir un manuel supplémentaire.
+- Le catalogue cognitif par défaut est limité à l’exécution de lots, au diagnostic, à l’architecture et à la validation visuelle UI.
+- TDD, planning par fichiers, compression terminal, revue finale et maintenance RepoMap ne sont plus des skills.
+- Aucun test volontairement rouge, gate rouge artificiel ou boucle de rollback pendant le développement source.
+- Scope, Vérification et Activation sont les seules frontières d’exécution.
+- Une nouvelle tâche peut utiliser un unique `task_state.yaml` compact ; les anciens contrats restent lisibles.
+- Le mode `core` n’effectue aucun appel MCP. `nexus_kg` suit un `MCP_POLICY.yaml` explicite : capacités différées, allowlists, approbations et budgets de résultat.
+- Occupation du contexte, entrée non cachée, cache, sortie et résultats d’outils sont mesurés séparément.
+- Les tests et fixtures de qualification restent dans le pack source ; les projets ne reçoivent que l’outillage d’exécution.
 
-### Mise a jour agnostique
-Utiliser `--upgrade` apres audit des fichiers reels. La version precedente est informative, jamais un pre-requis : installations anciennes, sans version, partielles ou melangees sont examinees par contenu. Un fichier pack inconnu/personnalise bloque son remplacement; ne pas le supprimer pour forcer le passage. Comparer et faire valider sa reconciliation. Les anciens contrats, lots ouverts, memoires, handoffs et skills metier restent preserves.
-
-La previsualisation est non mutative sauf `--plan-out` explicitement demande. Un plan enregistre contient les contenus des fichiers : le conserver localement. `--apply-plan` refuse les changements intervenus depuis le diagnostic. Une transaction sauvegarde les fichiers modifies; `--restore` refuse d'ecraser une modification ulterieure. Ne jamais utiliser `--write` pour forcer un upgrade. Un numero de version cible ecrit ne prouve pas la reussite : le postcheck doit passer.
-
-
-[![GitHub stars](https://img.shields.io/github/stars/syl2042/Aurora_SR_method_codex_pack?style=social)](https://github.com/syl2042/Aurora_SR_method_codex_pack/stargazers)
-[![Forks](https://img.shields.io/github/forks/syl2042/Aurora_SR_method_codex_pack?style=social)](https://github.com/syl2042/Aurora_SR_method_codex_pack/forks)
-[![Issues](https://img.shields.io/github/issues/syl2042/Aurora_SR_method_codex_pack)](https://github.com/syl2042/Aurora_SR_method_codex_pack/issues)
-[![Last commit](https://img.shields.io/github/last-commit/syl2042/Aurora_SR_method_codex_pack)](https://github.com/syl2042/Aurora_SR_method_codex_pack/commits/main)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-
-**FR** · [English](README.md) · [Deutsch](README.de.md) · [Português](README.pt.md) · [Español](README.es.md)
-
-[⭐ Mettre une étoile](https://github.com/syl2042/Aurora_SR_method_codex_pack/stargazers) ·
-[Documentation](https://docs.auroramind.fr/docs/SR_Method) ·
-[Installation](INSTALLATION.fr.md) ·
-[Changelog](CHANGELOG.md) ·
-[Installer avec Codex](prompts/fr/00_install_codex_environment.md) ·
-[Mettre à jour](prompts/fr/05_upgrade_codex_environment.md) ·
-[Vérifier](prompts/fr/06_verify_sr_installation.md)
-
----
-
-## Ce que c'est
-
-**Aurora SR Method Codex Pack** est un pack public permettant d'installer la **SR Method** dans un projet logiciel afin de faire travailler Codex dans un cadre explicite, vérifiable et transmissible.
-
-**SR** signifie **Specification Runtime**.
-
-L'idée centrale est simple :
-
-> **L'IA est libre en exploration, mais contrainte en exécution.**
-
-Codex peut analyser, diagnostiquer, proposer et comparer. En revanche, dès qu'il doit modifier un fichier, changer une dépendance, créer une migration, toucher une configuration, pousser sur GitHub ou prendre une décision métier, il doit travailler dans un périmètre validé, avec des preuves, des vérifications et une mémoire de reprise.
+## Modèle d’exécution
 
 ```text
-Cloner le pack
--> Coller un prompt dans Codex
--> Installer la SR Method dans le projet cible
--> Vérifier l'installation
--> Travailler par lots gouvernés
--> Tester, documenter, transmettre
+noyau AGENTS.md
+  -> SR_ROUTES.json
+  -> procédure déclenchée uniquement
+  -> zéro à deux skills spécialisées
+  -> sources réelles et outils bornés
+  -> vérification finale proportionnée
 ```
 
----
+Les questions simples et petites modifications restent sur le chemin rapide. Le harness s’applique au multi-lots. Les règles de build ou déploiement ne sont chargées qu’après une demande explicite d’activation.
 
-## Pourquoi utiliser ce pack ?
+## Installation ou mise à jour
 
-Codex est puissant, mais sur un vrai projet il peut vite devenir risqué si le contexte est flou :
+Sélectionner explicitement `SR_PACK_SOURCE` et le dépôt cible. Une cible sans marqueur SR utilise le prompt `00` ; toute cible contenant des marqueurs SR utilise le prompt `05`.
 
-- il code avant d'avoir lu les sources ;
-- il confond hypothèse et fait vérifié ;
-- il élargit le périmètre sans validation ;
-- il oublie les décisions précédentes ;
-- il termine un lot sans test utilisateur réel ;
-- il devient difficile à reprendre dans une nouvelle session.
-
-La SR Method apporte une discipline de travail projet : **objectif clair, sources lues, lots courts, gates de validation, contrats SR, task memory et handoff propre**.
-
-Elle transforme Codex en coéquipier de développement plus fiable : pas un simple générateur de code ponctuel, mais un agent qui travaille dans le repo avec méthode.
-
----
-
-## Pour qui ?
-
-Ce pack s'adresse principalement :
-
-| Profil | Besoin couvert |
-|---|---|
-| Développeur solo | Garder le contrôle sur Codex, même sur plusieurs sessions longues. |
-| Tech lead | Standardiser la manière dont Codex lit, modifie, vérifie et documente. |
-| Fondateur SaaS | Faire avancer vite un produit sans perdre la vision, le scope et les décisions. |
-| Formateur / consultant IA | Montrer une méthode reproductible pour le développement assisté par IA. |
-| Équipe produit-tech | Rendre le travail de Codex auditable, testable et transmissible. |
-
----
-
-## Ce que la SR Method change concrètement
-
-### Sans cadre SR
-
-```text
-Prompt large
--> Codex interprète
--> Codex modifie
--> Résumé final
--> Difficile de savoir ce qui est prouvé, testé ou encore risqué
-```
-
-### Avec cadre SR
-
-```text
-Intention utilisateur
--> Lecture des sources
--> Périmètre proposé
--> Validation humaine
--> Lot court
--> Gates SR
--> Vérifications
--> Tests E2E utilisateur
--> Mémoire de reprise
--> Handoff
-```
-
----
-
-## Les principes clés
-
-### 1. Prompt-first
-
-Le parcours recommandé n'est pas d'exécuter les scripts à la main.
-
-Vous ouvrez Codex dans le projet cible, vous collez le prompt adapté, puis Codex inspecte le dépôt, propose le périmètre, demande validation et lance les scripts utiles lorsque c'est nécessaire.
-
-### 2. Evidence before action
-
-Avant d'agir, Codex doit lire les sources disponibles : fichiers SR, code réel, tests, logs, documentation officielle, RepoMap ou Knowledge Graph si disponible.
-
-### 3. Lots courts et vérifiables
-
-Le développement est découpé en lots nommés, bornés et traçables.
-
-Un lot n'est pas `done` parce que Codex a fini de coder. Il devient `done` quand les vérifications prévues et, si nécessaire, les tests E2E utilisateur sont validés.
-
-### 4. Validation humaine explicite
-
-Codex peut analyser librement. Mais les actions sensibles exigent validation : modification de fichier, changement de dépendance, migration, push GitHub, configuration, secret, règle métier ou décision produit.
-
-### 5. Mémoire de reprise
-
-Chaque session importante doit laisser une trace exploitable : état courant, décisions, sources lues, fichiers modifiés, vérifications, risques restants et prochain prompt de reprise.
-
----
-
-## Outils optionnels
-
-### Aurora SR Cockpit
-
-Le repository inclut un petit dashboard read-only dans [tools/sr-cockpit](tools/sr-cockpit) pour superviser les projets SR Method présents sous `/home/ubuntu/apps`.
-
-Il affiche la liste des projets, les sessions Codex actives, la version SR, les lots, les passes, l'inbox, les task memories, les statuts de gates et l'état Git de base. Le cockpit n'est pas installé dans les projets cibles par l'installateur SR ; c'est un outil opérateur conservé dans ce pack afin que les projets existants puissent mettre à jour la méthode SR sans recevoir de fichiers UI non liés à leur code.
-
-Démarrage local rapide :
+La mise à jour est agnostique à la version précédente : le numéro déclaré sert uniquement à la provenance. Les fichiers réels sont classés comme absents, gérés, modifiés localement, non gérés, obsolètes, conflictuels ou déjà alignés. Les états projet sont préservés et un ancien artefact géré n’est supprimé que si son contenu est reconnu.
 
 ```bash
-cd tools/sr-cockpit
-npm install
-npm run build
-npm start -- --host 127.0.0.1 --port 18787
-```
-
-Les scripts de lancement Windows/MobaXterm sont disponibles dans [tools/sr-cockpit/scripts/windows](tools/sr-cockpit/scripts/windows).
-
----
-
-## Version cible 4.0.0
-
-La version cible `4.0.0` empeche qu'une demande validee disparaisse derriere un statut global. Le SR Contract 3.1.0 separe `implementation_status` de `evidence_status`, calcule la decision de chaque exigence et le Completion Gate global, herite obligatoirement des exigences ouvertes lors d'une reprise et reserve `user_testing` aux implementations techniquement completes.
-
-Les retours utilisateur sur une fonction existante rouvrent par defaut le lot d'origine et rechargent sa checklist complete. La creation d'un nouveau lot exige de prouver que la demande est hors scope existant. Les contrats 3.0.0 restent lisibles et ne sont pas reecrits en masse ; les registres legacy trop generiques produisent un avertissement de normalisation manuelle.
-
-L'installation distingue maintenant deux parcours : le prompt `00` est reserve a un repository sans marqueur SR, tandis que le prompt `05` audite et met a niveau chaque repository existant independamment. Si plusieurs dossiers utilisent des versions SR differentes, Codex doit presenter une matrice par cible et ne peut pas deduire un statut global vert depuis seulement certaines cibles. L'installateur refuse le mode neuf `--write` lorsqu'il detecte deja une installation SR.
-
-Les installations neuves et les upgrades sans passes produit commencent maintenant par un registre valide `passes: []`. Aucune passe d'exemple n'est deduite des anciens lots. Les regressions couvrent les layouts officiels representatifs SR 2.2.0, 2.3.0, 2.3.5, 2.4.1 et 3.0.0 ; les layouts inconnus ou adaptes localement restent soumis a un audit fichier par fichier. Le succes de l'installateur ne suffit pas : la cible reste en `repair` tant que `sr_post_install_check.py` n'est pas vert.
-
-## Historique des versions
-
-Consulter [CHANGELOG.md](CHANGELOG.md) pour l'historique complet version par version, les migrations, la compatibilite et les references des releases source.
-
-### Premiere installation vs upgrade
-
-Pour une premiere installation sur projet vierge, Codex installe les fichiers SR, verifie le pack, puis s'arrete avant tout developpement applicatif. `SR_PASSES.yaml` commence par `passes: []` ; l'outillage Pass Runtime Goal est installe, mais les goals ne sont generes qu'apres definition des lots et des passes.
-
-Pour un projet existant avec une ancienne SR Method deja utilisee, Codex doit preserver les fichiers projet, task memories, `SR_LOTS.yaml`, decisions, handoffs et skills locales. L'upgrade est additif : il ajoute ou rafraichit les fichiers methode/scripts, puis demande un realignement SR avant de continuer le developpement. Les anciennes task memories ne sont pas converties en batch sans validation explicite.
-
-Sequence d'upgrade recommandee :
-
-```text
-05_upgrade_codex_environment
--> 06_verify_sr_installation
--> 07_realign_sr_state_after_upgrade
--> 08_define_sr_passes_from_lots si les passes sont absentes/obsoletes
--> build_pass_runtime_goal.py uniquement pour la prochaine passe validee
-```
-
-Cette sequence vise a eviter les regressions apres mise a jour : Codex doit comprendre ce qui change, preserver l'etat projet existant, reorganiser les passes seulement avec preuves, et stopper avant tout travail applicatif.
-
----
-
-## SR Passes et SR Agent Method
-
-La version `3.2.0` a introduit deux evolutions distinctes ; la version `3.2.1` a ensuite renforce les dependances inter-passes ordonnees :
-
-### SR Passes : regrouper les lots en passes d'execution
-
-SR Passes ajoute une couche d'orchestration au-dessus des lots. Le lot reste l'unite atomique pour le perimetre, les criteres d'acceptation, les chemins autorises, les stop conditions, le statut et la task memory. Une passe regroupe plusieurs lots lies quand ils partagent un socle, un preflight, des dependances ou une validation E2E coherente.
-
-SR 3.2.0 a ajoute :
-
-- `docs/codex/SR_PASSES.yaml` pour encadrer l'execution multi-lots ;
-- `scripts/codex/validate_pass_contract.py` pour verifier les references de lots et l'ordre de dependances ;
-- `prompts/09_define_sr_lots_from_scope.md` pour creer ou promouvoir des lots avec Lot Design Evidence Gate ;
-- `prompts/08_define_sr_passes_from_lots.md` et ses variantes localisees pour proposer des passes depuis les lots existants ;
-- des regles d'installation et d'upgrade qui preservent `SR_LOTS.yaml` et ajoutent les passes sans convertir les anciennes task memories ;
-- un Pass Planning Gate avant toute execution multi-lots significative.
-
-Note 3.2.x : le validateur accepte maintenant une dependance vers une passe strictement anterieure pour les passes `proposed` ou `planned`, afin d'auditer un plan de passes avant execution. Les passes `validated` ou `in_progress` exigent toujours que ces dependances anterieures soient `done` ou `user_testing`. Les dependances vers une passe posterieure, les lots dupliques entre passes et les dependances hors passe non terminees restent refuses.
-
-Cette evolution sert lorsqu'une roadmap, un gros brief ou une phase autonome ne se represente pas proprement comme un seul lot isole. La passe rend explicites l'ordre d'execution, le preflight commun, les validations humaines, les actions externes, les migrations, les conditions d'arret et les tests E2E groupes avant de coder.
-
-### SR Agent Method : agents runtime sans verrouillage framework
-
-SR 3.2.0 a aussi ajoute :
-
-- un template de contrat agent runtime fonde sur action produit bornee, representation interne stable, prompt contract, message builder, tools/actions, routing/fallback, validation et traces.
-
-Lorsqu'une nouvelle fonction, une réparation ou une découverte peut dépasser le lot courant, Codex doit désormais :
-
-- appliquer le **Backlog Mutation Gate** pour décider si `SR_INBOX.yaml` ou `SR_LOTS.yaml` doit être mis à jour ;
-- appliquer le **Global Impact Gate** avant de coder, en vérifiant l'impact sur les parcours produit, données, permissions, API/services, UI, tests, migrations, risques et lots existants ;
-- exécuter la **Lot Dependency Reconciliation** pour classer les lots concernés comme `impacted`, `blocked_by`, `reopened`, `superseded`, `split_required`, `depends_on` ou `unaffected` ;
-- documenter `no_backlog_mutation_required` lorsqu'aucun changement de backlog n'est nécessaire.
-
-SR reste ainsi agnostique du projet tout en évitant que les implications transverses importantes restent implicites.
-
----
-
-## Le workflow complet
-
-```mermaid
-flowchart LR
-    A[Intention produit] --> B[Product Discovery]
-    B --> C[Domain Expertise]
-    C --> D[Codex Project Pack]
-    D --> E[SR Development]
-    E --> F[Delivery & Handoff]
-```
-
-| Étape | Objectif | Sortie attendue |
-|---|---|---|
-| **1. Product Discovery** | Clarifier le besoin avant le code. | Vision produit, cible, V0, exclusions, risques. |
-| **2. Domain Expertise** | Éviter que Codex traite le métier comme un CRUD générique. | Vocabulaire, règles critiques, sources de vérité, risques LLM. |
-| **3. Codex Project Pack** | Transformer la discovery en dossier exploitable par Codex. | Brief, PRD, specs, architecture, data model, API, UX, tests, lots initiaux. |
-| **4. SR Development** | Faire travailler Codex par lots contrôlés dans le repo. | Lot exécuté, vérifié, documenté, testable. |
-| **5. Delivery & Handoff** | Livrer proprement et permettre la reprise. | Tests E2E, mémoire SR, contrats, risques, prochaine étape. |
-
----
-
-## Démarrage rapide avec Codex
-
-### 1. Cloner ce repository
-
-```bash
-git clone https://github.com/syl2042/Aurora_SR_method_codex_pack.git
-```
-
-### 2. Ouvrir Codex dans le projet cible
-
-Placez-vous dans le repository de l'application sur laquelle vous voulez installer la SR Method.
-
-### 3. Coller le prompt d'installation
-
-Utilisez le prompt français :
-
-- [00_install_codex_environment.md](prompts/fr/00_install_codex_environment.md)
-
-Codex doit :
-
-1. inspecter le projet ;
-2. vérifier si SR est déjà installée ;
-3. installer uniquement les fichiers SR attendus ;
-4. ne modifier aucun code applicatif ;
-5. exécuter les vérifications ;
-6. produire un rapport final ;
-7. stopper avant tout développement applicatif.
-
-### 4. Vérifier l'installation
-
-Prompt recommandé :
-
-- [06_verify_sr_installation.md](prompts/fr/06_verify_sr_installation.md)
-
-### 5. Démarrer une session SR
-
-Prompt recommandé :
-
-- [01_start_sr_session.md](prompts/fr/01_start_sr_session.md)
-
----
-
-## Prompts principaux
-
-| Action | Prompt |
-|---|---|
-| Installer la SR Method | [00_install_codex_environment.md](prompts/fr/00_install_codex_environment.md) |
-| Démarrer une session SR | [01_start_sr_session.md](prompts/fr/01_start_sr_session.md) |
-| Mettre à jour la SR Method | [05_upgrade_codex_environment.md](prompts/fr/05_upgrade_codex_environment.md) |
-| Vérifier l'installation | [06_verify_sr_installation.md](prompts/fr/06_verify_sr_installation.md) |
-| Réaligner l'état après upgrade | [07_realign_sr_state_after_upgrade.md](prompts/fr/07_realign_sr_state_after_upgrade.md) |
-| Définir les lots SR depuis le cadrage | [09_define_sr_lots_from_scope.md](prompts/fr/09_define_sr_lots_from_scope.md) |
-| Définir des agents IA runtime | [15_define_runtime_agents.md](prompts/fr/15_define_runtime_agents.md) |
-
----
-
-## Exemple de prompt court pour cadrer un lot
-
-```text
-Cadre ce besoin comme un lot SR.
-
-Ne code rien.
-
-Donne-moi :
-- l'objectif vérifiable ;
-- le périmètre inclus ;
-- le hors périmètre ;
-- les hypothèses ;
-- les sources à lire ;
-- les fichiers candidats ;
-- les risques ;
-- les vérifications prévues ;
-- les tests E2E utilisateur ;
-- le statut recommandé du lot.
-
-Attends ma validation avant toute modification.
-```
-
----
-
-## Travailler par lots
-
-Le lot est l'unité de travail centrale de la SR Method.
-
-```text
-proposed -> planned -> validated -> in_progress -> user_testing -> done
-```
-
-En cas de problème :
-
-```text
-user_testing -> reopened -> in_progress -> user_testing -> done
-```
-
-| Statut | Signification |
-|---|---|
-| `proposed` | Idée ou retour à cadrer. |
-| `planned` | Lot structuré, mais non encore validé. |
-| `validated` | Lot validé par l'utilisateur et exécutable. |
-| `in_progress` | Codex exécute le lot. |
-| `user_testing` | Le code est livré, mais le test réel utilisateur est attendu. |
-| `done` | Le lot est vérifié et validé selon les critères prévus. |
-| `reopened` | Le lot est rouvert après bug, oubli ou régression. |
-| `blocked` | Le lot est bloqué par une décision, un accès ou une source manquante. |
-| `superseded` | Le lot est remplacé par un autre lot ou une décision. |
-
----
-
-## Les gates SR
-
-Un **gate** est un contrôle qui empêche Codex d'avancer sur une supposition ou de livrer sans preuve.
-
-| Gate | But |
-|---|---|
-| **Evidence Gate** | Vérifier les sources avant de planifier. |
-| **Fact Gate** | Empêcher les conclusions non prouvées. |
-| **Knowledge Gate** | Construire la carte du changement depuis RepoMap, KG ou code réel. |
-| **Scope Gate** | Rester strictement dans le périmètre validé. |
-| **Verification Gate** | Prouver que le changement fonctionne ou expliquer pourquoi la vérification est impossible. |
-| **Design Gate** | Contrôler la qualité UI/UX lorsque l'interface est concernée. |
-| **Context Budget Gate** | Prévenir la perte de contexte et préparer la reprise. |
-
-Exemple de bon réflexe Fact Gate :
-
-```text
-Je ne peux pas conclure sans preuve.
-Je dois lire le fichier concerné, les logs, les tests ou la documentation officielle avant d'affirmer la cause.
-```
-
----
-
-## Ce que le pack installe dans un projet cible
-
-Après installation, le projet cible peut contenir notamment :
-
-```text
-AGENTS.md
-docs/CURRENT_STATE.md
-docs/codex/SR_BOOTSTRAP.md
-docs/codex/PROJECT_PROFILE.yaml
-docs/codex/SKILL_DIGEST.md
-docs/codex/SKILL_MAP.md
-docs/codex/SR_LOTS.yaml
-docs/codex/SR_INBOX.yaml
-docs/codex/CODEBASE_MAP.md
-docs/codex/tasks/
-docs/codex/project-skills/
-scripts/codex/
-```
-
-Ces fichiers servent à orienter Codex, structurer les lots, garder la mémoire, valider les contrats et préparer les reprises.
-
-Ils ne remplacent jamais la lecture du code réel : **le code, les tests et les logs tranchent**.
-
----
-
-## Contenu du repository public
-
-Ce repository est un **pack source public**. Il est destiné à être cloné, puis installé dans des projets cibles.
-
-```text
-core/             Coeur méthode et templates en anglais canonique
-prompts/          Prompts racine et entrées multilingues
-scripts/          Scripts d'installation, audit et validation
-skills-method/    Skills méthode Codex réutilisables
-blueprints/       Templates de lots, inbox, tasks et skills
-profiles/         Profils génériques d'installation
-project-skills/   Emplacement modèle pour les skills locales projet
-adr/              Template ADR
-tasks/_TEMPLATE/  Mémoire de tâche modèle
-```
-
-Le repository public ne doit pas publier les fichiers d'état propres à un projet cible :
-
-```text
-AGENTS.md
-DESIGN.md
-docs/CURRENT_STATE.md
-docs/codex/
-docs/codex/tasks/
-tasks/
-*.docx
-handoffs locaux
-chemins client
-données projet
-secrets
-```
-
----
-
-## Contrats SR
-
-La SR Method utilise des contrats pour vérifier que la boucle a été respectée.
-
-| Contrat | Question traitée |
-|---|---|
-| `loop_contract.json` | Codex a-t-il appliqué correctement la boucle SR ? |
-| `sr_contract.json` | Toutes les demandes utilisateur validées sont-elles couvertes ou explicitement sorties du lot ? |
-
-Un lot ne doit pas passer en `done` si une demande validée reste ouverte sans traitement clair.
-
-Commandes de validation typiques :
-
-```bash
-python3 scripts/codex/validate_loop_contract.py --file docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json
-python3 scripts/codex/validate_sr_contract.py --file docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json
-```
-
----
-
-## Skills Codex
-
-La méthode distingue trois familles de skills.
-
-### Skills méthode
-
-Elles encadrent la manière de travailler :
-
-- diagnostic ;
-- planification ;
-- architecture ;
-- TDD ;
-- revue de diff ;
-- maintien de RepoMap ;
-- exécution de lots ;
-- optimisation du contexte terminal.
-
-### Skills métier
-
-Elles décrivent un domaine spécifique pour éviter que Codex invente les règles.
-
-Une bonne skill métier contient :
-
-- vocabulaire métier ;
-- règles non négociables ;
-- sources de vérité ;
-- erreurs probables d'un LLM ;
-- patterns attendus ;
-- anti-patterns ;
-- checklist avant clôture.
-
-### Skills runtime
-
-Elles appartiennent aux agents IA applicatifs. Elles décrivent des comportements versionnables chargés par un runtime : diagnostic prudent, rédaction support, escalade, revue qualité, ton de marque, etc.
-
----
-
-## SR Agent Method
-
-La **SR Agent Method** est une extension optionnelle pour concevoir des agents IA intégrés dans des applications métier.
-
-Elle n'est pas un framework et ne remplace pas LangChain, LangGraph, LlamaIndex, PydanticAI, CrewAI ou les SDK agents.
-
-Elle est agnostique des frameworks, providers, domaines et UI. Elle sert à définir le **contrat applicatif runtime** de l'agent avant son implémentation :
-
-- action produit bornée ;
-- forme runtime (`micro_agent`, `workflow_agent`, `delegation_agent` ou `mini_agent`) ;
-- représentation interne stable lue ou produite par l'agent ;
-- entrées et sorties typées ;
-- contrat de prompt dérivé du contrat runtime ;
-- builder applicatif du message utilisateur ;
-- données autorisées, tools et actions engageantes ;
-- politique de routage et de fallback ;
-- validations, traces, risques et statut d'activation.
-
-Règle centrale :
-
-> Un agent runtime n'est pas défini par son modèle ni par son prompt. Il est défini par l'action produit bornée qu'il sert, la représentation interne stable qu'il lit ou produit, le contrat typé qui valide sa sortie, et la surface runtime qui consomme le résultat validé.
-
-Principe fort :
-
-> Un JSON produit par un LLM n'est pas une donnée applicative fiable tant qu'il n'a pas été validé côté backend.
-
-Flux recommandé :
-
-```text
-Modèle typé
--> JSON Schema exposé au LLM
--> contrat de prompt et message builder contrôlé
--> réponse JSON du LLM
--> validation runtime stricte
--> objet applicatif accepté ou erreur contrôlée
-```
-
-En Python, la validation doit s'appuyer sur **Pydantic** ou un validateur équivalent.
-
-Règles de prudence :
-
-- aucun SQL libre généré puis exécuté par le LLM ;
-- sorties applicatives structurées et validées ;
-- actions critiques soumises à validation humaine ;
-- agent inactif par défaut tant que son contrat n'est pas validé.
-
----
-
-## Mode SR Core et mode SR Nexus KG
-
-La SR Method peut fonctionner en deux niveaux.
-
-| Mode | Description |
-|---|---|
-| **SR Core** | Codex s'appuie sur les fichiers SR, RepoMap et la lecture directe du code. |
-| **SR Nexus KG** | Un Knowledge Graph Nexus aide à identifier fichiers, routes, composants, services, dépendances, tests et zones à risque. |
-
-Dans les deux cas, le principe reste le même :
-
-> Le graphe ou la carte orientent la recherche, mais le code réel tranche.
-
----
-
-## Commandes techniques de secours
-
-Le parcours normal est **prompt-first**. Les commandes ci-dessous sont utiles en secours, audit ou automatisation.
-
-### Installer depuis une source locale
-
-```bash
-export SR_PACK_SOURCE="$HOME/aurora-sr-method-pack"
-
-git clone https://github.com/syl2042/Aurora_SR_method_codex_pack.git "$SR_PACK_SOURCE"
-
+# prévisualisation en lecture seule
 python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" \
-  --source "$SR_PACK_SOURCE" \
-  --target /path/to/project \
-  --profile default \
-  --write
+  --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --json
+
+# cible neuve, après validation
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" \
+  --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --write
+
+# cible existante ou partielle, après validation
+python3 "$SR_PACK_SOURCE/scripts/install_codex_pack.py" \
+  --source "$SR_PACK_SOURCE" --target "$SR_TARGET" --upgrade
 ```
 
-### Vérifier le pack source
-
-Depuis ce repository :
+Puis exécuter :
 
 ```bash
-python3 scripts/codex/verify_codex_pack.py
-python3 scripts/codex/audit_codex_pack.py --root . --json
-git diff --check
+python3 "$SR_TARGET/scripts/codex/sr_post_install_check.py" --root "$SR_TARGET" --json
 ```
 
-### Vérifier un projet installé
+Le code retour de l’installateur ne suffit pas. Il faut contrôler préservation, conflits, post-installation et réalignement produit restant. Voir [INSTALLATION.fr.md](INSTALLATION.fr.md).
 
-Depuis le projet cible, selon les fichiers présents :
+## Compatibilité
 
-```bash
-python3 scripts/codex/verify_codex_pack.py
-python3 scripts/codex/audit_codex_pack.py --json
-python3 scripts/codex/sr_post_install_check.py --root . --json
-python3 scripts/codex/find_next_session_prompt.py --root . --json
-python3 scripts/codex/audit_sr_project.py --root . --json
-python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml
-python3 scripts/codex/audit_sr_task_contracts.py --root . --json
-git diff --check
-git status --short
-```
+- Les installations anciennes, partielles, sans version ou adaptées localement sont évaluées par leur contenu.
+- Lots, passes, mémoires, exigences ouvertes et skills locales restent propriété du projet.
+- Les anciens contrats restent lisibles sans réécriture massive.
+- Un fichier pack inconnu et modifié est préservé ou signalé, jamais écrasé silencieusement.
+- Code applicatif, secrets, dépendances, migrations et déploiements restent hors d’une mise à jour de méthode.
 
----
+## Carte du dépôt
 
-## Hygiène avant publication publique
+- `core/` : méthode, routes, procédures, profils et politiques.
+- `skills-method/` : petit catalogue de skills méthode distribuées.
+- `scripts/install_codex_pack.py` : preview et convergence transactionnelle.
+- `scripts/codex/` : validation, audit et outils bornés.
+- `prompts/` : prompts publics et traductions.
+- `tasks/_TEMPLATE/` : état compact et modèles historiques encore lisibles.
+- `tools/sr-cockpit/` : interface opérateur optionnelle, non installée dans les projets cibles.
 
-Avant de publier un fork ou une release, vérifier qu'aucune donnée de projet cible n'a été incluse par erreur.
-
-```bash
-git ls-tree -r --name-only HEAD | grep -E '(^docs/codex/|^tasks/|\.docx$|^AGENTS.md$|^DESIGN.md$|CURRENT_STATE)'
-git grep -n -I -E 'absolute_path|customer_project|client_project|internal_project' HEAD -- .
-```
-
-Ces commandes ne doivent retourner aucun blocage de publication.
-
----
-
-## Politique de langue
-
-Le coeur technique de la SR Method reste maintenu en **anglais canonique** afin de conserver une base stable et cohérente.
-
-Les points d'entrée développeur sont disponibles en plusieurs langues :
-
-- README ;
-- guides d'installation ;
-- prompts Codex à copier-coller ;
-- prompts de mise à jour, vérification, reprise et agents runtime.
-
-Le jeu public localise et teste comprend les prompts `00`, `01`, `05`, `06`, `07`, `08`, `09` et `15`. Les autres prompts sont des workflows internes canoniques et ne sont pas annonces comme points d'entree traduits.
-
-Un projet installé peut demander à Codex d'échanger avec l'utilisateur en français. La méthode technique reste canonique en anglais.
-
----
-
-## Ce que ce pack n'est pas
-
-Ce pack n'est pas :
-
-- un framework agentique ;
-- un générateur automatique d'application sans supervision ;
-- une garantie que Codex ne fera jamais d'erreur ;
-- un remplacement des tests ;
-- un remplacement de la validation produit ;
-- un outil qui autorise l'IA à décider seule des règles métier.
-
-C'est une méthode d'exécution contrôlée pour rendre le développement assisté par IA plus fiable, plus auditable et plus facilement reprenable.
-
----
-
-## Documentation
-
-Documentation principale :
-
-- [SR Method](https://docs.auroramind.fr/docs/SR_Method)
-- [Documentation française](https://docs.auroramind.fr/docs/SR_Method/fr)
-
-Pages utiles :
-
-- Comprendre la SR Method
-- Démarrer avec Codex
-- Travailler par lots
-- Gates et validation
-- Skills Codex
-- Codex Project Pack
-- Fichiers SR principaux
-- Contrats SR
-- Agents IA runtime
-- Clôture, tests E2E et GitHub
-
----
-
-## Licence
-
-Ce repository est publié sous licence **MIT**.
-
-Voir [LICENSE](LICENSE).
-
----
-
-## Contribuer
-
-Les contributions sont bienvenues si elles renforcent la méthode sans la rendre plus lourde.
-
-Axes utiles :
-
-- améliorer les prompts multilingues ;
-- ajouter des checklists de vérification ;
-- enrichir les templates de lots ;
-- améliorer les scripts d'audit ;
-- documenter des cas d'usage réels ;
-- proposer des skills méthode ou métier réutilisables.
-
-Avant toute contribution, garder en tête la philosophie du projet :
-
-> moins d'improvisation, plus de preuves, plus de reprise.
+L’historique et les notes de migration vivent uniquement dans [CHANGELOG.md](CHANGELOG.md).

@@ -1,41 +1,62 @@
 #!/usr/bin/env python3
-"""Reproducible document-load estimates, NOT measured model/API consumption."""
+"""Reproducible document-load proxy; never presented as API billing telemetry."""
 import argparse
 import json
 from pathlib import Path
 
-BASE=['AGENTS.template.md','SR_BOOTSTRAP.md','PROJECT_PROFILE.template.yaml','CURRENT_STATE.template.md',
-      'WORKFLOW_CODEX.md','SR_METHOD.md','SR_DEVELOPMENT_METHOD.md','SR_AGENT_METHOD.md',
-      'SKILL_MAP.template.md','SKILL_DIGEST.md','CODEBASE_MAP.md','CODEBASE_MAP.generated.md']
-START=['AGENTS.template.md','SR_BOOTSTRAP.md','PROJECT_PROFILE.template.yaml','SKILL_DIGEST.md',
-       'procedures/fact.md','procedures/evidence.md']
-MUTATION=['procedures/authority.md','procedures/memory.md','procedures/contracts.md']
-CLOSE=['procedures/verification.md','procedures/completion.md','procedures/context.md']
-SCENARIOS={
-    'simple':(['AGENTS.template.md'],['AGENTS.template.md']),
-    'small_change':(BASE,START+MUTATION+CLOSE),
-    'business':(BASE+['DOMAIN_EXPERTISE_BOOTSTRAP.md'],START+MUTATION+CLOSE+['DOMAIN_EXPERTISE_BOOTSTRAP.md','procedures/skills.md']),
-    'ui':(BASE+['SR_HARNESS_METHOD.md','LOT_EXECUTION_METHOD.md'],START+MUTATION+CLOSE+['procedures/ui.md','procedures/design-evidence.md','procedures/execution.md']),
-    'resume':(['AGENTS.template.md','SR_BOOTSTRAP.md'],['AGENTS.template.md','SR_BOOTSTRAP.md','procedures/resume.md']),
-    'agent':(BASE+['AI_AGENT_RUNTIME_METHOD.md','DOMAIN_EXPERTISE_BOOTSTRAP.md'],START+MUTATION+CLOSE+['AI_AGENT_RUNTIME_METHOD.md','DOMAIN_EXPERTISE_BOOTSTRAP.md','procedures/skills.md','procedures/propagation.md']),
-    'lot':(BASE+['SR_HARNESS_METHOD.md','LOT_EXECUTION_METHOD.md'],START+MUTATION+CLOSE+['procedures/design-evidence.md','procedures/execution.md','procedures/impact.md']),
-    'pass':(BASE+['SR_HARNESS_METHOD.md','LOT_EXECUTION_METHOD.md'],START+MUTATION+CLOSE+['procedures/design-evidence.md','procedures/execution.md','procedures/impact.md','procedures/passes.md','procedures/runtime-goal.md']),
-    'initial_nontrivial':(BASE,START),
+OLD_BASE = [
+    "AGENTS.template.md", "SR_BOOTSTRAP.md", "PROJECT_PROFILE.template.yaml",
+    "CURRENT_STATE.template.md", "WORKFLOW_CODEX.md", "SR_METHOD.md",
+    "SR_DEVELOPMENT_METHOD.md", "SR_AGENT_METHOD.md", "SKILL_MAP.template.md",
+    "SKILL_DIGEST.md", "CODEBASE_MAP.md", "CODEBASE_MAP.generated.md",
+]
+SCENARIOS = {
+    "simple": (["AGENTS.template.md"], ["AGENTS.template.md"]),
+    "small_change": (OLD_BASE, ["AGENTS.template.md", "SR_BOOTSTRAP.md", "SR_ROUTES.json", "procedures/authority.md", "procedures/verification.md"]),
+    "business": (OLD_BASE + ["DOMAIN_EXPERTISE_BOOTSTRAP.md"], ["AGENTS.template.md", "SR_BOOTSTRAP.md", "SR_ROUTES.json", "DOMAIN_EXPERTISE_BOOTSTRAP.md", "procedures/impact.md", "procedures/verification.md"]),
+    "ui": (OLD_BASE + ["SR_HARNESS_METHOD.md", "LOT_EXECUTION_METHOD.md"], ["AGENTS.template.md", "SR_BOOTSTRAP.md", "SR_ROUTES.json", "procedures/ui.md", "procedures/verification.md"]),
+    "resume": (["AGENTS.template.md", "SR_BOOTSTRAP.md", "CURRENT_STATE.template.md"], ["AGENTS.template.md", "SR_BOOTSTRAP.md", "SR_ROUTES.json", "procedures/resume.md", "procedures/memory.md"]),
+    "agent": (OLD_BASE + ["AI_AGENT_RUNTIME_METHOD.md", "DOMAIN_EXPERTISE_BOOTSTRAP.md"], ["AGENTS.template.md", "SR_BOOTSTRAP.md", "SR_ROUTES.json", "SR_AGENT_METHOD.md", "AI_AGENT_RUNTIME_METHOD.md", "procedures/impact.md", "procedures/verification.md"]),
+    "pass": (OLD_BASE + ["SR_HARNESS_METHOD.md", "LOT_EXECUTION_METHOD.md"], ["AGENTS.template.md", "SR_BOOTSTRAP.md", "SR_ROUTES.json", "SR_HARNESS_METHOD.md", "LOT_EXECUTION_METHOD.md", "procedures/passes.md", "procedures/execution.md", "procedures/verification.md"]),
 }
 
-def measure(before,after):
-    results=[]
-    for name,(old,new) in SCENARIOS.items():
-        old=list(dict.fromkeys(old));new=list(dict.fromkeys(new))
-        a=sum(len((before/p).read_text()) for p in old);b=sum(len((after/p).read_text()) for p in new)
-        results.append({'scenario':name,'before_characters':a,'after_characters':b,
-                        'before_tokens_proxy':round(a/4),'after_tokens_proxy':round(b/4),
-                        'reduction_percent':round(100*(a-b)/a,2),'before_documents':old,'after_documents':new})
-    return {'measurement':'exact characters of specified document sets; tokens=characters/4 proxy',
-            'limits':['No model execution or billing measurement','Project-specific files, selected skills, code, logs and active task contracts excluded on both sides','Routes cumulate with new findings; tables are declared scenarios, not automatic proof of equivalent behavior','Resume baseline uses narrow strict-resume rule, not the contradictory broad reload'],
-            'scenarios':results}
 
-def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--baseline',required=True);ap.add_argument('--root',default='.')
-    a=ap.parse_args();print(json.dumps(measure(Path(a.baseline)/'core',Path(a.root)/'core'),ensure_ascii=False,indent=2))
-if __name__=='__main__':main()
+def measure(before: Path, after: Path) -> dict:
+    results = []
+    for name, (old_docs, new_docs) in SCENARIOS.items():
+        old_docs = list(dict.fromkeys(old_docs))
+        new_docs = list(dict.fromkeys(new_docs))
+        old_chars = sum(len((before / path).read_text()) for path in old_docs)
+        new_chars = sum(len((after / path).read_text()) for path in new_docs)
+        results.append({
+            "scenario": name,
+            "before_characters": old_chars,
+            "after_characters": new_chars,
+            "before_tokens_proxy": round(old_chars / 4),
+            "after_tokens_proxy": round(new_chars / 4),
+            "reduction_percent": round(100 * (old_chars - new_chars) / old_chars, 2),
+            "before_documents": old_docs,
+            "after_documents": new_docs,
+        })
+    return {
+        "measurement": "exact characters of declared document sets; tokens are a characters/4 proxy",
+        "limits": [
+            "not model execution, cached-token telemetry, or billing",
+            "project sources, selected skills, logs, tool schemas, and user messages are excluded",
+            "scenarios model intended routing and do not prove equivalent behavior",
+        ],
+        "scenarios": results,
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--baseline", required=True)
+    parser.add_argument("--root", default=".")
+    args = parser.parse_args()
+    print(json.dumps(measure(Path(args.baseline) / "core", Path(args.root) / "core"), ensure_ascii=False, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

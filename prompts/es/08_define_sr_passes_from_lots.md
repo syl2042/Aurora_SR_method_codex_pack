@@ -1,46 +1,9 @@
-# Definir SR Passes desde lotes existentes
+# Definir pases SR 4.1
 
-Estas trabajando en un repositorio ya equipado con la SR Method.
+No programes. Lee el `AGENTS.md` aplicable, `SR_LOTS.yaml` y el posible `SR_PASSES.yaml`; abre archivos de producto o `task_state.yaml` solo cuando sea necesario.
 
-Objetivo: proponer o actualizar `docs/codex/SR_PASSES.yaml` a partir de `docs/codex/SR_LOTS.yaml`, sin modificar codigo de aplicacion.
+Agrupa lotes `repair`, `reopened` o `validated` en el mínimo de pases coherentes. Para cada uno indica objetivo, `Scope`, dependencias, `Verification` final, `Activation` separada, decisiones humanas y condiciones reales de parada.
 
-Prioriza lotes `repair`/`reopened`, conserva todos los `validated_request_ids` abiertos y consolida reparaciones del mismo alcance producto en una pasada coherente.
+No crees una gate documental autónoma. Los campos históricos son solo de compatibilidad. El núcleo no depende de MCP; las capacidades externas siguen `MCP_POLICY.yaml`.
 
-Reglas:
-
-- No modifiques codigo de aplicacion.
-- No cambies ningun estado de lote sin evidencia y validacion.
-- No marques una pasada como `validated` sin validacion explicita del usuario.
-- Una pasada agrupa lotes; nunca reemplaza criterios o gates de los lotes.
-
-Fuentes a leer:
-
-1. `AGENTS.md`
-2. `docs/codex/SR_HARNESS_METHOD.md`
-3. `docs/codex/LOT_EXECUTION_METHOD.md`
-4. `docs/CURRENT_STATE.md`
-5. `docs/codex/SR_LOTS.yaml`
-6. `docs/codex/SR_PASSES.yaml` si existe
-7. `docs/codex/CODEBASE_MAP.md`
-
-Metodo:
-
-1. Validar `SR_LOTS.yaml`.
-2. Clasificar lotes por estado y dependencias.
-3. Verificar el Lot Design Evidence Gate: excluir de pasadas ejecutables cualquier lote `planned`, `validated`, `in_progress`, `repair` o `reopened` sin `design_evidence.status: pass` o `not_applicable` justificado. Un lote `proposed` puede seguir exploratorio.
-4. Construir el grafo `depends_on`, `blocked_by`, `impacts`, `impacted_by`.
-5. Proponer pasadas con orden, rationale, preflight, validaciones humanas, migraciones/acciones externas, fuentes compartidas, E2E agrupado y stop conditions.
-6. Crear o actualizar `SR_PASSES.yaml` solo despues de validacion si el proyecto impone validacion estricta.
-7. Validar con `python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml`.
-
-Salida esperada:
-
-- pasadas propuestas;
-- lotes excluidos y razon;
-- lotes excluidos por Lot Design Evidence Gate ausente o incompleto;
-- preguntas bloqueantes;
-- preflight por pasada;
-- E2E agrupado recomendado;
-- archivos SR modificados;
-- resultado de validacion;
-- siguiente pasada recomendada.
+Propón el diff, respeta la aprobación aplicable y valida el contrato.

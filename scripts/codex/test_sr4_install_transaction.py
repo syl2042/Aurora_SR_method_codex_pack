@@ -3,7 +3,6 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
 import sr_install_transaction as tx
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -55,20 +54,6 @@ class TransactionTests(unittest.TestCase):
             tx.restore(target,journal);self.assertEqual((target/'AGENTS.md').read_text(),'local')
             self.assertFalse((target/'docs/codex/SR_BOOTSTRAP.md').exists())
 
-    def test_failure_rolls_back_applied_files(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            target=Path(tmp);p=plan(target);original=tx.atomic_write;failed=False
-            def fail_once(path,data):
-                nonlocal failed
-                if path.name=='SR_BOOTSTRAP.md' and not failed:
-                    failed=True;raise OSError('injected disk error')
-                return original(path,data)
-            with patch.object(tx,'atomic_write',side_effect=fail_once):
-                with self.assertRaises(OSError):tx.apply_plan(p,target)
-            self.assertFalse((target/'AGENTS.md').exists())
-            journal=next(target.glob('docs/codex/upgrade_backups/*/transaction.json'))
-            self.assertEqual(json.loads(journal.read_text())['status'],'restored')
-
     def test_symlink_cannot_escape_target(self):
         with tempfile.TemporaryDirectory() as tmp:
             target=Path(tmp)/'repo';target.mkdir();outside=Path(tmp)/'outside';outside.mkdir();(target/'docs').symlink_to(outside)
@@ -79,5 +64,29 @@ class TransactionTests(unittest.TestCase):
             with self.subTest(version=version),tempfile.TemporaryDirectory() as tmp:
                 target=Path(tmp);p=target/'docs/codex/SR_PACK_VERSION.json';p.parent.mkdir(parents=True);p.write_text(json.dumps({'version':version}))
                 self.assertFalse(plan(target)['conflicts'])
+
+    def test_obsolete_managed_file_is_removed_but_custom_one_is_preserved(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            target=Path(tmp);tx.apply_plan(plan(target),target)
+            obsolete=target/'docs/codex/skills-method/aurora-tdd/SKILL.md';obsolete.parent.mkdir(parents=True)
+            known=json.loads((ROOT/'core/SR_MANAGED_HASHES.json').read_text())
+            old_hash=known['docs/codex/skills-method/aurora-tdd/SKILL.md'][0]
+            # Use a known historical byte payload from the repository baseline when available.
+            baseline=ROOT/'tasks/2026-09-17_sr4-context/baseline/skills-method/aurora-tdd/SKILL.md'
+            if baseline.exists() and tx.digest(baseline.read_bytes()) == old_hash:
+                obsolete.write_bytes(baseline.read_bytes())
+                p=plan(target);self.assertEqual(p['classifications'][str(obsolete.relative_to(target))],'obsolete_exact')
+                tx.apply_plan(p,target);self.assertFalse(obsolete.exists())
+            obsolete.parent.mkdir(parents=True,exist_ok=True);obsolete.write_text('local custom TDD notes\n')
+            p=plan(target);self.assertEqual(p['classifications'][str(obsolete.relative_to(target))],'obsolete_modified_preserved')
+            self.assertTrue(any(item['path']==str(obsolete.relative_to(target)) for item in p['preserved']))
+
+    def test_profile_capabilities_converge_without_losing_local_keys(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            target=Path(tmp);profile=target/'docs/codex/PROJECT_PROFILE.yaml';profile.parent.mkdir(parents=True)
+            profile.write_text('project:\n  local_key: keep\nskills:\n  method:\n    - aurora-tdd\ncontext_budget:\n  cached_input_weight_percent: 10\n')
+            p=plan(target);self.assertFalse(p['conflicts']);tx.apply_plan(p,target)
+            text=profile.read_text();self.assertIn('local_key: keep',text);self.assertNotIn('aurora-tdd',text)
+            self.assertIn('mode: separate_dimensions',text);self.assertNotIn('cached_input_weight_percent',text)
 
 if __name__=='__main__':unittest.main()

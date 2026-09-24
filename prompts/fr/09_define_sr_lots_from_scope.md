@@ -1,24 +1,7 @@
-# Definir les lots SR depuis un cadrage ou une inbox
+# Définir les lots SR 4.1
 
-Objectif : transformer un cadrage, une demande utilisateur ou `docs/codex/SR_INBOX.yaml` en lots SR explicites dans `docs/codex/SR_LOTS.yaml`, sans modifier le code applicatif.
+Ne code pas. Lis le `AGENTS.md`, la demande concernée et l'éventuel `SR_LOTS.yaml`; consulte seulement les fichiers indispensables.
 
-Avant de creer un lot, verifier objectifs, criteres d'acceptation, `validated_requests`, lots `user_testing` et passes validees. Un retour deja couvert est par defaut `existing_requirement_repair` et rouvre le lot d'origine. Un nouveau lot exige une justification hors scope ; ne pas creer un micro-lot par critere.
+Distingue nouvelle capacité et réparation. `existing_requirement_repair` rouvre le lot ; `validated_requests` reste un champ de compatibilité. Propose le minimum de lots cohérents avec objectif, `Scope`, critères observables, dépendances, `Verification`, `Activation`, décisions humaines et conditions d'arrêt.
 
-Regles :
-
-- Ne modifie aucun code applicatif.
-- Ne cree pas de lot `planned`, `validated`, `in_progress`, `repair` ou `reopened` sans Lot Design Evidence Gate.
-- Un lot `proposed` peut rester exploratoire.
-- Ne marque jamais un lot `validated` sans validation utilisateur explicite.
-
-Methode :
-
-1. Lire `AGENTS.md`, `docs/codex/SR_BOOTSTRAP.md`, `docs/codex/SR_HARNESS_METHOD.md`, `docs/codex/LOT_EXECUTION_METHOD.md`, `docs/CURRENT_STATE.md`, `docs/codex/SR_INBOX.yaml`, `docs/codex/SR_LOTS.yaml` et `docs/codex/CODEBASE_MAP.md` quand ils existent.
-2. Identifier les surfaces candidates avec `RepoMap/KG -> fichiers candidats -> lecture code reel -> tests/logs`.
-3. Remplir `design_evidence` pour chaque lot candidat.
-4. Garder en `proposed` tout lot dont le cadrage depend encore d'une supposition verifiable.
-5. Proposer les lots a valider avant execution.
-6. Valider `SR_LOTS.yaml` avec `python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml`.
-7. Recommander ensuite `docs/codex/prompts/08_define_sr_passes_from_lots.md` si plusieurs lots sont executables ou proches de l'etre.
-
-Sortie attendue : lots crees ou modifies, statut du Lot Design Evidence Gate, fichiers lus, hypotheses restantes, questions bloquantes, validation `SR_LOTS.yaml`, prochaine etape.
+N'ajoute pas de gate documentaire autonome. Le cœur ne dépend d'aucun MCP ; toute capacité externe respecte `MCP_POLICY.yaml`. Utilise `task_state.yaml` seulement pour une continuité utile, puis valide le contrat.

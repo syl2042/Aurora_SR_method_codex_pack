@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-import argparse,datetime
+import argparse
 from pathlib import Path
-IGNORE={'.git','node_modules','.next','dist','build','__pycache__','.venv','venv','output'}
+IGNORE={'.git','node_modules','.next','dist','build','__pycache__','.venv','venv','output','tasks'}
 def files(root,patterns,limit=300):
     out=[]
     for pat in patterns:
         for p in root.rglob(pat):
             if any(part in IGNORE for part in p.parts): continue
-            if p.is_file(): out.append(p)
+            if p.is_file() and not p.name.startswith('test_'): out.append(p)
     return sorted(set(out))[:limit]
 def rel(p,root): return str(p.relative_to(root)).replace('\\','/')
 def main():
@@ -16,7 +16,7 @@ def main():
     backend=files(root,['*.py'],400)
     migrations=files(root,['*/versions/*.py','*alembic*.py'],200)
     runtime=files(root,['package.json','pyproject.toml','requirements.txt','docker-compose*.yml','Dockerfile*'],100)
-    lines=['# CODEBASE_MAP.generated.md','', '> Genere automatiquement. Ne pas editer manuellement.', f'> Date: {datetime.datetime.now().isoformat(timespec="seconds")}', '', '## Frontend route candidates']
+    lines=['# CODEBASE_MAP.generated.md','', '> Genere automatiquement. Ne pas editer manuellement.', '', '## Frontend route candidates']
     lines += [f'- `{rel(p,root)}`' for p in frontend]
     lines += ['', '## Backend Python candidates'] + [f'- `{rel(p,root)}`' for p in backend]
     lines += ['', '## Migration candidates'] + [f'- `{rel(p,root)}`' for p in migrations]

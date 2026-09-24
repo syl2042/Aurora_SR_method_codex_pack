@@ -1,42 +1,20 @@
-# TOKEN_OPTIMIZATION.md
+# Token and cache policy — SR 4.1
 
-Objectif : reduire les tokens des sorties terminal sans perte de qualite.
+## Input
 
-Regles :
-- conserver la sortie brute locale ;
-- indiquer si sortie compressee dans `verification.md` ;
-- revenir au brut si diagnostic ambigu.
+- permanent SR context target: at most 1,500 tokens;
+- ordinary SR overhead target: at most 3,000 uncached tokens;
+- complex-pass SR overhead target: at most 8,000 uncached tokens;
+- zero to two method skills normally, three maximum for a complex pass.
 
-Outils : RTK si disponible, trs si disponible, sinon `scripts/codex/aurora_token_run.py`.
+Load exact ranges and triggered procedures. Keep raw logs and large artifacts outside context; inject a bounded summary and stable path. Retry a corrected tool call at most once.
 
-Brut obligatoire/fallback pour securite, secrets, migrations, auth, integrations critiques, erreurs runtime inconnues.
+## Output
 
-## Budget contexte hybride
+Lead with the result. Ordinary closure should fit in about 400 words. Report only used evidence, relevant limits and remaining acceptance.
 
-`context_budget_report.py` distingue quatre signaux :
+## Cache
 
-- `input_tokens` / `raw_context_percent` : volume brut lu dans `last_token_usage`, information de diagnostic seulement.
-- `effective_context_percent` : score legacy de planification (pas une mesure d’occupation physique), calcule avec `cached_input_tokens` pondere a 10%, plus les tokens non caches et sorties recentes.
-- `uncached_input_tokens` : volume nouveau non cache, volume non cache; ne suffit pas a calculer le cout ou la qualite de reprise.
-- `cache_ratio` : part cachee du prompt ; un ratio eleve evite les coupures trop precoces mais ne justifie pas des conversations infinies.
+Keep permanent instructions, tool definitions and their order stable. Put task-specific and volatile content later. Add deferred tools append-only; prefer allowlists over rebuilding the catalog.
 
-Le script expose aussi `total_token_usage` et `rate_limits` quand Codex les a enregistres, mais ces valeurs restent des signaux d'observabilite. Le statut SR est base sur le dernier appel utile et la fiabilite de selection de session.
-
-Mode compact obligatoire pour les verifications frequentes :
-
-```bash
-python3 scripts/codex/context_budget_report.py --root . --compact
-```
-
-Exemple :
-
-```text
-context=green action=continue raw=49.0% effective=12.0% uncached=10.0k cached=95.0% output=600 reasoning=100 rl=7.0/45.0 reliable=true
-```
-
-Regle SR : ne pas classer une conversation uniquement sur `input_total` ou sur le cumul `total_token_usage`. Le statut est base sur `effective_context_percent`, les signaux non caches, les tours et les lots. `raw_context_percent` ne doit jamais declencher rouge seul. Les etats `unknown`, `stale` et `ambiguous` restent prioritaires et exigent une reprise stricte ou un `NEXT_SESSION_PROMPT.md`.
-
-En fin d'iteration significative, executer le mode compact. Si le statut est `green`, ne rien afficher a l'utilisateur sauf demande explicite. Si le statut est `yellow`, signaler seulement qu'une reprise est recommandee avant une prochaine tache longue. Si le statut est `orange`, `red`, `unknown`, `stale` ou `ambiguous`, creer ou mettre a jour le `NEXT_SESSION_PROMPT.md` du lot courant et donner un prompt court qui pointe vers ce chemin connu.
-
-## SR 4 : sortie et preuve
-Une sortie courte reste courte; diagnostics dedupliques, erreurs avant avertissements. Si diagnostics tronques, lire le brut avant conclusion. Le code de sortie original est conserve. Le cache reutilise du calcul, il ne compresse pas le contexte. Aucun seuil de stop ne change dans SR 4. Les usages output/reasoning sont rapportes separement; ne pas supposer leur additivite pour la facturation.
+Track separately: context occupancy, uncached input, cached input or writes, output, reasoning when available, tool-result volume and retries. Cached tokens still occupy context and must not be discounted in the context-pressure gate.

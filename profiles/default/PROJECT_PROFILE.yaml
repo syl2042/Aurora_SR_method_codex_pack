@@ -7,17 +7,17 @@ project:
 
 codex:
   method_label: "SR Development Method"
-  require_planning_with_files: true
   require_skill_selection: true
   require_sr_bootstrap_on_resume: true
   require_domain_skill_for_business_changes: true
   require_agent_runtime_contract: true
   require_repo_map: true
   require_knowledge_gate: true
-  require_self_evaluation_gate: true
-  require_review_diff: true
+  require_self_evaluation_gate: false
   require_ui_visual_qa_for_ui: true
   require_current_state_update: full_regime_after_upgrade_or_significant_lot
+  max_agents_md_lines: 120
+  max_agents_md_tokens: 1200
 
 knowledge:
   mode: "core"
@@ -30,6 +30,7 @@ knowledge:
     source: null
     refresh_command: null
     context_pack: docs/codex/NEXUS_CONTEXT_PACK.md
+    policy_file: docs/codex/MCP_POLICY.yaml
   doctrine: "RepoMap/KG orientent; le code reel et les tests restent la source finale."
 
 skills:
@@ -38,21 +39,14 @@ skills:
   digest: "docs/codex/SKILL_DIGEST.md"
   allow_project_skill_export_to_global: false
   method:
-    - aurora-planning-with-files
     - aurora-diagnose
-    - aurora-review-diff
     - aurora-ui-visual-qa
     - aurora-architecture-check
-    - aurora-repomap-maintainer
-    - aurora-domain-skill-factory
-    - aurora-terminal-token-optimizer
-    - aurora-tdd
-    - aurora-to-prd
+    - aurora-lot-runner
   optional:
     - aurora-to-prd
-  deprecated:
-    - aurora-planning-with-files
-    - aurora-terminal-token-optimizer
+    - aurora-domain-skill-factory
+  deprecated: []
   domain: []
   runtime: []
 
@@ -145,11 +139,9 @@ sr_harness:
   require_ui_test_readiness_gate_for_ui: true
   require_ui_visual_evidence_gate_for_ui: true
   require_context_budget_gate: true
-  require_self_evaluation_gate: true
-  require_sr_contract: true
-  sr_contract_file: docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json
-  require_loop_contract: true
-  loop_contract_file: docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json
+  require_self_evaluation_gate: false
+  task_state_file: docs/codex/tasks/YYYY-MM-DD_slug/task_state.yaml
+  legacy_contracts_readable: true
   require_conversation_transition_decision: true
   require_propagation_gate_for_reference_changes: true
   propagation_gate_policy:
@@ -212,7 +204,7 @@ autonomy_run:
 
 context_budget:
   context_window_tokens: 258400
-  mode: "hybrid"
+  mode: "separate_dimensions"
   check_timing: "before_each_significant_response"
   compact_command: "python3 scripts/codex/context_budget_report.py --root . --compact"
   hide_green_status: true

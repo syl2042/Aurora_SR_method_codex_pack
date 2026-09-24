@@ -1,81 +1,12 @@
-# SR Development Method
+# SR Development Method 4.1
 
-> SR 4 : document conceptuel et de reference. Les definitions normatives et leurs declencheurs ont pour sources canoniques SR_BOOTSTRAP.md et les procedures routees. Les rappels ci-dessous ne prescrivent pas un chargement universel ni une seconde procedure concurrente.
+Use for changes to source, configuration, tests or build assets.
 
-## Objectif
+1. State objective, assumptions, smallest sufficient change and final verification.
+2. Load only routes triggered by the task.
+3. Inspect the real files and affected consumers.
+4. Implement surgically without unrelated refactor or dependency change.
+5. Verify the final result using `procedures/verification.md`.
+6. If activation was requested, apply `procedures/build.md` and distinguish every proof layer.
 
-La SR Development Method encadre le developpement assiste par Codex dans un projet logiciel.
-
-Elle vise a reduire les iterations inutiles en forcant Codex a :
-
-- verifier les fichiers avant de recommander ;
-- travailler par lots explicites ;
-- maintenir une memoire de tache ;
-- executer les verifications utiles ;
-- produire une liste E2E utilisateur concrete ;
-- auto-evaluer son travail avant cloture ;
-- surveiller le budget contexte ;
-- creer un prompt de reprise quand la session devient longue.
-
-## Boucle standard
-
-```text
-demande utilisateur
--> bootstrap SR
--> objectif verifiable
--> classification backlog
--> lot design evidence gate si creation ou promotion de lot
--> pass planning gate si multi-lots
--> knowledge gate : RepoMap/KG -> fichiers candidats -> code reel
--> evidence gate
--> plan court
--> implementation ciblee
--> si UI non triviale : design gate -> UI test readiness gate -> UI verification runner -> UI visual evidence gate
--> verification
--> repair loop si necessaire
--> loop contract
--> gate report
--> mise a jour memoire/backlog
--> cloture avec tests E2E utilisateur
-```
-
-## Contrat de boucle
-
-A partir de SR 2.4.0, toute tache non triviale doit produire ou mettre a jour :
-
-```text
-docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json
-```
-
-Ce fichier est volontairement court. Il ne contient pas les logs ni les details longs. Il declare seulement les preuves minimales permettant de verifier que la boucle SR a ete appliquee.
-
-Le validateur de reference est :
-
-```bash
-python3 scripts/codex/validate_loop_contract.py --file docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json
-```
-
-## UI Verification Harness
-
-A partir de SR 3.6.0, la SR Development Method contient un sous-systeme **UI Verification Harness** pour les lots UI/UX significatifs.
-
-Role :
-
-```text
-UI requirement
--> determiner si preuve UI necessaire
--> verifier que l'environnement est testable
--> obtenir une session valide si necessaire
--> lancer Playwright via sr_ui_verify.mjs
--> tester routes x viewports
--> capturer screenshots, console.error, pageerror, requestfailed et overflow
--> produire un rapport JSON machine
--> alimenter sr_contract.json
--> bloquer Lot Completion Gate si la bonne interface n'a pas ete observee
-```
-
-Le harness est generique. Les regles UI produit restent dans les skills locales du projet. L'authentification reste une configuration projet dans `PROJECT_PROFILE.yaml`, jamais une logique codee en dur dans la SR Method.
-
-## Relation avec SR_HARNESS_METHOD.md
-
-`SR_HARNESS_METHOD.md` reste le document operationnel historique. Il detaille les lots, niveaux d'autonomie, gates et conditions d'arret. La SR Development Method est le nom public de cette branche.
+No TDD workflow is required. Existing tests may be used or a durable regression check may be added after the behavior is understood.

@@ -11,11 +11,10 @@ DEFAULT_WINDOW = 258400
 VALID_OK_STATUSES = {"green", "yellow"}
 VALID_RISK_STATUSES = {"orange", "red"}
 VALID_UNRELIABLE_STATUSES = {"unknown", "stale", "ambiguous"}
-HYBRID_THRESHOLDS = {
+BUDGET_THRESHOLDS = {
     "context_yellow_percent": 70,
     "context_orange_percent": 82,
     "context_red_percent": 92,
-    "cached_input_weight_percent": 10,
     "uncached_yellow_tokens": 12000,
     "uncached_orange_tokens": 24000,
     "uncached_red_tokens": 48000,
@@ -82,23 +81,6 @@ def normalize_usage(usage: dict[str, Any] | None) -> dict[str, int]:
         "output_tokens": int(raw.get("output_tokens") or 0),
         "reasoning_output_tokens": int(raw.get("reasoning_output_tokens") or 0),
         "total_tokens": int(raw.get("total_tokens") or 0),
-    }
-
-
-def effective_context_for_usage(usage: dict[str, int]) -> dict[str, Any]:
-    """Legacy scheduling score, NOT a measurement of occupied context. Thresholds unchanged."""
-    cached_weight = HYBRID_THRESHOLDS["cached_input_weight_percent"] / 100
-    cached_effective = round(usage["cached_input_tokens"] * cached_weight)
-    effective_tokens = (
-        usage["uncached_input_tokens"]
-        + cached_effective
-        + usage["output_tokens"]
-        + usage["reasoning_output_tokens"]
-    )
-    return {
-        "effective_context_tokens": effective_tokens,
-        "cached_input_weight_percent": HYBRID_THRESHOLDS["cached_input_weight_percent"],
-        "cached_input_effective_tokens": cached_effective,
     }
 
 
@@ -190,45 +172,45 @@ def session_summary(path: Path, root: Path) -> dict[str, Any] | None:
     }
 
 
-def hybrid_budget_for(report: dict[str, Any], effective_percent: float, lots_done: int) -> dict[str, Any]:
+def budget_for(report: dict[str, Any], context_percent: float, lots_done: int) -> dict[str, Any]:
     uncached = int(report.get("uncached_input_tokens") or 0)
     cache_ratio = float(report.get("cache_ratio") or 0.0)
     user_turns = int(report.get("user_turns_since_last_compact") or 0)
 
     signals: list[str] = []
-    if effective_percent >= HYBRID_THRESHOLDS["context_red_percent"]:
-        signals.append("effective_context_window_red")
-    elif effective_percent >= HYBRID_THRESHOLDS["context_orange_percent"]:
-        signals.append("effective_context_window_orange")
-    elif effective_percent >= HYBRID_THRESHOLDS["context_yellow_percent"]:
-        signals.append("effective_context_window_yellow")
+    if context_percent >= BUDGET_THRESHOLDS["context_red_percent"]:
+        signals.append("context_window_red")
+    elif context_percent >= BUDGET_THRESHOLDS["context_orange_percent"]:
+        signals.append("context_window_orange")
+    elif context_percent >= BUDGET_THRESHOLDS["context_yellow_percent"]:
+        signals.append("context_window_yellow")
 
-    if uncached >= HYBRID_THRESHOLDS["uncached_red_tokens"]:
+    if uncached >= BUDGET_THRESHOLDS["uncached_red_tokens"]:
         signals.append("uncached_red")
-    elif uncached >= HYBRID_THRESHOLDS["uncached_orange_tokens"]:
+    elif uncached >= BUDGET_THRESHOLDS["uncached_orange_tokens"]:
         signals.append("uncached_orange")
-    elif uncached >= HYBRID_THRESHOLDS["uncached_yellow_tokens"]:
+    elif uncached >= BUDGET_THRESHOLDS["uncached_yellow_tokens"]:
         signals.append("uncached_yellow")
 
     if (
-        effective_percent >= HYBRID_THRESHOLDS["low_cache_min_context_percent"]
-        and cache_ratio < HYBRID_THRESHOLDS["low_cache_ratio_percent"]
+        context_percent >= BUDGET_THRESHOLDS["low_cache_min_context_percent"]
+        and cache_ratio < BUDGET_THRESHOLDS["low_cache_ratio_percent"]
     ):
         signals.append("low_cache_ratio")
-    if user_turns >= HYBRID_THRESHOLDS["user_turns_orange"]:
+    if user_turns >= BUDGET_THRESHOLDS["user_turns_orange"]:
         signals.append("many_user_turns")
-    if lots_done >= HYBRID_THRESHOLDS["lots_orange"]:
+    if lots_done >= BUDGET_THRESHOLDS["lots_orange"]:
         signals.append("many_lots_orange")
-    elif lots_done >= HYBRID_THRESHOLDS["lots_yellow"]:
+    elif lots_done >= BUDGET_THRESHOLDS["lots_yellow"]:
         signals.append("many_lots_yellow")
 
-    if "effective_context_window_red" in signals:
+    if "context_window_red" in signals:
         status = "red"
         action = "stop_before_next_lot"
     elif any(
         s in signals
         for s in (
-            "effective_context_window_orange",
+            "context_window_orange",
             "uncached_red",
             "uncached_orange",
             "many_user_turns",
@@ -237,7 +219,7 @@ def hybrid_budget_for(report: dict[str, Any], effective_percent: float, lots_don
     ):
         status = "orange"
         action = "finish_current_lot_then_create_next_session_prompt"
-    elif any(s in signals for s in ("effective_context_window_yellow", "uncached_yellow", "low_cache_ratio", "many_lots_yellow")):
+    elif any(s in signals for s in ("context_window_yellow", "uncached_yellow", "low_cache_ratio", "many_lots_yellow")):
         status = "yellow"
         action = "update_next_session_prompt_if_lot_is_significant"
     else:
@@ -248,14 +230,13 @@ def hybrid_budget_for(report: dict[str, Any], effective_percent: float, lots_don
         "status": status,
         "recommended_action": action,
         "signals": signals,
-        "thresholds": HYBRID_THRESHOLDS,
-        "rule": "hybrid_context_budget_v1",
+        "thresholds": BUDGET_THRESHOLDS,
+        "rule": "separate_token_dimensions_v2",
         "notes": [
-            "effective_context_percent estimates active context pressure",
-            "cached_input_tokens are discounted and never counted at 100% for stop decisions",
-            "raw_context_percent is diagnostic only and must not trigger red alone",
-            "uncached_input_tokens measures new non-cached token volume",
-            "cache_ratio reduces premature stops but never overrides unreliable selection",
+            "context_percent estimates active context pressure from the last input and never discounts cached tokens",
+            "uncached_input_tokens is a separate workload and cost signal",
+            "cached_input_tokens and cache_ratio report reuse without pretending to compress context",
+            "output and reasoning are reported separately and are not folded into an invented score",
         ],
     }
 
@@ -277,11 +258,6 @@ def unreliable_report(root: Path, status: str, action: str, reason: str, *, cand
         "compactions_seen": 0,
         "user_turns_since_last_compact": 0,
         "context_percent": 0,
-        "raw_context_percent": 0,
-        "effective_context_tokens": 0,
-        "effective_context_percent": 0,
-        "cached_input_weight_percent": HYBRID_THRESHOLDS["cached_input_weight_percent"],
-        "cached_input_effective_tokens": 0,
         "status": status,
         "recommended_action": action,
         "candidate_count": len(candidates or []),
@@ -320,15 +296,14 @@ def compact_report(result: dict[str, Any]) -> str:
     rl = "n/a"
     if primary is not None or secondary is not None:
         rl = f"{primary if primary is not None else 'n/a'}/{secondary if secondary is not None else 'n/a'}"
-    signals = ((result.get("hybrid_budget") or {}).get("signals") or [])
+    signals = ((result.get("budget") or {}).get("signals") or [])
     signals_text = ",".join(signals) if signals else "none"
     return " ".join(
         [
             f"context={result.get('status')}",
             f"action={result.get('recommended_action')}",
-            "basis=effective+uncached+cache+turns+lots",
-            f"raw_diag={result.get('raw_context_percent')}%",
-            f"effective={result.get('effective_context_percent')}%",
+            "basis=context|uncached|cache|output|turns|lots",
+            f"context_pressure={result.get('context_percent')}%",
             f"uncached={format_count(result.get('uncached_input_tokens'))}",
             f"cached={result.get('cache_ratio')}%",
             f"signals={signals_text}",
@@ -449,32 +424,25 @@ def main() -> int:
         assert report is not None
         window = report["context_window"] or DEFAULT_WINDOW
         raw_percent = round((report["last_input_tokens"] / window) * 100, 2) if window else 0
-        effective = effective_context_for_usage(report["last_token_usage"])
-        effective_percent = round((effective["effective_context_tokens"] / window) * 100, 2) if window else 0
-        hybrid_budget = hybrid_budget_for({**report, **effective}, effective_percent, args.lots_done)
+        budget = budget_for(report, raw_percent, args.lots_done)
         result = {
             "root": str(root),
             **{k: v for k, v in report.items() if k != "last_token_at_dt"},
             "context_percent": raw_percent,
-            "raw_context_percent": raw_percent,
-            "effective_context_tokens": effective["effective_context_tokens"],
-            "effective_context_percent": effective_percent,
-            "cached_input_weight_percent": effective["cached_input_weight_percent"],
-            "cached_input_effective_tokens": effective["cached_input_effective_tokens"],
-            "status": hybrid_budget["status"],
-            "recommended_action": hybrid_budget["recommended_action"],
-            "hybrid_budget": hybrid_budget,
+            "status": budget["status"],
+            "recommended_action": budget["recommended_action"],
+            "budget": budget,
             "lots_done_current_pass": args.lots_done,
-            "thresholds": HYBRID_THRESHOLDS,
+            "thresholds": BUDGET_THRESHOLDS,
         }
 
     result["measurement_semantics"] = {
-        "raw_context_percent": "last recorded input divided by window; diagnostic, not a live occupancy probe",
-        "effective_context_percent": "legacy scheduling score with discounted cache; not physical context occupancy",
-        "cache": "compute reuse, not context compression",
-        "output_and_reasoning": "reported separately; inclusion semantics depend on telemetry producer",
-        "billing": "not calculated; rates and cache-write accounting unavailable",
-        "policy": "legacy thresholds and status decisions unchanged",
+        "context_percent": "last recorded input divided by window; pressure estimate, not a live occupancy probe",
+        "cache": "compute reuse measured separately; cached tokens still occupy context",
+        "cache_write": "unavailable unless the telemetry producer exposes it",
+        "output_and_reasoning": "reported separately; never folded into a synthetic context score",
+        "tool_results": "unavailable in token telemetry; bound at capture time",
+        "billing": "not calculated; model rates and cache-write accounting are external",
     }
     if args.compact:
         print(compact_report(result))
@@ -488,18 +456,12 @@ def main() -> int:
         print(f"session_file: {result.get('session_file')}")
         print(f"session_cwd: {result.get('session_cwd')}")
         print(f"last_token_at: {result.get('last_token_at')}")
-        print(f"raw_context: {result['last_input_tokens']}/{result['context_window']} tokens ({result['context_percent']}%)")
-        if result.get("effective_context_tokens") is not None:
-            print(
-                f"effective_context: {result['effective_context_tokens']}/{result['context_window']} "
-                f"tokens ({result['effective_context_percent']}%)"
-            )
-            print(f"cached_input_weight_percent: {result['cached_input_weight_percent']}")
+        print(f"context_pressure: {result['last_input_tokens']}/{result['context_window']} tokens ({result['context_percent']}%)")
         print(f"cached_input_tokens: {result['cached_input_tokens']} ({result['cache_ratio']}%)")
         print(f"uncached_input_tokens: {result['uncached_input_tokens']}")
-        if result.get("hybrid_budget"):
-            print(f"hybrid_rule: {result['hybrid_budget']['rule']}")
-            print(f"hybrid_signals: {', '.join(result['hybrid_budget']['signals']) or 'none'}")
+        if result.get("budget"):
+            print(f"budget_rule: {result['budget']['rule']}")
+            print(f"budget_signals: {', '.join(result['budget']['signals']) or 'none'}")
         print(f"user_turns_since_last_compact: {result['user_turns_since_last_compact']}")
         print(f"compactions_seen: {result['compactions_seen']}")
         print(f"recommended_action: {result['recommended_action']}")

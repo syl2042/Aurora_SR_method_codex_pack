@@ -1,26 +1,5 @@
-# Start a governed SR session
+# Resume an SR session
 
-Do not code.
+Do not code before scope validation. Read `AGENTS.md`, `CURRENT_STATE`, then the `selected` result from `find_next_session_prompt.py --root . --json`; if it is `ambiguous`, ask for the exact path. Read active `task_state.yaml` or necessary historical contracts, including open `validated_requests`.
 
-Objective: reconstruct the complete validated scope and propose the next coherent action before any mutation.
-
-1. Read `AGENTS.md` and `docs/codex/SR_BOOTSTRAP.md`; read CURRENT_STATE for global state, missing or conflicting resume information.
-2. Run `python3 scripts/codex/find_next_session_prompt.py --root . --json`. Use `selected`; when `ambiguous`, ask for the path and use `--prompt`. Never silently select `latest`.
-3. Read the linked `sr_contract.json` (SR Contract 3.1.0 or legacy 3.0.0), `loop_contract.json`, task memory, lots, and passes needed to understand open work.
-4. Reload every inherited open entry in `validated_requests`; never resume from only the most recent feedback item.
-5. Separate requirements that are done, partial, not done, defective, blocked, or awaiting evidence.
-6. Apply the status semantics: incomplete implementation means `repair`; `user_testing` requires complete technical implementation and only real E2E or human acceptance remaining.
-7. If feedback concerns an existing requirement, reopen the original lot by default and present its consolidated checklist. Do not create a new micro-lot.
-8. Run available contract and context-budget checks without mutating project state.
-
-Report:
-
-- SR version and memory used;
-- validated requests and their implementation/evidence state;
-- reopened lots, blockers, and missing evidence;
-- the next coherent scope;
-- the exact human validation required before coding.
-
-Stop and wait for validation.
-
-SR 4 : `NEXT_SESSION_PROMPT.md`, `procedures/resume.md`, Reprise SR stricte, `validate_sr_contract.py`, Propagation Gate.
+Separate implementation, evidence, and human acceptance: incomplete implementation is `repair`; `user_testing` requires technically complete work. Propose one coherent next scope, its verification, and required authority. Do not create a micro-lot for feedback on an existing requirement. Load `NEXT_SESSION_PROMPT.md` and `procedures/resume.md` only when continuity requires them.

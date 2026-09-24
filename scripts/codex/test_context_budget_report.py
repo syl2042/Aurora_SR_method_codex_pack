@@ -75,7 +75,7 @@ class ContextBudgetReportTests(unittest.TestCase):
         self.assertTrue(proc.stdout, proc.stderr)
         return proc.returncode, json.loads(proc.stdout)
 
-    def test_cached_input_is_discounted_for_stop_decision(self) -> None:
+    def test_cached_input_still_counts_for_context_pressure(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
             repo = base / "repo"
@@ -85,13 +85,13 @@ class ContextBudgetReportTests(unittest.TestCase):
 
             code, report = self.run_report(codex_home, repo)
 
-        self.assertEqual(code, 0)
-        self.assertEqual(report["status"], "green")
-        self.assertGreater(report["raw_context_percent"], 80)
-        self.assertLess(report["effective_context_percent"], 15)
+        self.assertEqual(code, 2)
+        self.assertEqual(report["status"], "orange")
+        self.assertGreater(report["context_percent"], 80)
+        self.assertNotIn("effective_context_percent", report)
         self.assertEqual(report["total_token_usage"]["input_tokens"], 150_000_000)
         self.assertEqual(report["rate_limits"]["primary"]["used_percent"], 7.0)
-        self.assertEqual(report["hybrid_budget"]["signals"], [])
+        self.assertIn("context_window_orange", report["budget"]["signals"])
 
     def test_total_token_usage_is_not_used_for_status(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -105,7 +105,7 @@ class ContextBudgetReportTests(unittest.TestCase):
 
         self.assertEqual(code, 0)
         self.assertEqual(report["status"], "green")
-        self.assertLess(report["effective_context_percent"], 2)
+        self.assertLess(report["context_percent"], 5)
 
     def test_uncached_large_session_still_flags_risk(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -119,7 +119,7 @@ class ContextBudgetReportTests(unittest.TestCase):
 
         self.assertEqual(code, 2)
         self.assertEqual(report["status"], "orange")
-        self.assertIn("effective_context_window_orange", report["hybrid_budget"]["signals"])
+        self.assertIn("context_window_orange", report["budget"]["signals"])
 
     def test_ambiguous_exact_cwd_sessions_remain_unreliable(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -157,8 +157,8 @@ class ContextBudgetReportTests(unittest.TestCase):
         self.assertEqual(len(lines), 1)
         self.assertIn("context=green", lines[0])
         self.assertIn("action=continue", lines[0])
-        self.assertIn("basis=effective+uncached+cache+turns+lots", lines[0])
-        self.assertIn("raw_diag=", lines[0])
+        self.assertIn("basis=context|uncached|cache|output|turns|lots", lines[0])
+        self.assertIn("context_pressure=", lines[0])
         self.assertIn("signals=none", lines[0])
         self.assertNotIn(" raw=", lines[0])
         self.assertIn("rl=7.0/45.0", lines[0])

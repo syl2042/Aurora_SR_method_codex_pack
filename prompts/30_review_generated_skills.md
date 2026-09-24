@@ -1,14 +1,7 @@
-# Revue des skills generees
+# Revoir les skills générées
 
-Verifier :
-- noms ;
-- `description` frontmatter sous 1024 caracteres, assez explicite pour declencher la skill ;
-- `agents/openai.yaml` avec `short_description` de 25 a 64 caracteres ;
-- declencheurs ;
-- regles critiques ;
-- references ;
-- absence d'hallucination metier ;
-- distinction skills Codex metier vs skills runtime agents ;
-- stockage local dans `docs/codex/project-skills/` par defaut ;
-- coherence avec `docs/codex/SKILL_DIGEST.md` sans dupliquer tout le contenu des skills ;
-- sortie de `validate_skills.py`.
+Passe en revue les skills locales du projet sans modifier le code applicatif.
+
+Vérifie la précision de chaque `trigger`, les chevauchements, la responsabilité unique, le coût en `token`, la taille des instructions, les duplications avec les procédures ou sources métier, le rangement local et toute hypothèse `MCP` non autorisée.
+
+Classe chaque skill : conserver, fusionner, réviser ou supprimer. Applique seulement les corrections validées, puis exécute `python3 scripts/codex/validate_skills.py` ou le validateur équivalent. Rapporte les décisions, fichiers touchés et résultats.

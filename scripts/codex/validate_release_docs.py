@@ -7,6 +7,7 @@ from pathlib import Path
 
 LANGUAGES = ("en", "fr", "de", "es", "pt")
 RELEASE_HISTORY = (
+    "4.0.0",
     "3.7.0",
     "3.6.0",
     "3.5.2",
@@ -21,37 +22,35 @@ RELEASE_HISTORY = (
 )
 PUBLIC_PROMPTS = {
     "00_install_codex_environment.md": (
-        "4.0.0",
+        "4.1.0",
         "SR_PACK_SOURCE",
         "release_status",
         "source_commit",
-        "implementation_status",
-        "evidence_status",
-        "validated_requests",
+        "MCP_POLICY.yaml",
+        "task_state.yaml",
     ),
     "01_start_sr_session.md": (
-        "NEXT_SESSION_PROMPT.md",
-        "validated_requests",
+        "task_state.yaml",
+        "selected",
+        "ambiguous",
         "repair",
         "user_testing",
     ),
     "05_upgrade_codex_environment.md": (
-        "4.0.0",
+        "4.1.0",
         "SR_PACK_SOURCE",
         "release_status",
         "source_commit",
-        "managed_update",
-        "already_current",
-        "reconciliation_required",
-        "2.2.0",
-        "implementation_status",
-        "evidence_status",
+        "locally_modified",
+        "already_aligned",
+        "MCP_POLICY.yaml",
+        "task_state.yaml",
         "sr_post_install_check.py",
     ),
     "06_verify_sr_installation.md": (
         "read_only",
-        "SR Contract 3.1.0",
-        "audit_sr_task_contracts.py",
+        "MCP_POLICY.yaml",
+        "task_state.yaml",
         "validate_release_docs.py",
         "sr_post_install_check.py",
     ),
@@ -62,27 +61,52 @@ PUBLIC_PROMPTS = {
         "ambiguous",
         "--prompt",
         "je valide",
-        "implementation_status",
-        "evidence_status",
-        "validated_requests",
+        "task_state.yaml",
         "repair",
         "user_testing",
     ),
-    "08_define_sr_passes_from_lots.md": ("SR_PASSES.yaml", "repair", "reopened"),
+    "08_define_sr_passes_from_lots.md": (
+        "SR_PASSES.yaml",
+        "repair",
+        "reopened",
+        "Scope",
+        "Verification",
+        "Activation",
+        "task_state.yaml",
+        "MCP_POLICY.yaml",
+    ),
     "09_define_sr_lots_from_scope.md": (
         "SR_LOTS.yaml",
         "validated_requests",
         "existing_requirement_repair",
+        "Scope",
+        "Verification",
+        "Activation",
+        "task_state.yaml",
+        "MCP_POLICY.yaml",
     ),
-    "15_define_runtime_agents.md": ("Pydantic", "output schema", "invalid_output_policy"),
+    "15_define_runtime_agents.md": (
+        "Pydantic",
+        "output schema",
+        "invalid_output_policy",
+        "Verification",
+        "Activation",
+        "deferred",
+        "MCP_POLICY.yaml",
+    ),
+}
+ROOT_ONLY_PROMPTS = {
+    "10_define_domain_skills_from_cis.md": ("métier", "project-skills", "runtime", "MCP_POLICY.yaml"),
+    "20_generate_domain_skills.md": ("SKILL.md", "project-skills", "references/", "validate_skills.py"),
+    "30_review_generated_skills.md": ("trigger", "token", "MCP", "validate_skills.py"),
 }
 INSTALL_MARKERS = (
-    "4.0.0",
+    "4.1.0",
     "SR_LOTS.yaml",
     "SR_PASSES.yaml",
-    "09_define_sr_lots_from_scope.md",
-    "08_define_sr_passes_from_lots.md",
-    "build_pass_runtime_goal.py",
+    "MCP_POLICY.yaml",
+    "task_state.yaml",
+    "--upgrade",
 )
 
 
@@ -130,6 +154,10 @@ def validate_prompt_policy(path: Path, version: str | None, errors: list[str]) -
         for option in ("--write", "--upgrade", "--fix-safe", "--apply-plan", "--plan-out", "--restore"):
             if re.search(rf"(?<![\w-]){re.escape(option)}(?![\w-])", text):
                 errors.append(f"{path}: mutative option in read-only prompt: {option}")
+    if path.name.startswith(("08_", "09_")):
+        for legacy_instruction in ("Lot Design Evidence Gate", "RepoMap/KG ->"):
+            if legacy_instruction in text:
+                errors.append(f"{path}: obsolete autonomous gate instruction: {legacy_instruction}")
 
 
 def validate_links(root: Path, paths: list[Path], errors: list[str]) -> None:
@@ -197,6 +225,10 @@ def audit(root: Path) -> list[str]:
             path = prompt_root / language / prompt
             require_markers(path, markers, errors)
             validate_prompt_policy(path, version, errors)
+    for prompt, markers in ROOT_ONLY_PROMPTS.items():
+        path = prompt_root / prompt
+        require_markers(path, markers, errors)
+        validate_prompt_policy(path, version, errors)
 
     if source_mode:
         docs_to_check = [changelog_path]
@@ -205,7 +237,7 @@ def audit(root: Path) -> list[str]:
             installation = source_doc(root, "INSTALLATION", language)
             require_markers(
                 readme,
-                ("4.0.0", "CHANGELOG.md", f"prompts/{language}/07_realign_sr_state_after_upgrade.md"),
+                ("4.1.0", "CHANGELOG.md", f"prompts/{language}/07_realign_sr_state_after_upgrade.md"),
                 errors,
             )
             require_markers(installation, INSTALL_MARKERS, errors)

@@ -1,8 +1,8 @@
 ---
 name: aurora-diagnose
 description: >-
-  utiliser avant de corriger un bug, une erreur runtime, un probleme ui, api, db, docker, test ou integration. impose un diagnostic court avant patch avec symptomes, hypotheses, preuves, cause probable, correction minimale et verification.
+  Explain or correct an observed bug, runtime error, failed test, or integration problem.
 ---
 
 # Role
-Diagnostiquer avant de patcher. Pas de refactor opportuniste, pas de fallback silencieux, pas de hors-perimetre sans preuve.
+Establish the observed symptom, decisive evidence and probable cause. Apply the smallest correction, then verify the final behavior. Never manufacture a failure merely to open a gate.

@@ -4,15 +4,14 @@ import argparse
 import json
 from pathlib import Path
 
-REQUIRED = {'fact','evidence','memory','contracts','design-evidence','execution','impact','propagation',
-            'ui','passes','runtime-goal','skills','verification','completion','context','resume','authority'}
+REQUIRED = {'authority','evidence','impact','propagation','ui','passes','execution','memory','verification','build','resume'}
 
 def check(root):
     base=root/'core' if (root/'core/SR_BOOTSTRAP.md').exists() else root/'docs/codex'
     errors=[]
     try:data=json.loads((base/'SR_ROUTES.json').read_text())
     except (ValueError,OSError) as exc:return [str(exc)]
-    if data.get('schema_version') != 1 or data.get('reevaluate_on_discovery') is not True:errors.append('invalid route policy')
+    if data.get('schema_version') != 2 or not data.get('policy'):errors.append('invalid route policy')
     sources=set()
     for route in data.get('routes',[]):
         if not route.get('trigger'):errors.append('route missing trigger')

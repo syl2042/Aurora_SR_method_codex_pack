@@ -6,7 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The
 
 ## [Unreleased]
 
-No unreleased changes yet.
+No change recorded yet.
+
+## [4.1.0] - 2026-09-24
+
+- Short `AGENTS.md` kernel with trigger-driven routes and immediate reconciliation during fresh installs and upgrades.
+- Removal of the TDD workflow and of planning, terminal, diff-review and RepoMap cognitive skills; their useful mechanics stay in the harness.
+- Three final boundaries only: Scope, Verification and Activation. No intentionally failing test or artificial rollback loop.
+- Compact task state for new work while legacy SR and loop contracts remain readable.
+- Explicit MCP policy with core-mode prohibition, deferred Nexus capabilities, allowlists, approvals, result budgets and bounded retries.
+- Content-derived, source-version-agnostic convergence with per-file classification and safe removal of recognized obsolete managed artifacts.
+- Separate context occupancy, uncached input, cached input/write, output and tool-result accounting.
+- Full public, method, prompt, template and machine-metadata documentation alignment.
+- All distributed agent prompts use the lean 4.1 boundaries, conditional MCP policy and compatibility-only legacy fields; prompt validation rejects the obsolete autonomous lot-design gate.
+- Pack tests, fixtures and measurement helpers remain source-only instead of polluting every application repository.
 
 ## [4.0.0] - 2026-09-17
 

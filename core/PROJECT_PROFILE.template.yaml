@@ -7,7 +7,6 @@ project:
 
 codex:
   method_label: "SR Development Method"
-  require_planning_with_files: true
   require_skill_selection: true
   require_sr_bootstrap_on_resume: true
   require_domain_skill_for_business_changes: true
@@ -15,11 +14,11 @@ codex:
   require_sr_harness_for_multi_lot: true
   require_repo_map: true
   require_knowledge_gate: true
-  require_self_evaluation_gate: true
-  require_review_diff: true
+  require_self_evaluation_gate: false
   require_ui_visual_qa_for_ui: true
   require_current_state_update: full_regime_after_upgrade_or_significant_lot
-  max_agents_md_lines: 250
+  max_agents_md_lines: 120
+  max_agents_md_tokens: 1200
 
 knowledge:
   mode: "core" # core | nexus_kg
@@ -28,6 +27,7 @@ knowledge:
     - docs/codex/CODEBASE_MAP.generated.md
   nexus_kg:
     enabled: false
+    policy_file: docs/codex/MCP_POLICY.yaml
     required_for_evidence_gate: false
     freshness_check_required: false
     context_pack_required: false
@@ -40,22 +40,14 @@ skills:
   digest: "docs/codex/SKILL_DIGEST.md"
   allow_project_skill_export_to_global: false
   method:
-    - aurora-planning-with-files
     - aurora-diagnose
-    - aurora-tdd
-    - aurora-review-diff
     - aurora-ui-visual-qa
-    - aurora-to-prd
     - aurora-architecture-check
-    - aurora-repomap-maintainer
-    - aurora-domain-skill-factory
-    - aurora-terminal-token-optimizer
     - aurora-lot-runner
   optional:
     - aurora-to-prd
-  deprecated:
-    - aurora-planning-with-files
-    - aurora-terminal-token-optimizer
+    - aurora-domain-skill-factory
+  deprecated: []
   domain: []
   runtime: []
 
@@ -67,17 +59,15 @@ sr_harness:
   context_pack_file: docs/codex/SR_CONTEXT_PACK.md
   default_autonomy_level: 1
   max_lots_per_session: 3
-  max_repair_attempts_per_lot: 2
+  max_repair_attempts_per_lot: 1
   require_evidence_gate: true
-  require_self_evaluation_gate: true
+  require_self_evaluation_gate: false
   require_design_gate_for_ui: true
   require_ui_test_readiness_gate_for_ui: true
   require_ui_visual_evidence_gate_for_ui: true
   require_context_budget_gate: true
-  require_sr_contract: true
-  sr_contract_file: docs/codex/tasks/YYYY-MM-DD_slug/sr_contract.json
-  require_loop_contract: true
-  loop_contract_file: docs/codex/tasks/YYYY-MM-DD_slug/loop_contract.json
+  task_state_file: docs/codex/tasks/YYYY-MM-DD_slug/task_state.yaml
+  legacy_contracts_readable: true
   require_conversation_transition_decision: true
   require_propagation_gate_for_reference_changes: true
   propagation_gate_policy:
@@ -135,14 +125,13 @@ sr_passes:
 
 context_budget:
   context_window_tokens: 258400
-  mode: "hybrid"
+  mode: "separate_dimensions"
   check_timing: "before_each_significant_response"
   compact_command: "python3 scripts/codex/context_budget_report.py --root . --compact"
   hide_green_status: true
   context_yellow_percent: 70
   context_orange_percent: 82
   context_red_percent: 92
-  cached_input_weight_percent: 10
   uncached_yellow_tokens: 12000
   uncached_orange_tokens: 24000
   uncached_red_tokens: 48000

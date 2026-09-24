@@ -1,24 +1,30 @@
 # Repository Guidelines — {{PROJECT_NAME}}
 
-## Invariants permanents
-- Repondre en francais sauf demande contraire. Respecter les regles metier, permissions et scopes du projet; ne jamais les inventer ni les elargir silencieusement.
-- Ne jamais exposer secrets, tokens serveur ou donnees sensibles dans frontend, logs, docs ou Git.
-- Pas de dependance, migration, connecteur, webhook, cron, upload, relaxation CORS, publication ou action externe sensible hors autorisation.
-- Signaler les interpretations metier concurrentes; ne pas choisir silencieusement. Solution simple couvrant tout le perimetre valide, changements chirurgicaux, aucun refactor opportuniste.
-- Le code prouve le comportement existant; il ne remplace pas les invariants normatifs. Signaler les contradictions.
-- Avant codage : objectif verifiable, hypotheses, approche, skills utiles et verification proportionnee. Une tache non verifiee n'est pas terminee. Distinguer implementation, preuve technique, E2E et acceptation humaine.
+- Follow the nearest `AGENTS.md`; project-local rules override this file.
+- Reply in French unless the user asks otherwise.
+- Preserve secrets, user data, local changes, persistent storage and rollback capacity.
+- Before a non-trivial mutation, state the verifiable objective, assumptions, smallest sufficient approach and planned verification.
+- Do not invent business rules or silently choose between plausible interpretations.
+- Keep changes surgical. No unrelated dependency, refactor, migration, publication or external action.
+- A task is complete only after proportionate final verification. Distinguish source, built artifact, active runtime, smoke, authenticated E2E and human acceptance.
 
 <!-- AURORA_SR_PACK_START -->
-## Entree SR
-- Validation humaine stricte : aucune mutation avant `je valide`, pour le perimetre decrit. Une validation de passe couvre ses lots et tests; aucune micro-validation supplementaire si les gates restent verts. Les autorisations et exceptions explicites de la session (dont BUILD-CYCLE-V2) priment sur les gates generiques; pas d'extension implicite.
-Toute tache non triviale, multi-fichiers, metier, architecture, integration, IA, DB, securite, UI structurante ou reprise applique `docs/codex/SR_BOOTSTRAP.md`. Apres nouvelle conversation, compact ou handoff, reprendre par ce routeur et l'etat court pertinent. Une question simple sans investigation significative n'exige pas toute la methode.
-Les procedures sont chargees au moment de leur declenchement : Fact Gate avant conclusion, Evidence Gate avant recommandation, Lot Completion Gate avant cloture, Propagation Gate pour contrat partage. Le routeur repertorie aussi tous les autres gates; une decouverte impose de reevaluer les routes.
-Les invariants metier locaux, HITL, permissions/scopes, interdits et autorisations explicites restent applicables. Les fichiers SR sont la memoire persistante pour App et CLI.
+## SR Method 4.1
+
+- Load `docs/codex/SR_BOOTSTRAP.md` only for a non-trivial mutation, a multi-lot run or a resume. Simple questions and local edits do not require the full method.
+- Use `docs/codex/SR_ROUTES.json` to load only the procedure triggered by the task. Re-evaluate routes only when a new fact changes the scope.
+- When the user explicitly requires validation before mutation, wait for that validation. One validation covers the bounded pass; do not add micro-gates while scope and safety remain unchanged.
+- Do not create a failing test or red gate on purpose. Verify the final result with the least expensive evidence that covers the risk.
+- Roll back only an activated runtime that is genuinely degraded and has a verified recovery candidate.
+- In `core` knowledge mode, do not load or call MCP. In `nexus_kg` mode, follow `docs/codex/MCP_POLICY.yaml` and use only resolved, allowed capabilities.
+- Store task state only when continuity is useful. Prefer one compact `task_state.yaml`; legacy contracts remain readable but are not required for new V4.1 tasks.
+- Keep raw logs and large artifacts outside model context; inject bounded summaries and stable paths.
 <!-- AURORA_SR_PACK_END -->
 
-## Sources specialisees
-- `DESIGN.md` pour UI significative; `docs/domain/` pour regle metier concernee.
-- `docs/codex/SKILL_DIGEST.md` pour selection ciblee; lire les SKILL.md retenus.
-- `docs/codex/CODEBASE_MAP.md` pour exploration structurelle lorsque les fichiers ne sont pas deja identifies; code reel avant conclusion.
-- `docs/CURRENT_STATE.md` pour etat global, changement transverse ou conflit de reprise.
-Ces references sont des routes conditionnelles, pas une checklist universelle.
+## Conditional sources
+
+- `DESIGN.md`: significant UI work.
+- `docs/domain/`: relevant business rule only.
+- `docs/codex/CODEBASE_MAP.md`: structural exploration when target files are unknown.
+- `docs/CURRENT_STATE.md`: cross-cutting state, significant resume or conflict.
+- `docs/codex/SKILL_DIGEST.md`: only when a specialized skill may apply.

@@ -200,7 +200,7 @@ def contract_template(path: Path) -> dict:
             },
         },
         "skills": {
-            "method": ["aurora-lot-runner", "aurora-planning-with-files", "aurora-review-diff"],
+            "method": ["aurora-lot-runner"],
             "domain": [],
         },
         "plan": [

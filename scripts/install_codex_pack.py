@@ -3,13 +3,14 @@ import argparse, sys
 from pathlib import Path
 MAP={
  'CHANGELOG.md':'docs/codex/CHANGELOG.md',
- 'core/AGENTS.template.md':'AGENTS.md','core/SR_ROUTES.json':'docs/codex/SR_ROUTES.json','core/DESIGN.template.md':'DESIGN.md','core/CURRENT_STATE.template.md':'docs/CURRENT_STATE.md','core/PROJECT_PROFILE.template.yaml':'docs/codex/PROJECT_PROFILE.yaml','core/SKILL_MAP.template.md':'docs/codex/SKILL_MAP.md','core/SKILL_DIGEST.md':'docs/codex/SKILL_DIGEST.md','core/V3_UPGRADE_TEST_PLAN.md':'docs/codex/V3_UPGRADE_TEST_PLAN.md','core/WORKFLOW_CODEX.md':'docs/codex/WORKFLOW_CODEX.md','core/SR_BOOTSTRAP.md':'docs/codex/SR_BOOTSTRAP.md','core/SR_METHOD.md':'docs/codex/SR_METHOD.md','core/SR_DEVELOPMENT_METHOD.md':'docs/codex/SR_DEVELOPMENT_METHOD.md','core/SR_AGENT_METHOD.md':'docs/codex/SR_AGENT_METHOD.md','core/SR_HARNESS_METHOD.md':'docs/codex/SR_HARNESS_METHOD.md','core/LOT_EXECUTION_METHOD.md':'docs/codex/LOT_EXECUTION_METHOD.md','core/SR_PACK_VERSION.json':'docs/codex/SR_PACK_VERSION.json','core/AI_AGENT_RUNTIME_METHOD.md':'docs/codex/AI_AGENT_RUNTIME_METHOD.md','core/DOMAIN_EXPERTISE_BOOTSTRAP.md':'docs/codex/DOMAIN_EXPERTISE_BOOTSTRAP.md','core/PROJECT_SKILLS_POLICY.md':'docs/codex/PROJECT_SKILLS_POLICY.md','core/TOKEN_OPTIMIZATION.md':'docs/codex/TOKEN_OPTIMIZATION.md','core/REPO_MAP_POLICY.md':'docs/codex/REPO_MAP_POLICY.md','core/CODEBASE_MAP.md':'docs/codex/CODEBASE_MAP.md','core/CODEBASE_MAP.generated.md':'docs/codex/CODEBASE_MAP.generated.md','blueprints/sr_lots.template.yaml':'docs/codex/SR_LOTS.yaml','blueprints/sr_passes.template.yaml':'docs/codex/SR_PASSES.yaml','blueprints/sr_inbox.template.yaml':'docs/codex/SR_INBOX.yaml','blueprints/nexus_context_pack.template.md':'docs/codex/NEXUS_CONTEXT_PACK.template.md','adr/ADR_TEMPLATE.md':'docs/adr/ADR_TEMPLATE.md'}
+ 'core/AGENTS.template.md':'AGENTS.md','core/SR_ROUTES.json':'docs/codex/SR_ROUTES.json','core/MCP_POLICY.template.yaml':'docs/codex/MCP_POLICY.yaml','core/DESIGN.template.md':'DESIGN.md','core/CURRENT_STATE.template.md':'docs/CURRENT_STATE.md','core/PROJECT_PROFILE.template.yaml':'docs/codex/PROJECT_PROFILE.yaml','core/SKILL_MAP.template.md':'docs/codex/SKILL_MAP.md','core/SKILL_DIGEST.md':'docs/codex/SKILL_DIGEST.md','core/UPGRADE_TEST_PLAN.md':'docs/codex/UPGRADE_TEST_PLAN.md','core/WORKFLOW_CODEX.md':'docs/codex/WORKFLOW_CODEX.md','core/SR_BOOTSTRAP.md':'docs/codex/SR_BOOTSTRAP.md','core/SR_METHOD.md':'docs/codex/SR_METHOD.md','core/SR_DEVELOPMENT_METHOD.md':'docs/codex/SR_DEVELOPMENT_METHOD.md','core/SR_AGENT_METHOD.md':'docs/codex/SR_AGENT_METHOD.md','core/SR_HARNESS_METHOD.md':'docs/codex/SR_HARNESS_METHOD.md','core/LOT_EXECUTION_METHOD.md':'docs/codex/LOT_EXECUTION_METHOD.md','core/SR_PACK_VERSION.json':'docs/codex/SR_PACK_VERSION.json','core/AI_AGENT_RUNTIME_METHOD.md':'docs/codex/AI_AGENT_RUNTIME_METHOD.md','core/DOMAIN_EXPERTISE_BOOTSTRAP.md':'docs/codex/DOMAIN_EXPERTISE_BOOTSTRAP.md','core/PROJECT_SKILLS_POLICY.md':'docs/codex/PROJECT_SKILLS_POLICY.md','core/TOKEN_OPTIMIZATION.md':'docs/codex/TOKEN_OPTIMIZATION.md','core/REPO_MAP_POLICY.md':'docs/codex/REPO_MAP_POLICY.md','core/CODEBASE_MAP.md':'docs/codex/CODEBASE_MAP.md','core/CODEBASE_MAP.generated.md':'docs/codex/CODEBASE_MAP.generated.md','blueprints/sr_lots.template.yaml':'docs/codex/SR_LOTS.yaml','blueprints/sr_passes.template.yaml':'docs/codex/SR_PASSES.yaml','blueprints/sr_inbox.template.yaml':'docs/codex/SR_INBOX.yaml','blueprints/nexus_context_pack.template.md':'docs/codex/NEXUS_CONTEXT_PACK.template.md','adr/ADR_TEMPLATE.md':'docs/adr/ADR_TEMPLATE.md'}
 DIRS={'core/procedures':'docs/codex/procedures','tasks/_TEMPLATE':'docs/codex/tasks/_TEMPLATE','prompts':'docs/codex/prompts','scripts/codex':'scripts/codex','project-skills':'docs/codex/project-skills','skills-method':'docs/codex/skills-method'}
 PROJECT_OWNED={
     'AGENTS.md',
     'DESIGN.md',
     'docs/CURRENT_STATE.md',
     'docs/codex/PROJECT_PROFILE.yaml',
+    'docs/codex/MCP_POLICY.yaml',
     'docs/codex/SKILL_MAP.md',
     'docs/codex/CODEBASE_MAP.md',
     'docs/codex/CODEBASE_MAP.generated.md',
@@ -39,23 +40,23 @@ AGENTS_SR_BLOCK = agents_sr_block(Path(__file__).resolve().parents[1])
 SKILL_MAP_SR_BLOCK = """\
 
 <!-- AURORA_SR_PACK_START -->
-## SR Method required skills
+## SR Method 4.1 skills
 
 Skills metier Codex et Skills runtime doivent etre declares ici ou dans `PROJECT_PROFILE.yaml`.
 
-Consulter `docs/codex/SKILL_DIGEST.md` pour choisir les skills sans charger tous les `SKILL.md`.
+Par defaut :
 
-- `aurora-planning-with-files`
 - `aurora-diagnose`
-- `aurora-review-diff`
 - `aurora-ui-visual-qa`
 - `aurora-architecture-check`
-- `aurora-repomap-maintainer`
-- `aurora-domain-skill-factory`
 - `aurora-lot-runner`
-- `aurora-terminal-token-optimizer`
-- `aurora-tdd`
+
+Facultatives :
+
+- `aurora-domain-skill-factory`
 - `aurora-to-prd`
+
+Consulter `docs/codex/SKILL_DIGEST.md` seulement quand une de ces specialisations peut s'appliquer. Le planning, la compaction terminal, la revue finale et RepoMap sont des mecanismes du harness, pas des skills cognitives. SR 4.1 n'impose aucun TDD ni test rouge volontaire.
 
 ## Knowledge mode
 

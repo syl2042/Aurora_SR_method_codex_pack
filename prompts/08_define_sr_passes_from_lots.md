@@ -1,81 +1,19 @@
-# Definir les passes SR a partir des lots existants
+# Définir les passes SR 4.1
 
-Tu travailles dans un repo deja equipe de la SR Method.
+Ne code pas l'application.
 
-Objectif : proposer ou mettre a jour `docs/codex/SR_PASSES.yaml` a partir de `docs/codex/SR_LOTS.yaml`, sans modifier le code applicatif.
+Lis le `AGENTS.md` applicable, `docs/codex/SR_LOTS.yaml` et, s'il existe, `docs/codex/SR_PASSES.yaml`. N'ouvre `docs/CURRENT_STATE.md`, `task_state.yaml` ou les fichiers du produit que lorsqu'ils sont nécessaires pour lever une ambiguïté.
 
-Ce n'est pas une passe de developpement.
-Ce n'est pas une migration applicative.
+Regroupe les lots `repair`, `reopened` ou `validated` dans le minimum de passes cohérentes. Une passe doit porter un résultat vérifiable, pas une micro-étape.
 
-Regles :
+Pour chaque passe, propose :
 
-- Ne modifie aucun code applicatif.
-- Ne change aucun statut de lot sans preuve et validation.
-- Ne marque pas une passe `validated` sans validation utilisateur explicite.
-- Ne cree pas de contrats retroactifs pour les anciennes task memories.
-- Une passe regroupe des lots ; elle ne remplace jamais les criteres et gates des lots.
+- l'objectif et le `Scope` autorisé ;
+- les dépendances et l'ordre utile ;
+- une `Verification` finale proportionnée ;
+- les éventuelles actions d'`Activation`, séparées de la preuve source ;
+- les décisions humaines et conditions d'arrêt réelles.
 
-Sources a lire :
+Ne crée ni gate documentaire autonome, ni statut sans preuve, ni appel MCP dans le cœur de la méthode. Une capacité MCP n'est permise que par `docs/codex/MCP_POLICY.yaml`. Conserve `design_evidence` ou `validated_request_id` uniquement si le schéma historique les exige, comme champs de compatibilité et non comme nouvelles gates.
 
-1. `AGENTS.md`
-2. `docs/codex/SR_BOOTSTRAP.md`
-3. `docs/codex/SR_HARNESS_METHOD.md`
-4. `docs/codex/LOT_EXECUTION_METHOD.md`
-5. `docs/CURRENT_STATE.md`
-6. `docs/codex/SR_LOTS.yaml`
-7. `docs/codex/SR_PASSES.yaml` si present
-8. `docs/codex/CODEBASE_MAP.md`
-9. Les dernieres task memories pertinentes
-
-Methode :
-
-1. Lancer si possible :
-   - `python3 scripts/codex/audit_sr_project.py --root .`
-   - `python3 scripts/codex/validate_lot_contract.py --file docs/codex/SR_LOTS.yaml`
-   - `python3 scripts/codex/context_budget_report.py --root . --compact`
-2. Classer les lots :
-   - `done` ou `user_testing` : prerequis possibles ;
-   - `repair`, `reopened` ou `validated` : candidats executables, avec priorite a la reprise consolidee ;
-   - `planned` ou `proposed` : a cadrer avant execution ;
-   - `blocked`, `deferred`, `superseded` : non executables.
-3. Verifier le Lot Design Evidence Gate :
-   - un lot `proposed` peut rester exploratoire ;
-   - un lot `planned`, `validated`, `in_progress`, `repair` ou `reopened` doit avoir `design_evidence.status: pass` ou `not_applicable` justifie ;
-   - si le gate manque ou reste `pending/fail`, exclure le lot d'une passe executable et recommander son cadrage.
-4. Construire le graphe :
-   - `depends_on` ;
-   - `blocked_by` ;
-   - `impacts` et `impacted_by` ;
-   - stop conditions et validations humaines.
-5. Proposer des passes :
-   - un socle par passe quand DB/API/UI/auth sont fortement lies ;
-   - pas plus de `max_lots_per_pass` sauf validation ;
-   - remonter dans la passe tout lot prerequis place plus tard ;
-   - sortir de la passe tout lot qui exige une validation E2E bloquante avant le reste.
-6. Pour chaque passe, declarer :
-   - lots inclus et ordre ;
-   - rationale ;
-   - preflight : secrets, identifiants, assets, services, validations humaines, migrations, actions externes ;
-   - sources partagees ;
-   - E2E groupe ou par lot ;
-   - stop conditions.
-7. Preparer la suite d'execution sans la lancer :
-   - si une passe est proposee pour execution avec Codex CLI `/goal`, indiquer que `pass_runtime_goal.md` devra etre genere apres validation ;
-   - rappeler le Goal Length Gate : `max_goal_command_chars: 1000`, `hard_limit: 4000` ;
-   - rappeler qu'une passe suivante ne doit pas etre enchainee sans validation utilisateur.
-8. Creer ou mettre a jour `docs/codex/SR_PASSES.yaml` uniquement apres validation utilisateur si le projet impose la validation stricte.
-9. Valider :
-   - `python3 scripts/codex/validate_pass_contract.py --file docs/codex/SR_PASSES.yaml --lots-file docs/codex/SR_LOTS.yaml`
-
-Sortie attendue :
-
-- passes proposees ;
-- lots exclus et raison ;
-- lots exclus pour Lot Design Evidence Gate manquant ou incomplet ;
-- questions bloquantes ;
-- preflight a regler avant chaque passe ;
-- E2E groupe recommande ;
-- Pass Runtime Goal a generer apres validation, si applicable ;
-- fichiers SR modifies ;
-- resultat de validation ;
-- prochain lot ou prochaine passe recommande.
+Présente d'abord le diff proposé pour `SR_PASSES.yaml`. Si le projet impose une validation stricte, attends-la avant d'écrire. Mets à jour `task_state.yaml` seulement si la continuité de session le justifie, puis exécute le validateur de contrats disponible.

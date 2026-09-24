@@ -1,31 +1,11 @@
-# Definir les skills metier Codex depuis un export domaine
+# Définir les skills métier nécessaires
 
-Ne code rien.
+Ne code pas et ne génère pas encore les skills.
 
-Lire :
-- `docs/codex/DOMAIN_EXPERTISE_BOOTSTRAP.md`
-- `docs/codex/SKILL_DIGEST.md`
-- codex_domain_pack ou export domaine
-- PRD, OpenAPI, docs/domain
-- PROJECT_PROFILE
-- SKILL_MAP
-- modele DB, routes, ecrans metier si disponibles
+Utilise ce prompt seulement lorsqu'un manque métier confirmé ne peut pas être couvert par les instructions ou skills existants. Lis le `AGENTS.md` applicable, la demande validée et le minimum de sources métier nécessaires.
 
-Produire :
-- cartographie metier ;
-- objets metier ;
-- workflows ;
-- actions sensibles ;
-- regles critiques ;
-- validations humaines ;
-- risques ;
-- skills Codex metier proposees ;
-- skills runtime agents a distinguer ;
-- docs/domain manquants ;
-- questions PM.
+Propose le plus petit ensemble de skills Codex locales au projet, sous `docs/codex/project-skills/`. Pour chaque skill : déclencheur précis, responsabilité unique, sources de vérité, limites, sorties attendues et chevauchements évités. Sépare explicitement ces skills d'assistance des agents `runtime` de l'application.
 
-Regle : si une future tache metier n'a pas de skill Codex pertinente, proposer la skill avant tout code.
-Les skills metier Codex proposees doivent etre locales au projet par defaut dans `docs/codex/project-skills/`.
-Chaque proposition doit contenir une description frontmatter de 300 a 800 caracteres, sous la limite 1024 caracteres, avec role, declencheurs, objets couverts, risques et validations humaines.
+N'invente aucune règle métier. Ne rends aucun MCP obligatoire ; toute capacité externe doit respecter `docs/codex/MCP_POLICY.yaml`.
 
-Stop apres proposition.
+Rends une carte concise des skills proposées, des risques, des décisions humaines et des sources manquantes, puis attends la validation avant génération.

@@ -1,5 +1,5 @@
-# Rafraichir le RepoMap
+# Rafraichir la carte du depot
 
-Lire REPO_MAP_POLICY, identifier le mode connaissance (`core` ou `nexus_kg`), lancer generate_repo_map.py --write, lire le diff, mettre a jour CODEBASE_MAP.md seulement si utile, ne pas modifier le code applicatif.
+Utiliser ce prompt seulement si une modification structurelle rend la carte existante trompeuse. Lire `REPO_MAP_POLICY.md`, lancer `generate_repo_map.py --write`, puis verifier le diff. Mettre `CODEBASE_MAP.md` a jour uniquement pour les points de navigation durables.
 
-Si `nexus_kg` est actif, verifier aussi si le KG doit etre rafraichi par l'outil Nexus disponible. Le RepoMap reste obligatoire et le KG ne remplace pas la lecture du code reel.
+En mode `core`, aucun appel MCP. En mode `nexus_kg`, suivre `MCP_POLICY.yaml` et ne demander que la capacite de mise a jour explicitement autorisee. La carte et le KG orientent; le code reel tranche.

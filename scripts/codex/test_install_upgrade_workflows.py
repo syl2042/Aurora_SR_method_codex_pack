@@ -119,17 +119,19 @@ class InstallUpgradeWorkflowTests(unittest.TestCase):
             self.assertIn("dry run: no files written", result.stdout)
             self.assertEqual([], list(target.iterdir()))
 
-    def test_fresh_install_targets_sr_400_contracts(self):
+    def test_fresh_install_targets_sr_410_kernel(self):
         with tempfile.TemporaryDirectory() as tmp:
             target = Path(tmp) / "fresh"
             target.mkdir()
             result = run_installer(target, "--write")
             self.assertEqual(result.returncode, 0, result.stderr)
             version = json.loads((target / "docs/codex/SR_PACK_VERSION.json").read_text())
-            self.assertEqual(version["version"], "4.0.0")
-            contract = (target / "docs/codex/tasks/_TEMPLATE/sr_contract.json").read_text()
-            self.assertIn('"implementation_status"', contract)
-            self.assertIn('"evidence_status"', contract)
+            self.assertEqual(version["version"], "4.1.0")
+            self.assertTrue((target / "docs/codex/tasks/_TEMPLATE/task_state.yaml").exists())
+            self.assertTrue((target / "docs/codex/MCP_POLICY.yaml").exists())
+            self.assertLessEqual(len((target / "AGENTS.md").read_text().splitlines()), 120)
+            self.assertEqual([], list((target / "scripts/codex").glob("test_*")))
+            self.assertFalse((target / "scripts/codex/fixtures").exists())
             self.assertTrue((target / "docs/codex/prompts/00_install_codex_environment.md").exists())
             self.assertTrue((target / "docs/codex/CHANGELOG.md").exists())
             self.assertTrue((target / "scripts/codex/validate_release_docs.py").exists())
@@ -141,6 +143,7 @@ class InstallUpgradeWorkflowTests(unittest.TestCase):
                 timeout=120,
             )
             self.assertEqual(post_check.returncode, 0, post_check.stdout + post_check.stderr)
+            self.assertEqual([], list((target / "docs/codex/tasks").glob("*_sr-post-install-check")))
 
     def test_fresh_write_refuses_existing_sr_installation(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -175,7 +178,7 @@ class InstallUpgradeWorkflowTests(unittest.TestCase):
                 result = run_installer(target, "--upgrade")
                 self.assertEqual(result.returncode, 0, result.stderr)
                 version = json.loads((target / "docs/codex/SR_PACK_VERSION.json").read_text())
-                self.assertEqual(version["version"], "4.0.0")
+                self.assertEqual(version["version"], "4.1.0")
                 self.assertEqual(
                     (target / "docs/codex/SR_LOTS.yaml").read_text(encoding="utf-8"),
                     expected_lots,
@@ -193,8 +196,8 @@ class InstallUpgradeWorkflowTests(unittest.TestCase):
                 result = run_installer(target, "--upgrade")
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                 self.assertIn("USER_LOCAL_RULE", (target / "AGENTS.md").read_text(encoding="utf-8"))
-                self.assertIn("Fact Gate", (target / "AGENTS.md").read_text(encoding="utf-8"))
-                self.assertIn("Lot Completion Gate", (target / "AGENTS.md").read_text(encoding="utf-8"))
+                self.assertIn("SR Method 4.1", (target / "AGENTS.md").read_text(encoding="utf-8"))
+                self.assertNotIn("Lot Completion Gate", (target / "AGENTS.md").read_text(encoding="utf-8"))
                 self.assertEqual(
                     (ROOT / "CHANGELOG.md").read_text(encoding="utf-8"),
                     (target / "docs/codex/CHANGELOG.md").read_text(encoding="utf-8"),
@@ -271,20 +274,25 @@ class InstallUpgradeWorkflowTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_reader_paths_are_explicit_in_every_distributed_language(self):
+        version_terms = {"en": "version", "fr": "version", "de": "version", "es": "versión", "pt": "versão"}
         for language in LANGUAGES:
             fresh = (ROOT / f"prompts/{language}/00_install_codex_environment.md").read_text()
             upgrade = (ROOT / f"prompts/{language}/05_upgrade_codex_environment.md").read_text()
             installation = (ROOT / f"INSTALLATION.{language}.md").read_text() if language != "en" else (ROOT / "INSTALLATION.md").read_text()
             readme = (ROOT / f"README.{language}.md").read_text() if language != "en" else (ROOT / "README.md").read_text()
-            for marker in ("4.0.0", "3.1.0", "implementation_status", "evidence_status", "--write"):
+            for marker in ("4.1.0", "MCP_POLICY.yaml", "task_state.yaml", "--write"):
                 self.assertIn(marker, fresh, f"{language} fresh prompt missing {marker}")
                 self.assertIn(marker, installation, f"{language} installation guide missing {marker}")
             self.assertIn("passes: []", fresh, f"{language} fresh prompt must keep the pass registry empty")
             self.assertIn("passes: []", installation, f"{language} installation guide must explain the empty pass registry")
-            for marker in ("repository", "2.2.0", "4.0.0", "3.1.0", "implementation_status", "evidence_status", "validated_requests", "passes: []", "sr_post_install_check.py"):
+            for marker in ("4.1.0", "locally_modified", "already_aligned", "MCP_POLICY.yaml", "task_state.yaml", "sr_post_install_check.py"):
                 self.assertIn(marker, upgrade, f"{language} upgrade prompt missing {marker}")
-            self.assertIn("4.0.0", readme, f"{language} README missing 4.0.0")
-            self.assertIn("2.2.0", readme, f"{language} README missing legacy upgrade coverage")
+            self.assertIn("4.1.0", readme, f"{language} README missing 4.1.0")
+            self.assertIn(
+                version_terms[language],
+                readme.lower(),
+                f"{language} README must explain version-agnostic upgrade",
+            )
 
 
 if __name__ == "__main__":
